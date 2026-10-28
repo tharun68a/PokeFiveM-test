@@ -19,7 +19,7 @@ RegisterNetEvent('pokefivem:server:triggerCallback', function(name, requestId, .
             TriggerClientEvent('pokefivem:client:serverCallback', src, requestId, ...)
         end, ...)
     else
-        print(string.format('^1[PokeFiveM - ERROR] Server Callback "%s" does not exist!^7', name))
+        PokeCore.Functions.Log('Callback', string.format('Server Callback "%s" does not exist! (Requested by Src: %s)', name, src), 'error')
         TriggerClientEvent('pokefivem:client:serverCallback', src, requestId, nil)
     end
 end)

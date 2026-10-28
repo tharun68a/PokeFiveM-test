@@ -62,6 +62,7 @@ RegisterCommand('givemoney', function(source, args)
     local targetPlayer = PokeCore.Functions.GetPlayer(targetId)
     if targetPlayer then
         targetPlayer.Functions.AddMoney(account, amount, 'Admin Grant')
+        PokeCore.Functions.Log('Admin', string.format('%s executed /givemoney: gave %d %s to %s (ID: %s).', (src > 0 and GetPlayerName(src)) or 'Console', amount, account, targetPlayer.PlayerData.name, targetId), 'warn')
         PokeCore.Functions.Notify(src, string.format("Gave $%d (%s) to %s.", amount, account, targetPlayer.PlayerData.name), 'success')
     else
         PokeCore.Functions.Notify(src, "Target player not found online.", 'error')
@@ -83,6 +84,7 @@ RegisterCommand('setjob', function(source, args)
     local targetPlayer = PokeCore.Functions.GetPlayer(targetId)
     if targetPlayer then
         if targetPlayer.Functions.SetJob(jobName, grade) then
+            PokeCore.Functions.Log('Admin', string.format('%s executed /setjob: set %s (ID: %s) job to %s (Grade %d).', (src > 0 and GetPlayerName(src)) or 'Console', targetPlayer.PlayerData.name, targetId, jobName, grade), 'warn')
             PokeCore.Functions.Notify(src, string.format("Set %s's job to %s (Grade %d).", targetPlayer.PlayerData.name, jobName, grade), 'success')
         else
             PokeCore.Functions.Notify(src, "Invalid job name or grade.", 'error')
@@ -157,6 +159,7 @@ RegisterCommand('spawnwild', function(source, args)
     }
 
     TriggerClientEvent('pokefivem:client:spawnWildPokemon', -1, ActiveWildPokemon[wildId])
+    PokeCore.Functions.Log('Admin', string.format('%s spawned wild %s (Lv. %d%s) [ID: %s].', (src > 0 and GetPlayerName(src)) or 'Console', pData.name, level, ActiveWildPokemon[wildId].is_shiny and ' ★SHINY★' or '', wildId), 'info')
     PokeCore.Functions.Notify(src, string.format('Spawned wild %s (Lv. %d)!', pData.name, level), 'success')
 end, false)
 
@@ -197,6 +200,7 @@ RegisterCommand('givepokemon', function(source, args)
             boxNumber = isPartyFull and 1 or nil
         }, function(poke)
             RegisterPokedexEntry(targetId, pokedexId, true)
+            PokeCore.Functions.Log('Admin', string.format('%s gave %s (Lv. %d%s) to %s (ID: %s).', (src > 0 and GetPlayerName(src)) or 'Console', pData.name, level, isShiny and ' ★SHINY★' or '', player.PlayerData.name, targetId), 'warn')
             PokeCore.Functions.Notify(targetId, string.format('Received %s (Lv. %d)!', pData.name, level), 'success')
             TriggerEvent('pokefivem:server:refreshParty', targetId)
         end)
@@ -218,6 +222,7 @@ RegisterCommand('giveitem', function(source, args)
     local targetPlayer = PokeCore.Functions.GetPlayer(targetId)
     if targetPlayer then
         targetPlayer.Functions.AddItem(itemKey, count)
+        PokeCore.Functions.Log('Admin', string.format('%s gave %dx %s to %s (ID: %s).', (src > 0 and GetPlayerName(src)) or 'Console', count, itemKey, targetPlayer.PlayerData.name, targetId), 'warn')
         PokeCore.Functions.Notify(src, string.format("Gave %dx %s to %s.", count, itemKey, targetPlayer.PlayerData.name), 'success')
     else
         PokeCore.Functions.Notify(src, "Target player not found online.", 'error')

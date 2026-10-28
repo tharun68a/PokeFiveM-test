@@ -30,6 +30,7 @@ function PokeCore.Player.CreatePlayer(src, data)
         self.PlayerData.accounts[account] = self.PlayerData.accounts[account] + amount
         self.Functions.UpdatePlayerData()
         TriggerClientEvent('pokefivem:client:onMoneyChange', self.PlayerData.source, account, amount, 'add', self.PlayerData.accounts[account])
+        PokeCore.Functions.Log('Economy', string.format('Trainer %s received %d %s (Reason: %s, Balance: %d)', self.PlayerData.name, amount, account, reason or 'N/A', self.PlayerData.accounts[account]), 'info')
         return true
     end
 
@@ -45,6 +46,7 @@ function PokeCore.Player.CreatePlayer(src, data)
         self.PlayerData.accounts[account] = self.PlayerData.accounts[account] - amount
         self.Functions.UpdatePlayerData()
         TriggerClientEvent('pokefivem:client:onMoneyChange', self.PlayerData.source, account, amount, 'remove', self.PlayerData.accounts[account])
+        PokeCore.Functions.Log('Economy', string.format('Trainer %s spent %d %s (Reason: %s, Balance: %d)', self.PlayerData.name, amount, account, reason or 'N/A', self.PlayerData.accounts[account]), 'info')
         return true
     end
 
@@ -54,6 +56,7 @@ function PokeCore.Player.CreatePlayer(src, data)
         self.PlayerData.accounts[account] = math.max(0, amount)
         self.Functions.UpdatePlayerData()
         TriggerClientEvent('pokefivem:client:onMoneyChange', self.PlayerData.source, account, amount, 'set', self.PlayerData.accounts[account])
+        PokeCore.Functions.Log('Economy', string.format('Trainer %s %s balance set to %d (Reason: %s)', self.PlayerData.name, account, amount, reason or 'N/A'), 'info')
         return true
     end
 
@@ -86,6 +89,7 @@ function PokeCore.Player.CreatePlayer(src, data)
 
         self.Functions.UpdatePlayerData()
         TriggerClientEvent('pokefivem:client:onJobUpdate', self.PlayerData.source, self.PlayerData.job)
+        PokeCore.Functions.Log('Job', string.format('Trainer %s job updated to %s (%s, Grade: %s)', self.PlayerData.name, jobDef.label, gradeDef.name, grade), 'info')
         return true
     end
 
@@ -374,6 +378,7 @@ function PokeCore.Player.Save(source)
                 player.PlayerData.citizenid, it.name, it.count, it.slot, json.encode(it.metadata or {})
             })
         end
+        PokeCore.Functions.Log('Player', string.format('Saved trainer %s (%s) profile & inventory.', player.PlayerData.name, player.PlayerData.citizenid), 'debug')
     end)
 end
 
@@ -381,11 +386,16 @@ end
 CreateThread(function()
     while true do
         Wait(5 * 60 * 1000)
+        local count = 0
         for src, _ in pairs(PokeCore.Players) do
             if PokeCore.Players[src] then
                 PokeCore.Player.Save(src)
+                count = count + 1
                 Wait(250)
             end
+        end
+        if count > 0 then
+            PokeCore.Functions.Log('Player', string.format('Auto-save cycle completed for %d active trainer(s).', count), 'info')
         end
     end
 end)

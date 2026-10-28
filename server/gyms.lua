@@ -33,6 +33,7 @@ RegisterNetEvent('pokefivem:server:challengeGym', function(gymId)
     end
 
     -- Initiate Gym Battle
+    PokeCore.Functions.Log('Gyms', string.format('Trainer %s (Src: %s) challenged Gym Leader %s (%s, %s).', player.PlayerData.name, src, gym.leader, gym.badge, gym.name), 'info')
     TriggerClientEvent('pokefivem:client:startGymBattle', src, gym)
 end)
 
@@ -79,6 +80,7 @@ RegisterNetEvent('pokefivem:server:gymDefeated', function(gymId)
             args = { "🏆 Gym Challenge", string.format("Trainer ^3%s^0 has defeated Gym Leader ^2%s^0 and claimed the ^3%s^0!", trainerName, gym.leader, gym.badge) }
         })
 
+        PokeCore.Functions.Log('Gyms', string.format('Trainer %s defeated Gym Leader %s and claimed %s! (Reward: ₽%d)', trainerName, gym.leader, gym.badge, gym.reward_money), 'info')
         PokeCore.Functions.Notify(src, string.format('Congratulations! You earned the %s and ₽%d!', gym.badge, gym.reward_money), 'success')
     end
 end)

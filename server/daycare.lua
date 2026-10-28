@@ -31,6 +31,7 @@ RegisterNetEvent('pokefivem:server:daycareDeposit', function(p1Id, p2Id)
         egg_ready = false
     }
 
+    PokeCore.Functions.Log('Daycare', string.format('Trainer %s deposited Pokémon #%s and #%s to Daycare (Fee: ₽500).', player.PlayerData.name, tostring(p1Id), tostring(p2Id)), 'info')
     PokeCore.Functions.Notify(src, 'Pokémon deposited at the Daycare! Check back later for an Egg.', 'success')
 end)
 
@@ -80,7 +81,9 @@ RegisterNetEvent('pokefivem:server:checkDaycare', function()
         MySQL.insert([[
             INSERT INTO pokefivem_pokemon (owner, pokedex_id, nickname, level, current_hp, max_hp, ivs, evs, moves, is_shiny, storage_type, storage_index)
             VALUES (?, ?, ?, 1, 20, 20, '{"hp":31,"attack":31,"defense":31,"speed":31,"spatk":31,"spdef":31}', '{"hp":0,"attack":0,"defense":0,"speed":0,"spatk":0,"spdef":0}', '["tackle"]', ?, 'party', ?)
-        ]], { cid, babyDexId, "Mystery Egg", eggPokemon.is_shiny and 1 or 0, eggPokemon.storage_index })
+        ]], { cid, babyDexId, "Mystery Egg", eggPokemon.is_shiny and 1 or 0, eggPokemon.storage_index }, function(eggId)
+            PokeCore.Functions.Log('Daycare', string.format('Trainer %s received a Pokémon Egg (Species #%d%s) from Daycare.', player.PlayerData.name, babyDexId, eggPokemon.is_shiny and ' ★SHINY★' or ''), 'info')
+        end)
 
         data.egg_ready = false
         data.deposit_time = os.time()

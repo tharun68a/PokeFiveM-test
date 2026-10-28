@@ -41,6 +41,7 @@ RegisterCommand('challenge', function(source, args)
     local cName = challenger.PlayerData.charinfo.firstname .. ' ' .. challenger.PlayerData.charinfo.lastname
     local tName = target.PlayerData.charinfo.firstname .. ' ' .. target.PlayerData.charinfo.lastname
 
+    PokeCore.Functions.Log('PvP', string.format('Trainer %s challenged Trainer %s to a Pokémon duel.', cName, tName), 'info')
     PokeCore.Functions.Notify(source, string.format('Challenged Trainer %s to a Pokémon duel!', tName), 'info')
     PokeCore.Functions.Notify(targetId, string.format('Trainer %s challenged you to a Pokémon duel! Type /acceptduel or /denyduel', cName), 'success')
 end)
@@ -78,6 +79,7 @@ RegisterCommand('acceptduel', function(source)
         turn = p1
     }
 
+    PokeCore.Functions.Log('PvP', string.format('PvP Duel [%s] started between %s (Src: %s) and %s (Src: %s).', duelId, player1.PlayerData.name, p1, player2.PlayerData.name, p2), 'info')
     TriggerClientEvent('pokefivem:client:startPvPDuel', p1, duelId, player2.PlayerData.charinfo, p2Party[1], true)
     TriggerClientEvent('pokefivem:client:startPvPDuel', p2, duelId, player1.PlayerData.charinfo, p1Party[1], false)
 
@@ -89,6 +91,7 @@ end)
 RegisterCommand('denyduel', function(source)
     local req = activeDuelRequests[source]
     if req then
+        PokeCore.Functions.Log('PvP', string.format('Trainer (Src: %s) declined PvP duel challenge from Src %s.', source, req.challenger), 'info')
         PokeCore.Functions.Notify(req.challenger, 'Trainer declined your duel request.', 'error')
         PokeCore.Functions.Notify(source, 'Declined duel challenge.', 'info')
         activeDuelRequests[source] = nil
@@ -110,6 +113,7 @@ RegisterNetEvent('pokefivem:server:pvpAction', function(duelId, actionType, acti
         TriggerClientEvent('pokefivem:client:syncPvPAttack', opponent, moveName, damage)
         TriggerClientEvent('pokefivem:client:notify', opponent, string.format('Opponent used %s, dealing %d damage!', moveName, damage), 'info')
     elseif actionType == 'forfeit' then
+        PokeCore.Functions.Log('PvP', string.format('PvP Duel [%s] ended via forfeit by Src %s.', duelId, src), 'info')
         TriggerClientEvent('pokefivem:client:endPvPDuel', duel.p1, opponent)
         TriggerClientEvent('pokefivem:client:endPvPDuel', duel.p2, opponent)
         activeDuels[duelId] = nil

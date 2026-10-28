@@ -58,6 +58,7 @@ RegisterNetEvent('pokefivem:server:startWildBattle', function(wildId)
             lead = lead,
             opponent = wild
         })
+        PokeCore.Functions.Log('Battle', string.format('Trainer %s engaged wild %s (Lv. %d%s) in battle [%s]', player.PlayerData.name, wild.name, wild.level, wild.is_shiny and ' ★SHINY★' or '', battleId), 'info')
     end)
 end)
 
@@ -74,6 +75,7 @@ RegisterNetEvent('pokefivem:server:battleAction', function(battleId, actionType,
         local wildSpeed = PokeUtils.CalculateStat(GetPokedexEntry(battle.wildPokemon.pokedex_id).baseStats.speed, battle.wildPokemon.ivs.speed, 0, battle.wildPokemon.level)
 
         if playerSpeed >= wildSpeed or math.random(1, 100) <= 85 then
+            PokeCore.Functions.Log('Battle', string.format('Trainer %s successfully ran away from battle [%s]', player.PlayerData.name, battleId), 'info')
             TriggerClientEvent('pokefivem:client:battleEnded', src, { reason = 'ran', message = _L('battle_ran') })
             EndBattle(battleId, false)
         else
@@ -231,6 +233,7 @@ function HandleWildFainted(battle)
     end
 
     AddPokemonExperience(src, battle.playerLead.id, exp, function(newLevel, newExp)
+        PokeCore.Functions.Log('Battle', string.format('Trainer %s defeated wild %s! (+%d EXP, +₽%d) [%s]', player.PlayerData.name, battle.wildPokemon.name, exp, pokeDollarReward, battle.id), 'info')
         TriggerClientEvent('pokefivem:client:battleEnded', src, {
             reason = 'victory',
             message = string.format("Defeated wild %s! Gained %d EXP & ₽%d.", battle.wildPokemon.name, exp, pokeDollarReward),
@@ -260,6 +263,7 @@ function HandlePlayerFainted(battle)
         if conscious then
             TriggerClientEvent('pokefivem:client:promptSwitchFainted', src, party)
         else
+            PokeCore.Functions.Log('Battle', string.format('Trainer %s whited out against wild %s in [%s]', player.PlayerData.name, battle.wildPokemon.name, battle.id), 'warn')
             TriggerClientEvent('pokefivem:client:battleEnded', src, {
                 reason = 'defeat',
                 message = _L('battle_lost')
@@ -297,6 +301,7 @@ function HandleCaptureSuccess(battle, ballKey)
             boxNumber = targetBox,
             caughtBall = ballKey
         }, function(newPoke)
+            PokeCore.Functions.Log('Battle', string.format('Trainer %s successfully caught %s (Lv. %d%s) with %s! (Storage: %s)', player.PlayerData.name, wild.name, wild.level, wild.is_shiny and ' ★SHINY★' or '', ballKey, storageType), 'info')
             TriggerClientEvent('pokefivem:client:battleEnded', src, {
                 reason = 'caught',
                 message = isPartyFull and _L('party_full_sent_pc', wild.name, targetBox) or _L('pokemon_caught', wild.name),
@@ -356,6 +361,7 @@ RegisterNetEvent('pokefivem:server:captureWildFromThrow', function(wildId, ballK
             boxNumber = targetBox,
             caughtBall = ballKey
         }, function(newPoke)
+            PokeCore.Functions.Log('Battle', string.format('Trainer %s caught wild %s (Lv. %d%s) via field ball throw (%s)!', player.PlayerData.name, wild.name, wild.level, wild.is_shiny and ' ★SHINY★' or '', ballKey), 'info')
             TriggerClientEvent('pokefivem:client:notify', src, isPartyFull and _L('party_full_sent_pc', wild.name, targetBox) or _L('pokemon_caught', wild.name), 'success')
             TriggerEvent('pokefivem:server:refreshParty', src)
             TriggerClientEvent('pokefivem:client:despawnWildPokemon', -1, wildId)

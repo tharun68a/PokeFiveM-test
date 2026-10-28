@@ -33,6 +33,8 @@ CreateThread(function()
             model = `mp_m_freemode_01`,
             skipFade = true
         }, function()
+            ShutdownLoadingScreen()
+            ShutdownLoadingScreenNui()
             TriggerEvent('pokefivem:client:openMulticharacter')
         end)
     else
@@ -42,6 +44,8 @@ end)
 
 -- Open Multicharacter Selection Interface
 RegisterNetEvent('pokefivem:client:openMulticharacter', function()
+    ShutdownLoadingScreen()
+    ShutdownLoadingScreenNui()
     inCharSelect = true
     local ped = PlayerPedId()
 

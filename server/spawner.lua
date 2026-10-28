@@ -109,6 +109,7 @@ RegisterNetEvent('pokefivem:server:requestSpawns', function(coords, biome)
 
     -- Broadcast new wild pokemon to nearby players
     TriggerClientEvent('pokefivem:client:spawnWildPokemon', -1, ActiveWildPokemon[wildId])
+    PokeCore.Functions.Log('Spawner', string.format('Spawned wild %s (Lv. %d%s) in %s biome [ID: %s]', pData.name, level, isShiny and ' ★SHINY★' or '', biome or 'grass', wildId), 'info')
 end)
 
 -- Periodically purge old or abandoned wild Pokémon
@@ -119,6 +120,7 @@ CreateThread(function()
         for wildId, wild in pairs(ActiveWildPokemon) do
             if not wild.inBattle and (now - wild.spawnTime > (Config.WildSpawning.DespawnTimer or 300)) then
                 TriggerClientEvent('pokefivem:client:despawnWildPokemon', -1, wildId)
+                PokeCore.Functions.Log('Spawner', string.format('Purged inactive wild %s [ID: %s]', wild.name, wildId), 'debug')
                 ActiveWildPokemon[wildId] = nil
             end
         end
@@ -129,6 +131,7 @@ end)
 RegisterNetEvent('pokefivem:server:despawnWild', function(wildId)
     if ActiveWildPokemon[wildId] and not ActiveWildPokemon[wildId].inBattle then
         TriggerClientEvent('pokefivem:client:despawnWildPokemon', -1, wildId)
+        PokeCore.Functions.Log('Spawner', string.format('Despawned wild %s [ID: %s] (Out of range)', ActiveWildPokemon[wildId].name, wildId), 'debug')
         ActiveWildPokemon[wildId] = nil
     end
 end)

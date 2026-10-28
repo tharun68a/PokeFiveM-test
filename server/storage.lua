@@ -167,6 +167,7 @@ RegisterNetEvent('pokefivem:server:depositToPC', function(partySlot, targetBox, 
                 end
             end
 
+            PokeCore.Functions.Log('Storage', string.format('Trainer %s deposited %s to PC Box %d (Slot %d).', player.PlayerData.name, poke.nickname or 'Pokémon', targetBox or 1, targetSlot or 0), 'info')
             TriggerEvent('pokefivem:server:refreshParty', src)
             TriggerEvent('pokefivem:server:openPC', src, targetBox or 1)
         end)
@@ -192,6 +193,7 @@ RegisterNetEvent('pokefivem:server:withdrawFromPC', function(pokemonId)
             WHERE `id` = ? AND `owner` = ?
         ]], { nextSlot, pokemonId, player.PlayerData.citizenid }, function(affected)
             if affected and affected > 0 then
+                PokeCore.Functions.Log('Storage', string.format('Trainer %s withdrew Pokémon (ID: %s) to party slot %d.', player.PlayerData.name, pokemonId, nextSlot), 'info')
                 TriggerEvent('pokefivem:server:refreshParty', src)
                 TriggerEvent('pokefivem:server:openPC', src, 1)
             end
@@ -216,12 +218,14 @@ RegisterNetEvent('pokefivem:server:releasePokemon', function(pokemonId)
                     return
                 end
                 DB.execute('DELETE FROM `pokefivem_pokemon` WHERE `id` = ?', { pokemonId }, function()
+                    PokeCore.Functions.Log('Storage', string.format('Trainer %s released party Pokémon %s (ID: %s).', player.PlayerData.name, poke.nickname or 'Pokémon', pokemonId), 'info')
                     PokeCore.Functions.Notify(src, string.format('Bye-bye, %s!', poke.nickname or 'Pokémon'), 'info')
                     TriggerEvent('pokefivem:server:refreshParty', src)
                 end)
             end)
         else
             DB.execute('DELETE FROM `pokefivem_pokemon` WHERE `id` = ?', { pokemonId }, function()
+                PokeCore.Functions.Log('Storage', string.format('Trainer %s released PC Box %d Pokémon %s (ID: %s).', player.PlayerData.name, poke.box_number or 1, poke.nickname or 'Pokémon', pokemonId), 'info')
                 PokeCore.Functions.Notify(src, string.format('Bye-bye, %s!', poke.nickname or 'Pokémon'), 'info')
                 TriggerEvent('pokefivem:server:openPC', src, poke.box_number or 1)
             end)
@@ -241,6 +245,7 @@ RegisterNetEvent('pokefivem:server:setNickname', function(pokemonId, newNickname
     DB.execute('UPDATE `pokefivem_pokemon` SET `nickname` = ? WHERE `id` = ? AND `owner` = ?', {
         newNickname, pokemonId, player.PlayerData.citizenid
     }, function()
+        PokeCore.Functions.Log('Storage', string.format('Trainer %s renamed Pokémon (ID: %s) to "%s".', player.PlayerData.name, pokemonId, newNickname), 'info')
         TriggerEvent('pokefivem:server:refreshParty', src)
         PokeCore.Functions.Notify(src, string.format('Nickname changed to %s!', newNickname), 'success')
     end)

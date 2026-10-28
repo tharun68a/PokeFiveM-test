@@ -40,6 +40,7 @@ RegisterCommand('trade', function(source, args)
     local sName = sender.PlayerData.charinfo.firstname .. ' ' .. sender.PlayerData.charinfo.lastname
     local tName = target.PlayerData.charinfo.firstname .. ' ' .. target.PlayerData.charinfo.lastname
 
+    PokeCore.Functions.Log('Trade', string.format('Trainer %s sent trade request to Trainer %s.', sName, tName), 'info')
     PokeCore.Functions.Notify(source, string.format('Sent trade request to Trainer %s.', tName), 'info')
     PokeCore.Functions.Notify(targetId, string.format('Trainer %s wants to trade Pokémon with you! Type /accepttrade or /denytrade', sName), 'success')
 end)
@@ -75,6 +76,7 @@ RegisterCommand('accepttrade', function(source)
         p2_ready = false
     }
 
+    PokeCore.Functions.Log('Trade', string.format('Trade session [%s] started between %s (Src: %s) and %s (Src: %s).', tradeId, player1.PlayerData.name, p1, player2.PlayerData.name, p2), 'info')
     TriggerClientEvent('pokefivem:client:openTradeUI', p1, tradeId, player2.PlayerData.charinfo)
     TriggerClientEvent('pokefivem:client:openTradeUI', p2, tradeId, player1.PlayerData.charinfo)
 end)
@@ -83,6 +85,7 @@ end)
 RegisterCommand('denytrade', function(source)
     local req = activeTradeRequests[source]
     if req then
+        PokeCore.Functions.Log('Trade', string.format('Trainer (Src: %s) declined trade request from Src %s.', source, req.sender), 'info')
         PokeCore.Functions.Notify(req.sender, 'Trainer declined the trade.', 'error')
         PokeCore.Functions.Notify(source, 'Trade declined.', 'info')
         activeTradeRequests[source] = nil
@@ -146,6 +149,7 @@ RegisterNetEvent('pokefivem:server:confirmTrade', function(tradeId)
                 PokeCore.Functions.Notify(trade.p1, string.format("What? %s is evolving into %s through trade!", mon2.nickname or "Pokémon", evo.name), 'success')
             end
 
+            PokeCore.Functions.Log('Trade', string.format('Trade [%s] completed! %s gave Pokémon #%s to %s for Pokémon #%s.', tradeId, player1.PlayerData.name, tostring(trade.p1_offer), player2.PlayerData.name, tostring(trade.p2_offer)), 'info')
             TriggerClientEvent('pokefivem:client:tradeSuccess', trade.p1)
             TriggerClientEvent('pokefivem:client:tradeSuccess', trade.p2)
             activeTrades[tradeId] = nil

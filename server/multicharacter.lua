@@ -7,6 +7,7 @@
 -- Fetch all characters for connecting player
 PokeCore.Functions.CreateCallback('pokefivem:multichar:getCharacters', function(source, cb)
     local license = PokeCore.Functions.GetLicense(source)
+    local pName = GetPlayerName(source) or "Trainer"
     if not license then
         cb({})
         return
@@ -15,6 +16,7 @@ PokeCore.Functions.CreateCallback('pokefivem:multichar:getCharacters', function(
     MySQL.query('SELECT * FROM pokefivem_characters WHERE identifier = ? ORDER BY created_at ASC', { license }, function(chars)
         local results = {}
         if not chars or #chars == 0 then
+            PokeCore.Functions.Log('Multichar', string.format('Trainer %s (Src: %s) requested character list -> 0 characters found.', pName, source), 'info')
             cb({})
             return
         end
@@ -57,6 +59,7 @@ PokeCore.Functions.CreateCallback('pokefivem:multichar:getCharacters', function(
                     processed = processed + 1
                     if processed >= count then
                         table.sort(results, function(a, b) return a.slot < b.slot end)
+                        PokeCore.Functions.Log('Multichar', string.format('Trainer %s (Src: %s) loaded %d character profile(s).', pName, source, #results), 'info')
                         cb(results)
                     end
                 end)
@@ -69,6 +72,8 @@ end)
 RegisterNetEvent('pokefivem:server:selectCharacter', function(citizenid)
     local src = source
     if not citizenid then return end
+    local pName = GetPlayerName(src) or "Trainer"
+    PokeCore.Functions.Log('Multichar', string.format('Trainer %s (Src: %s) selected character %s.', pName, src, citizenid), 'info')
     PokeCore.Player.Login(src, citizenid)
 end)
 
@@ -205,6 +210,7 @@ RegisterNetEvent('pokefivem:server:createCharacter', function(data)
                         json.encode({ pData.id }),
                         json.encode({ pData.id })
                     }, function()
+                        PokeCore.Functions.Log('Multichar', string.format('Trainer %s created new profile %s (%s, Starter: #%d %s)', GetPlayerName(src) or "Trainer", citizenid, trainerFullName, pData.id, pData.name), 'info')
                         -- Log player into server immediately
                         PokeCore.Player.Login(src, citizenid)
                     end)
@@ -218,6 +224,7 @@ end)
 RegisterNetEvent('pokefivem:server:deleteCharacter', function(citizenid)
     local src = source
     local license = PokeCore.Functions.GetLicense(src)
+    local pName = GetPlayerName(src) or "Trainer"
 
     MySQL.single('SELECT citizenid FROM pokefivem_characters WHERE citizenid = ? AND identifier = ?', { citizenid, license }, function(char)
         if not char then
@@ -230,6 +237,7 @@ RegisterNetEvent('pokefivem:server:deleteCharacter', function(citizenid)
         MySQL.query('DELETE FROM pokefivem_inventory WHERE citizenid = ?', { citizenid })
         MySQL.query('DELETE FROM pokefivem_pokedex WHERE citizenid = ?', { citizenid })
         MySQL.query('DELETE FROM pokefivem_characters WHERE citizenid = ?', { citizenid }, function()
+            PokeCore.Functions.Log('Multichar', string.format('Trainer %s (Src: %s) deleted character profile %s.', pName, src, citizenid), 'warn')
             PokeCore.Functions.Notify(src, 'Trainer profile successfully deleted.', 'info')
             TriggerClientEvent('pokefivem:client:openMulticharacter', src)
         end)
@@ -238,5 +246,7 @@ end)
 
 -- Switch Character Command (/logout)
 RegisterCommand('logout', function(source)
+    local pName = GetPlayerName(source) or "Trainer"
+    PokeCore.Functions.Log('Multichar', string.format('Trainer %s (Src: %s) requested character logout.', pName, source), 'info')
     PokeCore.Player.Logout(source)
 end, false)

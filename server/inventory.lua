@@ -24,6 +24,7 @@ function PokeCore.Functions.UseItem(src, item)
 
     local cb = PokeCore.UseableItems[string.lower(item)]
     if cb then
+        PokeCore.Functions.Log('Item', string.format('Trainer %s used item %s.', player.PlayerData.name, item), 'debug')
         cb(src, it)
     end
 end
@@ -165,10 +166,12 @@ RegisterNetEvent('pokefivem:server:buyMartItem', function(itemKey, amount)
     if pdBalance >= totalPrice then
         player.Functions.RemoveMoney('pokedollars', totalPrice, 'PokéMart Purchase')
         player.Functions.AddItem(itemKey, amount)
+        PokeCore.Functions.Log('Economy', string.format('Trainer %s bought %dx %s at PokéMart for ₽%d.', player.PlayerData.name, amount, itemDef.label, totalPrice), 'info')
         PokeCore.Functions.Notify(src, string.format('Purchased %dx %s for ₽%d!', amount, itemDef.label, totalPrice), 'success')
     elseif cashBalance >= totalPrice then
         player.Functions.RemoveMoney('cash', totalPrice, 'PokéMart Purchase')
         player.Functions.AddItem(itemKey, amount)
+        PokeCore.Functions.Log('Economy', string.format('Trainer %s bought %dx %s at PokéMart for $%d.', player.PlayerData.name, amount, itemDef.label, totalPrice), 'info')
         PokeCore.Functions.Notify(src, string.format('Purchased %dx %s for $%d!', amount, itemDef.label, totalPrice), 'success')
     else
         PokeCore.Functions.Notify(src, _L('not_enough_money'), 'error')

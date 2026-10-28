@@ -130,6 +130,7 @@ function CreatePokemon(owner, pokedexId, level, options, callback)
             })
         }
 
+        PokeCore.Functions.Log('Pokemon', string.format('Created %s (Lv. %d%s) for owner %s [DB ID: %s, Storage: %s].', pData.name, level, isShiny and ' ★SHINY★' or '', owner, tostring(insertId), storageType), 'info')
         if callback then callback(pokemonObj) end
     end)
 end
@@ -159,6 +160,7 @@ function AddPokemonExperience(src, pokemonId, expAmount, callback)
         }, function()
             -- Check for Level Up
             if newLevel > oldLevel then
+                PokeCore.Functions.Log('Pokemon', string.format('%s grew from Lv. %d to Lv. %d! (Owner: %s)', poke.nickname or pData.name, oldLevel, newLevel, poke.owner), 'info')
                 TriggerClientEvent('pokefivem:client:notify', src, string.format('%s grew to Level %d!', poke.nickname or pData.name, newLevel), 'success')
                 
                 -- Check for new learnable moves
@@ -207,6 +209,7 @@ function TeachMoveToPokemon(src, pokemonId, moveKey)
         if #moves < 4 then
             table.insert(moves, newMove)
             DB.execute('UPDATE `pokefivem_pokemon` SET `moves` = ? WHERE `id` = ?', { json.encode(moves), pokemonId })
+            PokeCore.Functions.Log('Pokemon', string.format('%s learned %s! (Pokemon ID: %s)', name, moveData.name, pokemonId), 'info')
             TriggerClientEvent('pokefivem:client:notify', src, string.format('%s learned %s!', name, moveData.name), 'success')
             TriggerEvent('pokefivem:server:refreshParty', src)
         else
@@ -236,6 +239,7 @@ function EvolvePokemon(src, pokemonId, targetPokedexId)
         DB.execute('UPDATE `pokefivem_pokemon` SET `pokedex_id` = ?, `nickname` = ?, `max_hp` = ?, `current_hp` = ? WHERE `id` = ?', {
             targetPokedexId, newNickname, newMaxHp, newCurHp, pokemonId
         }, function()
+            PokeCore.Functions.Log('Pokemon', string.format('%s evolved into %s! (Pokemon ID: %s, Owner: %s)', oldName, targetData.name, pokemonId, poke.owner), 'info')
             RegisterPokedexEntry(src, targetPokedexId, true)
             TriggerClientEvent('pokefivem:client:notify', src, _L('pokemon_evolved', oldName, targetData.name), 'success')
             TriggerClientEvent('pokefivem:client:playEvolutionAnimation', src, targetData.name)
@@ -302,5 +306,7 @@ function RegisterPokedexEntry(src, pokedexId, caught)
     ]]
     local seenJson = json.encode(meta.pokedex_seen)
     local caughtJson = json.encode(meta.pokedex_caught)
-    DB.execute(query, { player.PlayerData.citizenid, seenJson, caughtJson, seenJson, caughtJson })
+    DB.execute(query, { player.PlayerData.citizenid, seenJson, caughtJson, seenJson, caughtJson }, function()
+        PokeCore.Functions.Log('Pokedex', string.format('Trainer %s registered species #%d in Pokédex (Caught: %s).', player.PlayerData.name, pokedexId, tostring(caught)), 'debug')
+    end)
 end

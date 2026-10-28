@@ -17,14 +17,18 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         return
     end
 
+    PokeCore.Functions.Log('Auth', string.format('Player %s connecting (License: %s)...', name, license), 'info')
+
     DB.fetchAll('SELECT * FROM `pokefivem_users` WHERE `license` = ?', { license }, function(users)
         if not users or #users == 0 then
             DB.execute('INSERT INTO `pokefivem_users` (`identifier`, `license`, `name`) VALUES (?, ?, ?)', {
                 license, license, name
             }, function()
+                PokeCore.Functions.Log('Auth', string.format('New user registered: %s (%s)', name, license), 'info')
                 deferrals.done()
             end)
         else
+            PokeCore.Functions.Log('Auth', string.format('Returning user verified: %s (%s)', name, license), 'info')
             deferrals.done()
         end
     end)
@@ -34,6 +38,9 @@ end)
 RegisterNetEvent('pokefivem:server:playerLoaded', function()
     local src = source
     local license = PokeCore.Functions.GetLicense(src)
+    local pName = GetPlayerName(src) or "Trainer"
+
+    PokeCore.Functions.Log('Auth', string.format('Trainer %s (Src: %s) requested character resolution...', pName, src), 'info')
 
     -- If multicharacter is enabled, open multicharacter screen
     if Config.Multicharacter and Config.Multicharacter.Enabled then
@@ -58,11 +65,16 @@ RegisterNetEvent('pokefivem:server:playerLoaded', function()
 end)
 
 -- Handle Player Disconnect
-AddEventHandler('playerDropped', function()
+AddEventHandler('playerDropped', function(reason)
     local src = source
+    local pName = GetPlayerName(src) or "Trainer"
     if PokeCore.Players[src] then
+        local cid = PokeCore.Players[src].PlayerData.citizenid
+        PokeCore.Functions.Log('Auth', string.format('Trainer %s (%s, Src: %s) disconnected. (Reason: %s)', pName, cid, src, reason or 'Left server'), 'warn')
         PokeCore.Player.Save(src)
         PokeCore.Players[src] = nil
+    else
+        PokeCore.Functions.Log('Auth', string.format('Unauthenticated player %s (Src: %s) disconnected. (Reason: %s)', pName, src, reason or 'Left server'), 'debug')
     end
 end)
 
@@ -93,6 +105,7 @@ RegisterNetEvent('pokefivem:server:chooseStarter', function(starterId)
             RegisterPokedexEntry(src, starterId, true)
             PokeCore.Functions.Notify(src, _L('starter_chosen', pokemon.name), 'success')
             TriggerEvent('pokefivem:server:refreshParty', src)
+            PokeCore.Functions.Log('Starter', string.format('Trainer %s chose starter #%d (%s)!', player.PlayerData.name, starterId, pokemon.name), 'info')
         end
     end)
 end)

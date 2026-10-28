@@ -28,6 +28,7 @@ RegisterNetEvent('pokefivem:server:interactQuest', function(questId)
         qState.progress = 0
         metadata.quests[questId] = qState
         player.Functions.SetMetaData('quests', metadata.quests)
+        PokeCore.Functions.Log('Quests', string.format('Trainer %s started quest "%s" (%s).', player.PlayerData.name, quest.title, questId), 'info')
         PokeCore.Functions.Notify(src, string.format("Quest Started: %s\n%s", quest.title, quest.description), 'success')
         return
     end
@@ -73,6 +74,7 @@ function CompleteQuest(player, quest, qState)
         end
     end
 
+    PokeCore.Functions.Log('Quests', string.format('Trainer %s completed quest "%s"! (Reward: ₽%s)', player.PlayerData.name, quest.title, tostring(quest.reward.money or 0)), 'info')
     PokeCore.Functions.Notify(player.PlayerData.source, string.format("🏆 Quest Completed: %s! Rewards received.", quest.title), 'success')
 end
 
