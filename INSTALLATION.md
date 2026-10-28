@@ -1,91 +1,69 @@
-# PokeFiveM Framework Installation & Deployment Guide 📦
-**Author:** Pika Studio  
-**Architecture:** Autonomous Standalone Framework (Zero ESX Dependency)
+# 📦 PokeFiveM — Quick Installation & Deployment Guide
+
+> **Author:** Pika Studio  
+> **Framework:** Standalone Autonomous Pokémon RPG (Zero ESX Dependency)  
+> **Full Guide:** See [GETTING_STARTED.md](GETTING_STARTED.md) for full instructions matching the [Fivemon Getting Started Guide](https://wiki.fivemon.gg/latest/guides/getting-started/).
 
 ---
 
-### Step 1: Database Migration
-Open your database management tool (HeidiSQL, phpMyAdmin, or Navicat):
-1. Open [`database/schema.sql`](file:///c:/Users/NEW/Downloads/PokeFiveM/database/schema.sql).
-2. Execute the migration. This installs:
-   - `pokefivem_users` (Player licenses & permissions)
-   - `pokefivem_characters` (Citizen profiles, job, cash/bank/pokedollars, position, metadata)
-   - `pokefivem_inventory` (Slot-based inventory items)
-   - `pokefivem_pokemon` (Full Pokémon storage: IVs, EVs, natures, stats, moves)
-   - `pokefivem_pokedex` (Pokédex seen & caught records)
-   - `pokefivem_gyms` (Gym leader badge tracking)
+## ⚡ Quick 1-Click txAdmin Deployment (Recommended)
+
+1. Launch your server and open **txAdmin**.
+2. Select **Custom Template** (or **Remote URL Template**).
+3. Use the official Recipe URL:
+   ```text
+   https://raw.githubusercontent.com/tharun68a/PokeFiveM-test/main/recipe.yaml
+   ```
+4. Enter your database credentials and FiveM server license key.
+5. Click **Run Recipe** — txAdmin downloads all resources, migrates the database, and creates your configuration files.
 
 ---
 
-### Step 2: Upload Files to Server
-Using our automated push script:
+## 🛠️ Manual / SFTP Installation
+
+### 1. Database Setup
+Import [`database/schema.sql`](database/schema.sql) into your database (`s15_pikabase`):
+- Sets up user accounts, characters, 30 PC Storage Boxes (900 Pokémon slots), Pokédex tracking, and Gym badges.
+- Includes compatibility tables for `owned_vehicles` and `users` to support `ox_inventory` without ESX.
+
+### 2. Deploy Files via SFTP
+Run the automated SFTP push script:
 ```powershell
 python push_sftp.py "pika@321"
 ```
-Or use VS Code SFTP (`Ctrl + Shift + P` -> `SFTP: Sync Local -> Remote`).
 
----
-
-### Step 3: Configure `server.cfg`
-Because PokeFiveM is an **independent framework**, you do **NOT** need `es_extended` or `[core]` or `[esx_addons]`!  
-Your `server.cfg` simply needs:
-
+### 3. Server Configuration (`server.cfg`)
+Ensure your `server.cfg` starts resources in the correct order:
 ```cfg
-# Database Library
+## Overextended Core Stack
 ensure oxmysql
+ensure ox_lib
+ensure ox_target
+ensure ox_inventory
 
-# PokeFiveM Framework Core
+## Voice & World
+ensure pma-voice
+ensure bob74_ipl
+ensure scully_emotemenu
+
+## PokeFiveM Framework Core
 ensure PokeFiveM
-
-# Admin ACE Permissions
-add_ace group.admin command allow
-add_ace group.admin command.spawnwild allow
-add_ace group.admin command.givepokemon allow
-add_ace group.admin command.giveball allow
-add_ace group.admin command.giveitem allow
-add_ace group.admin command.givemoney allow
-add_ace group.admin command.setjob allow
-
-add_principal identifier.license:YOUR_LICENSE_HEX group.admin
 ```
 
 ---
 
-### Step 4: Core Framework APIs & Usage
-Any external script can interact with PokeFiveM using standard exports:
+## 🎮 Keybindings & Commands
 
-```lua
--- Retrieve Framework Core
-local PokeCore = exports['PokeFiveM']:GetCoreObject()
+- **`[F6]`**: Open Party Team Menu
+- **`[F7]`**: Open Pokédex
+- **`[G]`**: Throw Pokéball (with 3D arc trajectory physics)
+- **`[K]`**: Summon / Recall Buddy Companion Pokémon
+- **`[E]`**: Interact with Nurse Joy, PokéMart clerks, and wild Pokémon
+- **`/starter`**: Open Starter Pokémon Selection Menu
+- **`/mount`**: Mount active lead Pokémon (Ground, Surf, or Fly)
+- **`/healteam`**: Full party heal (Admin)
+- **`/pc`**: Access 30 PC Storage Boxes (Admin)
 
--- Server-side: Retrieve Player Object
-local Player = PokeCore.Functions.GetPlayer(source)
-if Player then
-    -- Accounts
-    Player.Functions.AddMoney('pokedollars', 500, 'Battle Reward')
-    Player.Functions.RemoveMoney('cash', 100, 'Store Purchase')
+---
 
-    -- Inventory
-    Player.Functions.AddItem('pokeball', 5)
-    Player.Functions.RemoveItem('potion', 1)
-
-    -- Job & Duty
-    Player.Functions.SetJob('gymleader', 2)
-    Player.Functions.SetDuty(true)
-end
-
--- Server-side: Register Usable Item
-PokeCore.Functions.CreateUseableItem('my_custom_item', function(source, item)
-    -- Your custom logic here
-end)
-
--- Server-side: Create Callback
-PokeCore.Functions.CreateCallback('my_script:getData', function(source, cb, arg1)
-    cb({ success = true })
-end)
-
--- Client-side: Trigger Callback
-PokeCore.Functions.TriggerCallback('my_script:getData', function(result)
-    print(json.encode(result))
-end, 'arg1_value')
-```
+© 2026 **Pika Studio**.
