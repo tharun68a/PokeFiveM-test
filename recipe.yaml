@@ -1,0 +1,78 @@
+$version: 2
+name: PokeFiveM Standalone
+author: Pika Studio
+description: Official Autonomous Pokémon RPG Framework for FiveM (Zero ESX Dependency)
+
+tasks:
+  # 1. Download official CFX default server resources
+  - action: download_github
+    src: https://github.com/citizenfx/cfx-server-data
+    ref: master
+    subpath: resources
+    dest: ./resources/[cfx-default]
+
+  # 2. Download oxmysql database driver
+  - action: download_github
+    src: https://github.com/overextended/oxmysql
+    ref: v2.10.1
+    dest: ./resources/[standalone]/oxmysql
+
+  # 3. Generate clean Standalone server.cfg
+  - action: write_file
+    dest: ./server.cfg
+    data: |
+      endpoint_add_tcp "0.0.0.0:{{serverPort}}"
+      endpoint_add_udp "0.0.0.0:{{serverPort}}"
+
+      sv_maxclients {{maxClients}}
+      set steam_webApiKey "none"
+      set sv_licenseKey "{{svLicense}}"
+
+      set mysql_connection_string "{{dbConnectionString}}"
+
+      sv_enforceGameBuild 3258
+      set resources_useSystemChat true
+      set onesync on
+      set gamename "gta5"
+
+      sv_hostname "PokeFiveM - Pokemon RPG Standalone"
+      sets sv_projectName "PokeFiveM Server"
+      sets sv_projectDesc "Advanced Pokemon RPG Framework by Pika Studio"
+      sets tags "pokemon, rpg, custom, standalone, pokefivem"
+
+      ## Admin Permissions
+      add_principal group.admin group.user
+      add_ace group.admin command allow
+      add_ace group.admin command.quit deny
+
+      # PokeFiveM Admin Commands
+      add_ace group.admin command.spawnwild allow
+      add_ace group.admin command.givepokemon allow
+      add_ace group.admin command.giveball allow
+      add_ace group.admin command.giveitem allow
+      add_ace group.admin command.givemoney allow
+      add_ace group.admin command.setjob allow
+
+      ## Voice & Audio
+      setr voice_enableRadioAnim 1
+      setr voice_useNativeAudio true
+      setr voice_useSendingRangeOnly true
+      setr voice_enableUi 0
+
+      ## Security & Network
+      sv_endpointprivacy true
+
+      ## Default Resources
+      ensure mapmanager
+      ensure chat
+      ensure spawnmanager
+      ensure sessionmanager
+      ensure hardcap
+
+      ## Standalone Database
+      ensure oxmysql
+
+      ## ===================================================================
+      ## PokeFiveM Framework Core (Pika Studio)
+      ## ===================================================================
+      ensure PokeFiveM
