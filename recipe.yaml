@@ -263,7 +263,8 @@ tasks:
       set mysql_ui true
 
       ## Environment, Game Build & OneSync
-      sv_enforceGameBuild 3258
+      ## sv_enforceGameBuild disabled to prevent 1.5GB GTA DLC download on player connect
+      # sv_enforceGameBuild 3258
       set resources_useSystemChat true
       set onesync on
       set gamename "gta5"

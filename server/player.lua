@@ -323,7 +323,7 @@ function PokeCore.Player.Login(source, citizenid, newData)
 
     local fullName = playerData.charinfo.firstname .. ' ' .. playerData.charinfo.lastname
     PokeCore.Functions.Notify(source, string.format('Welcome back, Trainer %s!', fullName), 'success')
-    print(string.format('^2[PokeFiveM - Core] Player %s (%s) loaded character %s successfully.^7', GetPlayerName(source), source, citizenid))
+    PokeCore.Functions.Log('Player', string.format('Trainer %s (%s, ID: %s) entered the world.', fullName, citizenid, source), 'info')
     return true
 end
 
@@ -335,7 +335,7 @@ function PokeCore.Player.Logout(source)
         PokeCore.Players[source] = nil
         TriggerClientEvent('pokefivem:client:onPlayerLogout', source)
         TriggerClientEvent('pokefivem:client:openMulticharacter', source)
-        print(string.format('^3[PokeFiveM - Core] Player %s logged out to character select.^7', source))
+        PokeCore.Functions.Log('Player', string.format('Trainer (ID: %s) saved and logged out.', source), 'info')
     end
 end
 
