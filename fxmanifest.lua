@@ -53,9 +53,7 @@ server_scripts {
 files {
     'ui/index.html',
     'ui/css/style.css',
-    'ui/js/app.js',
-    'ui/sounds/*.mp3',
-    'ui/sounds/*.ogg'
+    'ui/js/app.js'
 }
 
 exports {

@@ -55,6 +55,86 @@ tasks:
     src: ./tmp/ox_inventory.zip
     dest: ./resources/[ox]
 
+  ## Inject Native PokeFiveM Custom Bridge into ox_inventory
+  - action: write_file
+    file: ./resources/[ox]/ox_inventory/modules/bridge/custom/server.lua
+    data: |
+      local Inventory = require 'modules.inventory.server'
+      local Items = require 'modules.items.server'
+      local db = require 'modules.mysql.server'
+
+      db.setup({
+          user = { table = 'pokefivem_characters', col = 'citizenid' },
+          vehicle = { table = 'pokefivem_vehicles', col = 'plate' },
+      })
+
+      ---@diagnostic disable-next-line: duplicate-set-field
+      function server.setPlayerData(player)
+          return {
+              source = player.source,
+              name = player.name or GetPlayerName(player.source),
+              groups = player.groups or { ['trainer'] = 0 },
+              sex = player.sex or 'm',
+              dateofbirth = player.dateofbirth or '2000-01-01',
+          }
+      end
+
+      function server.syncInventory(inv)
+      end
+
+      function server.hasLicense(inv, name)
+          return true
+      end
+
+      function server.buyLicense(inv, license)
+          return true, 'have_purchased'
+      end
+
+      function server.isPlayerBoss(playerId)
+          return false
+      end
+
+      AddEventHandler('playerDropped', server.playerDropped)
+
+      AddEventHandler('pokefivem:server:onPlayerLoaded', function(citizenid, playerObj)
+          local src = playerObj.PlayerData.source
+          local player = {
+              source = src,
+              identifier = citizenid,
+              name = playerObj.PlayerData.name or GetPlayerName(src),
+              groups = {
+                  [playerObj.PlayerData.job.name or 'trainer'] = playerObj.PlayerData.job.grade or 0
+              }
+          }
+          server.setPlayerInventory(player)
+      end)
+
+  - action: write_file
+    file: ./resources/[ox]/ox_inventory/modules/bridge/custom/client.lua
+    data: |
+      local client = {}
+
+      RegisterNetEvent('pokefivem:client:onPlayerLoaded', function(playerData)
+          PlayerData = playerData
+          LocalPlayer.state:set('isLoggedIn', true, false)
+          OnPlayerData('groups', { [playerData.job.name or 'trainer'] = playerData.job.grade or 0 })
+      end)
+
+      RegisterNetEvent('pokefivem:client:onPlayerUnload', function()
+          LocalPlayer.state:set('isLoggedIn', false, false)
+          PlayerData = {}
+      end)
+
+      function client.hasGroup(group)
+          return true
+      end
+
+      function client.setPlayerData(key, value)
+          LocalPlayer.state:set(key, value, true)
+      end
+
+      return client
+
   # -------------------------------------------------------------------
   # 4. Audio & Proximity Voice Stack
   # -------------------------------------------------------------------
@@ -136,7 +216,7 @@ tasks:
       ## PokeFiveM Audio - pma-voice Proximity Chat Settings
       ## ===================================================================
       setr voice_useNativeAudio true
-      setr voice_useSendingRangeOnly true
+      setr voice_useSendingRangeOnly false
       setr voice_enableRadioAnim 1
       setr voice_enableUi 0
       setr voice_defaultCycle "GRAVE"
@@ -149,7 +229,9 @@ tasks:
     data: |
       ## ===================================================================
       ## PokeFiveM Ox Suite Configuration (ox_lib, ox_inventory, ox_target)
+      ## Standalone Custom Bridge — Zero ESX Dependency
       ## ===================================================================
+      setr inventory:framework "custom"
       setr inventory:slots 50
       setr inventory:weight 30000
       setr inventory:target true
@@ -185,6 +267,7 @@ tasks:
       set resources_useSystemChat true
       set onesync on
       set gamename "gta5"
+      setr sv_stateBagStrictMode true
 
       ## Branding & Metadata
       sv_hostname "PokeFiveM - Autonomous Pokémon RPG [Pika Studio]"
@@ -198,8 +281,7 @@ tasks:
       exec voice.cfg
       exec ox.cfg
 
-      ## Security & Anti-Cheat Natives
-      sv_endpointprivacy true
+      ## Security Natives
       sv_scriptHookAllowed 0
 
       ## ===================================================================
@@ -208,8 +290,6 @@ tasks:
       ensure mapmanager
       ensure chat
       ensure spawnmanager
-      ensure sessionmanager
-      ensure hardcap
 
       ## ===================================================================
       ## [2] Overextended (Ox) Core Suite

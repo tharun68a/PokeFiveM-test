@@ -89,3 +89,31 @@ CREATE TABLE IF NOT EXISTS `pokefivem_gyms` (
     `defeated_by` LONGTEXT DEFAULT '[]',
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. Standalone Vehicle Table (ox_inventory trunks & gloveboxes)
+CREATE TABLE IF NOT EXISTS `pokefivem_vehicles` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `citizenid` VARCHAR(16) NOT NULL,
+    `plate` VARCHAR(12) NOT NULL UNIQUE,
+    `vehicle` LONGTEXT DEFAULT '{}',
+    `glovebox` LONGTEXT NULL,
+    `trunk` LONGTEXT NULL,
+    INDEX `idx_veh_citizenid` (`citizenid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. Compatibility Schema for ox_inventory & Overextended Suite
+CREATE TABLE IF NOT EXISTS `owned_vehicles` (
+    `owner` VARCHAR(64) DEFAULT NULL,
+    `plate` VARCHAR(12) NOT NULL PRIMARY KEY,
+    `vehicle` LONGTEXT DEFAULT NULL,
+    `type` VARCHAR(20) DEFAULT 'car',
+    `job` VARCHAR(20) DEFAULT NULL,
+    `stored` TINYINT(1) DEFAULT 0,
+    `glovebox` LONGTEXT NULL,
+    `trunk` LONGTEXT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `users` (
+    `identifier` VARCHAR(64) NOT NULL PRIMARY KEY,
+    `inventory` LONGTEXT DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
