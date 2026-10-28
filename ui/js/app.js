@@ -1,0 +1,330 @@
+const { createApp, ref, computed, onMounted } = Vue;
+
+createApp({
+    setup() {
+        // State
+        const hudLead = ref(null);
+        const notifications = ref([]);
+        const showStarter = ref(false);
+        const starters = ref([]);
+        const selectedStarter = ref(null);
+
+        // Battle
+        const inBattle = ref(false);
+        const battleData = ref(null);
+        const battleSubmenu = ref('main');
+        const battleLogText = ref('What will you do?');
+
+        // Party
+        const showParty = ref(false);
+        const partyList = ref([]);
+        const selectedPartyPoke = ref(null);
+
+        // PC Box
+        const showPC = ref(false);
+        const currentBox = ref(1);
+        const maxBoxes = ref(30);
+        const boxPokemon = ref([]);
+        const selectedPCPoke = ref(null);
+
+        // Pokédex
+        const showPokedex = ref(false);
+        const pokedexSearch = ref('');
+        const pokedexList = ref([]);
+        const seenList = ref([]);
+        const caughtList = ref([]);
+        const selectedDexEntry = ref(null);
+
+        // PokéMart
+        const showMart = ref(false);
+        const martName = ref('');
+        const martItems = ref([]);
+
+        // Colors
+        const typeColors = {
+            normal: '#A8A878', fire: '#F08030', water: '#6890F0', grass: '#78C850',
+            electric: '#F8D030', ice: '#98D8D8', fighting: '#C03028', poison: '#A040A0',
+            ground: '#E0C068', flying: '#A890F0', psychic: '#F85888', bug: '#A8B820',
+            rock: '#B8A038', ghost: '#705898', dragon: '#7038F8', steel: '#B8B8D0',
+            dark: '#705848', fairy: '#EE99AC'
+        };
+
+        const getTypeColor = (type) => {
+            if (!type) return '#888';
+            return typeColors[type.toLowerCase()] || '#888';
+        };
+
+        const getHpColor = (cur, max) => {
+            const ratio = cur / Math.max(1, max);
+            if (ratio > 0.5) return '#10b981';
+            if (ratio > 0.2) return '#f59e0b';
+            return '#ef4444';
+        };
+
+        const getToastIcon = (type) => {
+            if (type === 'success') return 'fa-solid fa-circle-check text-success';
+            if (type === 'error') return 'fa-solid fa-triangle-exclamation text-danger';
+            return 'fa-solid fa-circle-info text-primary';
+        };
+
+        // Window Message Listener
+        onMounted(() => {
+            window.addEventListener('message', (event) => {
+                const item = event.data;
+                if (!item || !item.action) return;
+
+                switch (item.action) {
+                    case 'updateHud':
+                        hudLead.value = item.lead;
+                        break;
+                    case 'syncParty':
+                        partyList.value = item.party || [];
+                        if (partyList.value.length > 0 && !selectedPartyPoke.value) {
+                            selectedPartyPoke.value = partyList.value[0];
+                        }
+                        break;
+                    case 'notify':
+                        pushToast(item.message, item.type);
+                        break;
+                    case 'openStarterMenu':
+                        starters.value = item.starters || [];
+                        showStarter.value = true;
+                        break;
+                    case 'openPartyMenu':
+                        partyList.value = item.party || [];
+                        selectedPartyPoke.value = partyList.value[0] || null;
+                        showParty.value = true;
+                        break;
+                    case 'openPC':
+                        currentBox.value = item.data.currentBox;
+                        maxBoxes.value = item.data.maxBoxes;
+                        boxPokemon.value = item.data.boxPokemon || [];
+                        partyList.value = item.data.partyPokemon || [];
+                        selectedPCPoke.value = null;
+                        showPC.value = true;
+                        break;
+                    case 'openPokedex':
+                        seenList.value = item.seen || [];
+                        caughtList.value = item.caught || [];
+                        pokedexList.value = Object.values(item.database || {});
+                        showPokedex.value = true;
+                        break;
+                    case 'openMart':
+                        martName.value = item.name;
+                        martItems.value = item.items;
+                        showMart.value = true;
+                        break;
+                    case 'openBattleUI':
+                        battleData.value = {
+                            battleId: item.battleId,
+                            lead: item.lead,
+                            opponent: item.opponent
+                        };
+                        battleSubmenu.value = 'main';
+                        battleLogText.value = `A wild ${item.opponent.name} appeared!`;
+                        inBattle.value = true;
+                        break;
+                    case 'battleLogEvent':
+                        if (item.data) {
+                            if (item.data.missed) {
+                                battleLogText.value = `${item.data.attacker === 'player' ? battleData.value.lead.name : battleData.value.opponent.name}'s attack missed!`;
+                            } else {
+                                battleLogText.value = `${item.data.attacker === 'player' ? battleData.value.lead.name : battleData.value.opponent.name} used ${item.data.move}!`;
+                            }
+                            if (item.data.defenderHp !== undefined) {
+                                if (item.data.attacker === 'player') {
+                                    battleData.value.opponent.current_hp = item.data.defenderHp;
+                                } else {
+                                    battleData.value.lead.current_hp = item.data.defenderHp;
+                                }
+                            }
+                        }
+                        break;
+                    case 'battleEnded':
+                        battleLogText.value = item.message;
+                        setTimeout(() => {
+                            inBattle.value = false;
+                            battleData.value = null;
+                        }, 2500);
+                        break;
+                    case 'closeAll':
+                        closeAllModals();
+                        break;
+                }
+            });
+
+            // ESC Key Handler
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (inBattle.value) {
+                        if (battleSubmenu.value !== 'main') {
+                            battleSubmenu.value = 'main';
+                        }
+                    } else {
+                        closeUI();
+                    }
+                }
+            });
+        });
+
+        const pushToast = (message, type = 'info') => {
+            const id = Date.now() + Math.random();
+            notifications.value.push({ id, message, type });
+            setTimeout(() => {
+                notifications.value = notifications.value.filter(t => t.id !== id);
+            }, 3800);
+        };
+
+        const closeAllModals = () => {
+            showStarter.value = false;
+            showParty.value = false;
+            showPC.value = false;
+            showPokedex.value = false;
+            showMart.value = false;
+        };
+
+        const closeUI = () => {
+            closeAllModals();
+            fetch(`https://${GetParentResourceName()}/closeUI`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
+        };
+
+        // Starter Handlers
+        const confirmStarter = () => {
+            if (!selectedStarter.value) return;
+            fetch(`https://${GetParentResourceName()}/chooseStarter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: selectedStarter.value.id })
+            });
+            showStarter.value = false;
+        };
+
+        // Battle Handlers
+        const sendBattleAction = (actionType, extraData = {}) => {
+            battleLogText.value = "Executing action...";
+            fetch(`https://${GetParentResourceName()}/battleAction`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    actionType: actionType,
+                    ...extraData
+                })
+            });
+            battleSubmenu.value = 'main';
+        };
+
+        const openBagInBattle = () => {
+            battleSubmenu.value = 'bag';
+        };
+
+        const openPartyInBattle = () => {
+            showParty.value = true;
+        };
+
+        // PC Box Helpers
+        const getPokeAtBoxSlot = (slotIdx) => {
+            return boxPokemon.value.find(p => p.storage_index === slotIdx);
+        };
+
+        const selectPCPoke = (poke) => {
+            selectedPCPoke.value = poke;
+        };
+
+        const changeBox = (boxNum) => {
+            currentBox.value = boxNum;
+            fetch(`https://${GetParentResourceName()}/switchBox`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ boxNumber: boxNum })
+            });
+        };
+
+        const withdrawSelectedPC = () => {
+            if (!selectedPCPoke.value) return;
+            fetch(`https://${GetParentResourceName()}/withdrawPC`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pokemonId: selectedPCPoke.value.id })
+            });
+            selectedPCPoke.value = null;
+        };
+
+        const depositPartyToPC = (poke) => {
+            fetch(`https://${GetParentResourceName()}/depositPC`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    partySlot: poke.storage_index,
+                    targetBox: currentBox.value
+                })
+            });
+        };
+
+        const releasePCPoke = (poke) => {
+            if (!poke) return;
+            fetch(`https://${GetParentResourceName()}/releasePokemon`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pokemonId: poke.id })
+            });
+            selectedPCPoke.value = null;
+        };
+
+        const releasePoke = (poke) => {
+            if (!poke) return;
+            fetch(`https://${GetParentResourceName()}/releasePokemon`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pokemonId: poke.id })
+            });
+        };
+
+        const movePartyUp = (poke) => {
+            if (!poke || poke.storage_index <= 1) return;
+            fetch(`https://${GetParentResourceName()}/swapParty`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    slot1: poke.storage_index,
+                    slot2: poke.storage_index - 1
+                })
+            });
+        };
+
+        // Pokédex Helpers
+        const isSeen = (id) => seenList.value.includes(id);
+        const isCaught = (id) => caughtList.value.includes(id);
+
+        const filteredPokedex = computed(() => {
+            if (!pokedexSearch.value.trim()) return pokedexList.value;
+            const q = pokedexSearch.value.toLowerCase();
+            return pokedexList.value.filter(p =>
+                p.name.toLowerCase().includes(q) || String(p.id).includes(q)
+            );
+        });
+
+        // PokéMart
+        const buyMartItem = (itemKey, count) => {
+            fetch(`https://${GetParentResourceName()}/buyMartItem`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ itemKey, amount: count })
+            });
+        };
+
+        return {
+            hudLead, notifications, showStarter, starters, selectedStarter, confirmStarter,
+            inBattle, battleData, battleSubmenu, battleLogText, sendBattleAction, openBagInBattle, openPartyInBattle,
+            showParty, partyList, selectedPartyPoke, releasePoke, movePartyUp,
+            showPC, currentBox, maxBoxes, boxPokemon, selectedPCPoke, selectPCPoke, changeBox, withdrawSelectedPC, depositPartyToPC, releasePCPoke, getPokeAtBoxSlot,
+            showPokedex, pokedexSearch, filteredPokedex, selectedDexEntry, isSeen, isCaught,
+            showMart, martName, martItems, buyMartItem,
+            closeUI, getTypeColor, getHpColor, getToastIcon
+        };
+    }
+}).mount('#app');
+

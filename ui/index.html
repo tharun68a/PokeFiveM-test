@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeFiveM by Pika Studio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Persistent HUD (Top Left Quick Bar) -->
+        <div id="poke-hud" v-if="hudLead" class="hud-container">
+            <div class="hud-ball">
+                <i class="fa-solid fa-compact-disc fa-spin-pulse"></i>
+            </div>
+            <div class="hud-info">
+                <div class="hud-top">
+                    <span class="hud-name">{{ hudLead.nickname || hudLead.name }}</span>
+                    <span class="hud-lvl">Lv. {{ hudLead.level }}</span>
+                </div>
+                <div class="hp-bar-bg">
+                    <div class="hp-bar-fill" :style="{ width: (hudLead.current_hp / hudLead.max_hp * 100) + '%', backgroundColor: getHpColor(hudLead.current_hp, hudLead.max_hp) }"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Toasts -->
+        <div class="notification-container">
+            <transition-group name="toast">
+                <div v-for="toast in notifications" :key="toast.id" :class="['toast-item', toast.type]">
+                    <i :class="getToastIcon(toast.type)"></i>
+                    <span>{{ toast.message }}</span>
+                </div>
+            </transition-group>
+        </div>
+
+        <!-- Starter Selection Modal -->
+        <div v-if="showStarter" class="modal-overlay">
+            <div class="starter-modal">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-gamepad"></i> Choose Your Starter Pokémon</h2>
+                    <p>Welcome, Trainer! Pick your companion to begin your journey in PokeFiveM.</p>
+                </div>
+                <div class="starter-grid">
+                    <div v-for="s in starters" :key="s.id" class="starter-card" @click="selectedStarter = s" :class="{ active: selectedStarter && selectedStarter.id === s.id }">
+                        <div class="starter-img">
+                            <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + s.id + '.png'" :alt="s.name">
+                        </div>
+                        <h3>{{ s.name }}</h3>
+                        <div class="type-pill" :style="{ backgroundColor: getTypeColor(s.type1) }">{{ s.type1 }}</div>
+                        <span class="starter-lvl">Level {{ s.level }}</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-confirm" :disabled="!selectedStarter" @click="confirmStarter">
+                        <i class="fa-solid fa-check"></i> Choose {{ selectedStarter ? selectedStarter.name : 'Partner' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Battle UI -->
+        <div v-if="inBattle" class="battle-screen">
+            <!-- Opponent Pokémon Info -->
+            <div class="battle-card opponent-card">
+                <div class="card-header">
+                    <span class="poke-name">{{ battleData.opponent.name }}</span>
+                    <span v-if="battleData.opponent.is_shiny" class="shiny-star"><i class="fa-solid fa-star"></i></span>
+                    <span class="poke-lvl">Lv. {{ battleData.opponent.level }}</span>
+                </div>
+                <div class="hp-section">
+                    <div class="hp-bar-bg">
+                        <div class="hp-bar-fill" :style="{ width: (battleData.opponent.current_hp / battleData.opponent.max_hp * 100) + '%', backgroundColor: getHpColor(battleData.opponent.current_hp, battleData.opponent.max_hp) }"></div>
+                    </div>
+                    <span class="hp-text">{{ battleData.opponent.current_hp }} / {{ battleData.opponent.max_hp }} HP</span>
+                </div>
+            </div>
+
+            <!-- Player Lead Info -->
+            <div class="battle-card player-card">
+                <div class="card-header">
+                    <span class="poke-name">{{ battleData.lead.nickname || battleData.lead.name }}</span>
+                    <span class="poke-lvl">Lv. {{ battleData.lead.level }}</span>
+                </div>
+                <div class="hp-section">
+                    <div class="hp-bar-bg">
+                        <div class="hp-bar-fill" :style="{ width: (battleData.lead.current_hp / battleData.lead.max_hp * 100) + '%', backgroundColor: getHpColor(battleData.lead.current_hp, battleData.lead.max_hp) }"></div>
+                    </div>
+                    <span class="hp-text">{{ battleData.lead.current_hp }} / {{ battleData.lead.max_hp }} HP</span>
+                </div>
+            </div>
+
+            <!-- Battle Announcement / Log Bar -->
+            <div class="battle-dialog-box">
+                <p>{{ battleLogText }}</p>
+            </div>
+
+            <!-- Battle Actions & Move Selector -->
+            <div class="battle-bottom-panel">
+                <div v-if="battleSubmenu === 'main'" class="battle-menu-grid">
+                    <button class="battle-btn btn-fight" @click="battleSubmenu = 'moves'">
+                        <i class="fa-solid fa-bolt"></i> FIGHT
+                    </button>
+                    <button class="battle-btn btn-bag" @click="openBagInBattle">
+                        <i class="fa-solid fa-briefcase"></i> BAG
+                    </button>
+                    <button class="battle-btn btn-poke" @click="openPartyInBattle">
+                        <i class="fa-solid fa-paw"></i> POKÉMON
+                    </button>
+                    <button class="battle-btn btn-run" @click="sendBattleAction('run')">
+                        <i class="fa-solid fa-person-running"></i> RUN
+                    </button>
+                </div>
+
+                <!-- Move Buttons -->
+                <div v-if="battleSubmenu === 'moves'" class="battle-moves-grid">
+                    <button v-for="(m, idx) in battleData.lead.moves" :key="idx" class="move-btn" :style="{ borderColor: getTypeColor(m.type) }" @click="sendBattleAction('attack', { moveKey: m.key })">
+                        <div class="move-top">
+                            <span class="move-name">{{ m.name }}</span>
+                            <span class="move-type" :style="{ backgroundColor: getTypeColor(m.type) }">{{ m.type }}</span>
+                        </div>
+                        <div class="move-bottom">
+                            <span>PWR: {{ m.power || '-' }}</span>
+                            <span>PP: {{ m.pp }}/{{ m.max_pp }}</span>
+                        </div>
+                    </button>
+                    <button class="move-btn btn-back" @click="battleSubmenu = 'main'">
+                        <i class="fa-solid fa-arrow-left"></i> BACK
+                    </button>
+                </div>
+
+                <!-- Bag Throw Pokéball Submenu -->
+                <div v-if="battleSubmenu === 'bag'" class="battle-bag-grid">
+                    <button class="bag-item-btn" @click="sendBattleAction('throw_ball', { ballKey: 'pokeball' })">
+                        <i class="fa-solid fa-circle-dot"></i> Poké Ball
+                    </button>
+                    <button class="bag-item-btn" @click="sendBattleAction('throw_ball', { ballKey: 'greatball' })">
+                        <i class="fa-solid fa-circle-dot" style="color: #4da6ff;"></i> Great Ball
+                    </button>
+                    <button class="bag-item-btn" @click="sendBattleAction('throw_ball', { ballKey: 'ultraball' })">
+                        <i class="fa-solid fa-circle-dot" style="color: #ffcc00;"></i> Ultra Ball
+                    </button>
+                    <button class="bag-item-btn" @click="sendBattleAction('throw_ball', { ballKey: 'masterball' })">
+                        <i class="fa-solid fa-circle-dot" style="color: #9933ff;"></i> Master Ball
+                    </button>
+                    <button class="move-btn btn-back" @click="battleSubmenu = 'main'">
+                        <i class="fa-solid fa-arrow-left"></i> BACK
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Party Team Menu (F6) -->
+        <div v-if="showParty" class="modal-overlay">
+            <div class="party-modal">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-users"></i> Trainer Party Team ({{ partyList.length }}/6)</h2>
+                    <button class="close-x" @click="closeUI"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="party-container">
+                    <div class="party-cards-list">
+                        <div v-for="(p, index) in partyList" :key="p.id" class="party-card" :class="{ selected: selectedPartyPoke && selectedPartyPoke.id === p.id }" @click="selectedPartyPoke = p">
+                            <div class="slot-badge">#{{ index + 1 }}</div>
+                            <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.pokedex_id + '.png'" class="party-sprite" :alt="p.name">
+                            <div class="party-card-info">
+                                <div class="party-card-name">
+                                    <strong>{{ p.nickname || p.name }}</strong>
+                                    <span v-if="p.is_shiny" class="shiny-star"><i class="fa-solid fa-star"></i></span>
+                                    <span class="lvl-tag">Lv. {{ p.level }}</span>
+                                </div>
+                                <div class="hp-bar-bg small">
+                                    <div class="hp-bar-fill" :style="{ width: (p.current_hp / p.max_hp * 100) + '%', backgroundColor: getHpColor(p.current_hp, p.max_hp) }"></div>
+                                </div>
+                                <div class="type-row">
+                                    <span class="type-tag" :style="{ backgroundColor: getTypeColor(p.type1) }">{{ p.type1 }}</span>
+                                    <span v-if="p.type2" class="type-tag" :style="{ backgroundColor: getTypeColor(p.type2) }">{{ p.type2 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selected Pokémon Detail Panel -->
+                    <div v-if="selectedPartyPoke" class="party-detail-view">
+                        <div class="detail-header">
+                            <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + selectedPartyPoke.pokedex_id + '.png'" class="detail-art">
+                            <div>
+                                <h3>{{ selectedPartyPoke.nickname || selectedPartyPoke.name }}</h3>
+                                <p>Nature: <strong>{{ selectedPartyPoke.nature }}</strong> | Ability: <strong>{{ selectedPartyPoke.ability }}</strong></p>
+                                <p>HP: {{ selectedPartyPoke.current_hp }} / {{ selectedPartyPoke.max_hp }}</p>
+                            </div>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-box"><span>ATK</span><strong>{{ selectedPartyPoke.stats ? selectedPartyPoke.stats.attack : '-' }}</strong></div>
+                            <div class="stat-box"><span>DEF</span><strong>{{ selectedPartyPoke.stats ? selectedPartyPoke.stats.defense : '-' }}</strong></div>
+                            <div class="stat-box"><span>SP.A</span><strong>{{ selectedPartyPoke.stats ? selectedPartyPoke.stats.sp_attack : '-' }}</strong></div>
+                            <div class="stat-box"><span>SP.D</span><strong>{{ selectedPartyPoke.stats ? selectedPartyPoke.stats.sp_defense : '-' }}</strong></div>
+                            <div class="stat-box"><span>SPD</span><strong>{{ selectedPartyPoke.stats ? selectedPartyPoke.stats.speed : '-' }}</strong></div>
+                        </div>
+                        <div class="moves-list-preview">
+                            <h4>Learned Moves</h4>
+                            <div class="move-tags">
+                                <span v-for="m in selectedPartyPoke.moves" :key="m.key" class="move-tag-chip" :style="{ borderColor: getTypeColor(m.type) }">
+                                    {{ m.name }} ({{ m.type }})
+                                </span>
+                            </div>
+                        </div>
+                        <div class="action-buttons-row">
+                            <button class="btn btn-secondary" @click="movePartyUp(selectedPartyPoke)"><i class="fa-solid fa-arrow-up"></i> Move Up</button>
+                            <button class="btn btn-danger" @click="releasePoke(selectedPartyPoke)"><i class="fa-solid fa-trash"></i> Release</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PC Storage Box Menu -->
+        <div v-if="showPC" class="modal-overlay">
+            <div class="pc-modal">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-hard-drive"></i> Pokémon PC Storage System</h2>
+                    <div class="box-switcher">
+                        <button class="btn-box-nav" @click="changeBox(currentBox - 1)" :disabled="currentBox <= 1"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span>Box {{ currentBox }} / {{ maxBoxes }}</span>
+                        <button class="btn-box-nav" @click="changeBox(currentBox + 1)" :disabled="currentBox >= maxBoxes"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <button class="close-x" @click="closeUI"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pc-body">
+                    <!-- 30 Slot Grid -->
+                    <div class="pc-grid">
+                        <div v-for="slot in 30" :key="slot" class="pc-slot" :class="{ hasPoke: getPokeAtBoxSlot(slot - 1), selected: selectedPCPoke && selectedPCPoke.storage_index === (slot - 1) }" @click="selectPCPoke(getPokeAtBoxSlot(slot - 1))">
+                            <template v-if="getPokeAtBoxSlot(slot - 1)">
+                                <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + getPokeAtBoxSlot(slot - 1).pokedex_id + '.png'">
+                                <span class="slot-mini-lvl">Lv.{{ getPokeAtBoxSlot(slot - 1).level }}</span>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Right Side Details & Party Swap -->
+                    <div class="pc-sidebar">
+                        <div v-if="selectedPCPoke" class="pc-details">
+                            <h3>{{ selectedPCPoke.nickname || selectedPCPoke.name }}</h3>
+                            <span class="lvl-tag">Lv. {{ selectedPCPoke.level }}</span>
+                            <div class="iv-stats">
+                                <p>Nature: {{ selectedPCPoke.nature }}</p>
+                                <p v-if="selectedPCPoke.ivs">IV: HP {{ selectedPCPoke.ivs.hp }} | ATK {{ selectedPCPoke.ivs.attack }} | DEF {{ selectedPCPoke.ivs.defense }}</p>
+                            </div>
+                            <button class="btn btn-confirm" @click="withdrawSelectedPC"><i class="fa-solid fa-arrow-down"></i> Withdraw to Party</button>
+                            <button class="btn btn-danger" @click="releasePCPoke(selectedPCPoke)"><i class="fa-solid fa-trash"></i> Release</button>
+                        </div>
+                        <div v-else class="pc-placeholder">
+                            <i class="fa-solid fa-mouse-pointer"></i>
+                            <p>Select a Pokémon from Box {{ currentBox }}</p>
+                        </div>
+
+                        <!-- Quick Deposit Party -->
+                        <div class="pc-party-tray">
+                            <h4>Quick Deposit From Party</h4>
+                            <div class="party-tray-grid">
+                                <div v-for="p in partyList" :key="p.id" class="party-tray-item" @click="depositPartyToPC(p)">
+                                    <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.pokedex_id + '.png'">
+                                    <span>Lv.{{ p.level }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pokédex (F7) -->
+        <div v-if="showPokedex" class="modal-overlay">
+            <div class="pokedex-modal">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-book-bookmark"></i> Pokédex Kanto Database</h2>
+                    <input type="text" v-model="pokedexSearch" placeholder="Search name or ID..." class="search-input">
+                    <button class="close-x" @click="closeUI"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pokedex-body">
+                    <div class="pokedex-list">
+                        <div v-for="entry in filteredPokedex" :key="entry.id" class="dex-entry-row" :class="{ active: selectedDexEntry && selectedDexEntry.id === entry.id, caught: isCaught(entry.id), seen: isSeen(entry.id) }" @click="selectedDexEntry = entry">
+                            <span class="dex-num">#{{ String(entry.id).padStart(3, '0') }}</span>
+                            <span class="dex-name">{{ isSeen(entry.id) ? entry.name : '???' }}</span>
+                            <div class="dex-status-icons">
+                                <i v-if="isCaught(entry.id)" class="fa-solid fa-circle-check text-success"></i>
+                                <i v-else-if="isSeen(entry.id)" class="fa-regular fa-eye text-warning"></i>
+                                <i v-else class="fa-solid fa-lock text-muted"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="selectedDexEntry && isSeen(selectedDexEntry.id)" class="pokedex-detail-view">
+                        <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + selectedDexEntry.id + '.png'" class="dex-artwork">
+                        <h2>#{{ String(selectedDexEntry.id).padStart(3, '0') }} - {{ selectedDexEntry.name }}</h2>
+                        <div class="type-row">
+                            <span class="type-tag" :style="{ backgroundColor: getTypeColor(selectedDexEntry.type1) }">{{ selectedDexEntry.type1 }}</span>
+                            <span v-if="selectedDexEntry.type2" class="type-tag" :style="{ backgroundColor: getTypeColor(selectedDexEntry.type2) }">{{ selectedDexEntry.type2 }}</span>
+                        </div>
+                        <div class="dex-info-table">
+                            <p><strong>Height:</strong> {{ selectedDexEntry.height }} m | <strong>Weight:</strong> {{ selectedDexEntry.weight }} kg</p>
+                            <p><strong>Catch Rate:</strong> {{ selectedDexEntry.catchRate }}</p>
+                        </div>
+                        <div class="dex-stats">
+                            <div class="dex-stat-bar" v-for="(val, stat) in selectedDexEntry.baseStats" :key="stat">
+                                <span class="stat-name">{{ stat.toUpperCase() }}</span>
+                                <div class="bar-outer">
+                                    <div class="bar-inner" :style="{ width: Math.min(100, (val / 160 * 100)) + '%' }"></div>
+                                </div>
+                                <span class="stat-val">{{ val }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PokéMart Store Modal -->
+        <div v-if="showMart" class="modal-overlay">
+            <div class="mart-modal">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-store"></i> {{ martName || 'PokéMart' }}</h2>
+                    <button class="close-x" @click="closeUI"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="mart-items-list">
+                    <div v-for="it in martItems" :key="it.item" class="mart-item-card">
+                        <div class="mart-item-info">
+                            <h4>{{ it.label }}</h4>
+                            <span class="mart-price">${{ it.price }}</span>
+                        </div>
+                        <button class="btn btn-confirm btn-sm" @click="buyMartItem(it.item, 1)">Buy 1</button>
+                        <button class="btn btn-secondary btn-sm" @click="buyMartItem(it.item, 10)">Buy 10</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Vue 3 CDN & Application Script -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+

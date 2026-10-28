@@ -1,0 +1,41 @@
+# ====================================================================
+# PokeFiveM Standalone Server Configuration
+# Developed by: Pika Studio
+# Independent FiveM Pokémon Framework (Zero ESX Dependency)
+# ====================================================================
+
+endpoint_add_tcp "0.0.0.0:30120"
+endpoint_add_udp "0.0.0.0:30120"
+
+sv_maxclients 8
+
+# Database Connection (oxmysql)
+set mysql_connection_string "mysql://root:password@127.0.0.1/pokefivem?charset=utf8mb4"
+
+# System Resources
+ensure mapmanager
+ensure chat
+ensure spawnmanager
+ensure sessionmanager
+ensure hardcap
+ensure rconlog
+
+# Standalone Supporting Libraries
+ensure oxmysql
+
+# ====================================================================
+# PokeFiveM Framework Core (Autonomous Framework)
+# ====================================================================
+ensure PokeFiveM
+
+# Admin ACE Permissions
+add_ace group.admin command allow
+add_ace group.admin command.spawnwild allow
+add_ace group.admin command.givepokemon allow
+add_ace group.admin command.giveball allow
+add_ace group.admin command.giveitem allow
+add_ace group.admin command.givemoney allow
+add_ace group.admin command.setjob allow
+
+# Assign Admin Principal (Replace with your FiveM license)
+add_principal identifier.license:YOUR_HEX_HERE group.admin

@@ -1,0 +1,13 @@
+# Operating System Files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor & SFTP Backups
+.vscode/sftp-backup/
+.vscode/sftp.json
+
+# Temporary & Log Files
+*.log
+*.tmp
+*.bak
