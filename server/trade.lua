@@ -131,19 +131,19 @@ RegisterNetEvent('pokefivem:server:confirmTrade', function(tradeId)
             MySQL.query.await('UPDATE pokefivem_pokemon SET owner = ? WHERE id = ?', { c1, trade.p2_offer })
 
             -- Check Trade Evolutions
-            local mon1 = MySQL.single.await('SELECT pokedex_id, name FROM pokefivem_pokemon WHERE id = ?', { trade.p1_offer })
-            local mon2 = MySQL.single.await('SELECT pokedex_id, name FROM pokefivem_pokemon WHERE id = ?', { trade.p2_offer })
+            local mon1 = MySQL.single.await('SELECT pokedex_id, nickname FROM pokefivem_pokemon WHERE id = ?', { trade.p1_offer })
+            local mon2 = MySQL.single.await('SELECT pokedex_id, nickname FROM pokefivem_pokemon WHERE id = ?', { trade.p2_offer })
 
             if mon1 and TradeEvolutions[mon1.pokedex_id] then
                 local evo = TradeEvolutions[mon1.pokedex_id]
-                MySQL.query('UPDATE pokefivem_pokemon SET pokedex_id = ?, name = ? WHERE id = ?', { evo.evolveInto, evo.name, trade.p1_offer })
-                PokeCore.Functions.Notify(trade.p2, string.format("What? %s is evolving into %s through trade!", mon1.name, evo.name), 'success')
+                MySQL.query('UPDATE pokefivem_pokemon SET pokedex_id = ?, nickname = ? WHERE id = ?', { evo.evolveInto, evo.name, trade.p1_offer })
+                PokeCore.Functions.Notify(trade.p2, string.format("What? %s is evolving into %s through trade!", mon1.nickname or "Pokémon", evo.name), 'success')
             end
 
             if mon2 and TradeEvolutions[mon2.pokedex_id] then
                 local evo = TradeEvolutions[mon2.pokedex_id]
-                MySQL.query('UPDATE pokefivem_pokemon SET pokedex_id = ?, name = ? WHERE id = ?', { evo.evolveInto, evo.name, trade.p2_offer })
-                PokeCore.Functions.Notify(trade.p1, string.format("What? %s is evolving into %s through trade!", mon2.name, evo.name), 'success')
+                MySQL.query('UPDATE pokefivem_pokemon SET pokedex_id = ?, nickname = ? WHERE id = ?', { evo.evolveInto, evo.name, trade.p2_offer })
+                PokeCore.Functions.Notify(trade.p1, string.format("What? %s is evolving into %s through trade!", mon2.nickname or "Pokémon", evo.name), 'success')
             end
 
             TriggerClientEvent('pokefivem:client:tradeSuccess', trade.p1)

@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `pokefivem_pokemon` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `owner` VARCHAR(64) NOT NULL COMMENT 'citizenid of owner',
     `pokedex_id` INT NOT NULL,
+    `name` VARCHAR(32) DEFAULT NULL,
     `nickname` VARCHAR(32) DEFAULT NULL,
     `level` INT NOT NULL DEFAULT 5,
     `exp` INT NOT NULL DEFAULT 0,

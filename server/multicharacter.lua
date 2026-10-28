@@ -29,7 +29,18 @@ PokeCore.Functions.CreateCallback('pokefivem:multichar:getCharacters', function(
             local pos = json.decode(c.position or '{}')
 
             -- Get Lead Pokémon and Total Pokémon count
-            MySQL.single('SELECT pokedex_id, name, level FROM pokefivem_pokemon WHERE owner = ? AND storage_type = "party" AND storage_index = 1', { c.citizenid }, function(leadMon)
+            MySQL.single('SELECT pokedex_id, nickname, level FROM pokefivem_pokemon WHERE owner = ? AND storage_type = "party" AND storage_index = 1', { c.citizenid }, function(leadMon)
+                local monData = nil
+                if leadMon then
+                    local pData = GetPokedexEntry(leadMon.pokedex_id)
+                    local monName = (leadMon.nickname and leadMon.nickname ~= "") and leadMon.nickname or (pData and pData.name or "Pokémon")
+                    monData = {
+                        pokedex_id = leadMon.pokedex_id,
+                        name = monName,
+                        level = leadMon.level or 5
+                    }
+                end
+
                 MySQL.scalar('SELECT COUNT(*) FROM pokefivem_pokemon WHERE owner = ?', { c.citizenid }, function(pokemonCount)
                     table.insert(results, {
                         citizenid = c.citizenid,
@@ -39,7 +50,7 @@ PokeCore.Functions.CreateCallback('pokefivem:multichar:getCharacters', function(
                         metadata = metadata,
                         position = pos,
                         pokemonCount = pokemonCount or 0,
-                        leadPokemon = leadMon or nil,
+                        leadPokemon = monData,
                         slot = idx
                     })
 

@@ -78,7 +78,7 @@ RegisterNetEvent('pokefivem:server:checkDaycare', function()
         }
 
         MySQL.insert([[
-            INSERT INTO pokefivem_pokemon (owner, pokedex_id, name, level, hp, max_hp, ivs, evs, moves, is_shiny, storage_type, storage_index)
+            INSERT INTO pokefivem_pokemon (owner, pokedex_id, nickname, level, current_hp, max_hp, ivs, evs, moves, is_shiny, storage_type, storage_index)
             VALUES (?, ?, ?, 1, 20, 20, '{"hp":31,"attack":31,"defense":31,"speed":31,"spatk":31,"spdef":31}', '{"hp":0,"attack":0,"defense":0,"speed":0,"spatk":0,"spdef":0}', '["tackle"]', ?, 'party', ?)
         ]], { cid, babyDexId, "Mystery Egg", eggPokemon.is_shiny and 1 or 0, eggPokemon.storage_index })
 
