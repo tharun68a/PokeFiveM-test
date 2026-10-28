@@ -1,82 +1,129 @@
 $version: 2
-name: PokeFiveM Standalone
+name: PokeFiveM Autonomous RPG Framework
 author: Pika Studio
-description: Official Autonomous Pokémon RPG Framework for FiveM (Zero ESX Dependency)
+description: Full-featured, standalone Pokémon RPG framework for FiveM inspired by Fivemon — Zero ESX dependency, built-in turn-based battles, 3D throwing physics, companion buddy AI, mounts, PC storage, Pokédex, and economy.
 
 tasks:
-  # 1. Download official CFX default server resources
+  # 1. Connect to MySQL / MariaDB database via txAdmin deployer
+  - action: connect_database
+
+  # 2. Download official CFX default server resources
   - action: download_github
     src: https://github.com/citizenfx/cfx-server-data
     ref: master
     subpath: resources
     dest: ./resources/[cfx-default]
 
-  # 2. Download oxmysql database driver
+  # 3. Download oxmysql async database driver
   - action: download_github
     src: https://github.com/overextended/oxmysql
     ref: v2.10.1
     dest: ./resources/[standalone]/oxmysql
 
-  # 3. Download PokeFiveM Framework Core
+  # 4. Download pma-voice proximity 3D audio & spatial voice chat
+  - action: download_github
+    src: https://github.com/AvarianKnight/pma-voice
+    ref: v6.6.2
+    dest: ./resources/[standalone]/pma-voice
+
+  # 5. Download bob74_ipl (GTA V map interiors, IPL fixes, and city buildings)
+  - action: download_github
+    src: https://github.com/Bob74/bob74_ipl
+    ref: master
+    dest: ./resources/[standalone]/bob74_ipl
+
+  # 6. Download PokeFiveM Autonomous Framework Core
   - action: download_github
     src: https://github.com/tharun68a/PokeFiveM-test
     ref: main
     dest: ./resources/PokeFiveM
 
-  # 4. Generate clean Standalone server.cfg
+  # 7. Execute automated database schema migration for PokeFiveM
+  - action: query_database
+    file: ./resources/PokeFiveM/database/schema.sql
+
+  # 8. Generate production-ready Standalone server.cfg
   - action: write_file
     file: ./server.cfg
     data: |
+      ## ===================================================================
+      ## PokeFiveM Server Configuration - Pika Studio
+      ## Standalone Autonomous Pokémon RPG Framework (Zero ESX Dependency)
+      ## Inspired by Fivemon & Built for Cfx.re / FiveM
+      ## ===================================================================
+
+      ## Network & Host Endpoints
       endpoint_add_tcp "0.0.0.0:{{serverPort}}"
       endpoint_add_udp "0.0.0.0:{{serverPort}}"
 
+      ## Player Slots & License Keys
       sv_maxclients {{maxClients}}
       set steam_webApiKey "none"
       set sv_licenseKey "{{svLicense}}"
 
+      ## Database Connection (Populated automatically by txAdmin)
       set mysql_connection_string "{{dbConnectionString}}"
+      set mysql_slow_query_warning 150
+      set mysql_ui true
 
+      ## Server Environment & OneSync
       sv_enforceGameBuild 3258
       set resources_useSystemChat true
       set onesync on
       set gamename "gta5"
 
-      sv_hostname "PokeFiveM - Pokemon RPG Standalone"
-      sets sv_projectName "PokeFiveM Server"
-      sets sv_projectDesc "Advanced Pokemon RPG Framework by Pika Studio"
-      sets tags "pokemon, rpg, custom, standalone, pokefivem"
+      ## Server Branding & Information
+      sv_hostname "PokeFiveM - Pokémon RPG Standalone [Pika Studio]"
+      sets sv_projectName "PokeFiveM Autonomous RPG"
+      sets sv_projectDesc "Full-featured standalone Pokémon RPG framework with battles, mounts, companion AI, PC storage, and Pokédex!"
+      sets tags "pokemon, rpg, custom, standalone, pokefivem, pika, battles, companion, mounts, pokedex"
+      sets locale "en-US"
 
-      ## Admin Permissions
+      ## Admin Permissions & Command Grants
       add_principal group.admin group.user
       add_ace group.admin command allow
       add_ace group.admin command.quit deny
 
-      # PokeFiveM Admin Commands
+      # PokeFiveM Framework Admin Commands
       add_ace group.admin command.spawnwild allow
       add_ace group.admin command.givepokemon allow
       add_ace group.admin command.giveball allow
       add_ace group.admin command.giveitem allow
       add_ace group.admin command.givemoney allow
       add_ace group.admin command.setjob allow
+      add_ace group.admin command.healteam allow
+      add_ace group.admin command.pc allow
+      add_ace group.admin command.party allow
+      add_ace group.admin command.pokedex allow
 
-      ## Voice & Audio
-      setr voice_enableRadioAnim 1
+      ## Voice & Audio (pma-voice spatial 3D proximity chat)
       setr voice_useNativeAudio true
       setr voice_useSendingRangeOnly true
+      setr voice_enableRadioAnim 1
       setr voice_enableUi 0
+      setr voice_defaultCycle "GRAVE"
+      setr voice_defaultVolume "0.3"
+      setr voice_enableSubmix 1
 
-      ## Security & Network
+      ## Security & Anti-Exploit
       sv_endpointprivacy true
+      sv_scriptHookAllowed 0
 
-      ## Default Resources
+      ## ===================================================================
+      ## Default CFX Resources
+      ## ===================================================================
       ensure mapmanager
       ensure chat
       ensure spawnmanager
       ensure sessionmanager
       ensure hardcap
 
-      ## Standalone Database
+      ## ===================================================================
+      ## Standalone Dependencies
+      ## ===================================================================
       ensure oxmysql
+      ensure pma-voice
+      ensure bob74_ipl
 
       ## ===================================================================
       ## PokeFiveM Framework Core (Pika Studio)
