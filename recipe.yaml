@@ -17,9 +17,15 @@ tasks:
     ref: v2.10.1
     dest: ./resources/[standalone]/oxmysql
 
-  # 3. Generate clean Standalone server.cfg
+  # 3. Download PokeFiveM Framework Core
+  - action: download_github
+    src: https://github.com/tharun68a/PokeFiveM-test
+    ref: main
+    dest: ./resources/PokeFiveM
+
+  # 4. Generate clean Standalone server.cfg
   - action: write_file
-    dest: ./server.cfg
+    file: ./server.cfg
     data: |
       endpoint_add_tcp "0.0.0.0:{{serverPort}}"
       endpoint_add_udp "0.0.0.0:{{serverPort}}"
