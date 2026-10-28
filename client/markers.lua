@@ -27,6 +27,27 @@ CreateThread(function()
         FreezeEntityPosition(clerk, true)
         SetEntityInvincible(clerk, true)
         SetBlockingOfNonTemporaryEvents(clerk, true)
+
+        -- ox_target Integration for PokéMart
+        if GetResourceState('ox_target') == 'started' then
+            exports.ox_target:addLocalEntity(clerk, {
+                {
+                    name = 'pokefivem_pokemart_shop',
+                    icon = 'fas fa-shop',
+                    label = 'Open PokéMart',
+                    distance = 2.5,
+                    onSelect = function()
+                        SetNuiFocus(true, true)
+                        SendNUIMessage({
+                            action = "openPokeMart",
+                            items = Config.PokeMartItems or {},
+                            pokedollars = (PokeCore.PlayerData.accounts and PokeCore.PlayerData.accounts.pokedollars) or 0
+                        })
+                    end
+                }
+            })
+        end
+
         table.insert(spawnedMartPeds, clerk)
     end
 

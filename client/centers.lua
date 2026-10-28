@@ -30,6 +30,30 @@ CreateThread(function()
         SetEntityInvincible(nursePed, true)
         SetBlockingOfNonTemporaryEvents(nursePed, true)
 
+        -- ox_target Integration for Nurse Joy
+        if GetResourceState('ox_target') == 'started' then
+            exports.ox_target:addLocalEntity(nursePed, {
+                {
+                    name = 'pokefivem_nurse_heal',
+                    icon = 'fas fa-heart-pulse',
+                    label = 'Heal Pokémon Party',
+                    distance = 2.5,
+                    onSelect = function()
+                        StartHealingSequence()
+                    end
+                },
+                {
+                    name = 'pokefivem_nurse_pc',
+                    icon = 'fas fa-computer',
+                    label = 'Access Pokémon PC Storage',
+                    distance = 2.5,
+                    onSelect = function()
+                        TriggerServerEvent('pokefivem:server:openPC', 1)
+                    end
+                }
+            })
+        end
+
         table.insert(spawnedCenterPeds, nursePed)
     end
 

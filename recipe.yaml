@@ -1,20 +1,29 @@
-$version: 2
+$engine: 3
+$onesync: on
 name: PokeFiveM Autonomous RPG Framework
+version: 2.0.0
 author: Pika Studio
-description: Full-featured standalone Pokémon RPG framework for FiveM featuring ox_lib and ox_inventory — Zero ESX dependency, turn-based battles, 3D projectile capture physics, companion buddy AI, mounts, PC storage, Pokédex, and economy.
+description: Enterprise-grade standalone Pokémon RPG Framework for FiveM (Zero ESX Dependency) — Full Overextended Stack (oxmysql, ox_lib, ox_inventory, ox_target), pma-voice 3D spatial audio, bob74_ipl interior loader, scully_emotemenu, turn-based battle engine, 3D projectile capture physics, companion buddy AI, mounts, and 30 PC Storage Boxes.
 
 tasks:
-  # 1. Connect to MySQL / MariaDB database via txAdmin deployer
+  # -------------------------------------------------------------------
+  # 1. Database Connection via txAdmin Deployer
+  # -------------------------------------------------------------------
   - action: connect_database
 
-  # 2. Download official CFX default server resources
+  # -------------------------------------------------------------------
+  # 2. CFX Official Base Resources
+  # -------------------------------------------------------------------
   - action: download_github
     src: https://github.com/citizenfx/cfx-server-data
     ref: master
     subpath: resources
     dest: ./resources/[cfx-default]
 
-  # 3. Download oxmysql async database driver (Prebuilt release)
+  # -------------------------------------------------------------------
+  # 3. Overextended (Ox) Core Suite (Prebuilt Official Releases)
+  # -------------------------------------------------------------------
+  ## oxmysql - High performance async MySQL/MariaDB driver
   - action: download_file
     url: https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
     path: ./tmp/oxmysql.zip
@@ -22,7 +31,7 @@ tasks:
     src: ./tmp/oxmysql.zip
     dest: ./resources/[ox]
 
-  # 4. Download ox_lib standalone library (UI, Radial, Points, Callbacks)
+  ## ox_lib - Core UI, radial menus, context menus, zone points & callbacks
   - action: download_file
     url: https://github.com/overextended/ox_lib/releases/latest/download/ox_lib.zip
     path: ./tmp/ox_lib.zip
@@ -30,7 +39,15 @@ tasks:
     src: ./tmp/ox_lib.zip
     dest: ./resources/[ox]
 
-  # 5. Download ox_inventory standalone inventory (Prebuilt UI & drag-and-drop slots)
+  ## ox_target - Eye target raycast interaction system (Nurse Joy, Shops, Wild Pokemon)
+  - action: download_file
+    url: https://github.com/overextended/ox_target/releases/latest/download/ox_target.zip
+    path: ./tmp/ox_target.zip
+  - action: unzip
+    src: ./tmp/ox_target.zip
+    dest: ./resources/[ox]
+
+  ## ox_inventory - Slot-based drag & drop inventory with weight & item metadata
   - action: download_file
     url: https://github.com/overextended/ox_inventory/releases/latest/download/ox_inventory.zip
     path: ./tmp/ox_inventory.zip
@@ -38,75 +55,65 @@ tasks:
     src: ./tmp/ox_inventory.zip
     dest: ./resources/[ox]
 
-  # 6. Download pma-voice proximity 3D audio & spatial voice chat
+  # -------------------------------------------------------------------
+  # 4. Audio & Proximity Voice Stack
+  # -------------------------------------------------------------------
+  ## pma-voice - High performance spatial 3D proximity voice communication
   - action: download_github
     src: https://github.com/AvarianKnight/pma-voice
     ref: v6.6.2
-    dest: ./resources/[standalone]/pma-voice
+    dest: ./resources/[voice]/pma-voice
 
-  # 7. Download bob74_ipl (GTA V map interiors, IPL fixes, and city buildings)
+  # -------------------------------------------------------------------
+  # 5. Standalone World & Roleplay Enhancements
+  # -------------------------------------------------------------------
+  ## bob74_ipl - Fixes map holes and enables all GTA V interiors & buildings
   - action: download_github
     src: https://github.com/Bob74/bob74_ipl
     ref: master
     dest: ./resources/[standalone]/bob74_ipl
 
-  # 8. Download PokeFiveM Autonomous Framework Core
+  ## scully_emotemenu - Clean trainer animations, emotes, and posture controls
+  - action: download_github
+    src: https://github.com/Scullyy/scully_emotemenu
+    ref: main
+    dest: ./resources/[standalone]/scully_emotemenu
+
+  # -------------------------------------------------------------------
+  # 6. PokeFiveM Framework Core (Pika Studio)
+  # -------------------------------------------------------------------
   - action: download_github
     src: https://github.com/tharun68a/PokeFiveM-test
     ref: main
     dest: ./resources/PokeFiveM
 
-  # 9. Clean up temporary downloaded archives
+  # -------------------------------------------------------------------
+  # 7. Clean up temporary archives
+  # -------------------------------------------------------------------
   - action: remove_path
     path: ./tmp
 
-  # 10. Execute automated database schema migration for PokeFiveM
+  # -------------------------------------------------------------------
+  # 8. Automated Database Schema Migration
+  # -------------------------------------------------------------------
   - action: query_database
     file: ./resources/PokeFiveM/database/schema.sql
 
-  # 11. Generate production-ready Standalone server.cfg
+  # -------------------------------------------------------------------
+  # 9. Modular Configuration Files (Qbox / ESX Enterprise Style)
+  # -------------------------------------------------------------------
+  ## permissions.cfg - Access Control & Command Permissions
   - action: write_file
-    file: ./server.cfg
+    file: ./permissions.cfg
     data: |
       ## ===================================================================
-      ## PokeFiveM Server Configuration - Pika Studio
-      ## Standalone Autonomous Pokémon RPG Framework (Zero ESX Dependency)
-      ## Complete with ox_lib & ox_inventory Support
+      ## PokeFiveM Framework - Permissions & Security (Pika Studio)
       ## ===================================================================
-
-      ## Network & Host Endpoints
-      endpoint_add_tcp "0.0.0.0:{{serverPort}}"
-      endpoint_add_udp "0.0.0.0:{{serverPort}}"
-
-      ## Player Slots & License Keys
-      sv_maxclients {{maxClients}}
-      set steam_webApiKey "none"
-      set sv_licenseKey "{{svLicense}}"
-
-      ## Database Connection (Populated automatically by txAdmin)
-      set mysql_connection_string "{{dbConnectionString}}"
-      set mysql_slow_query_warning 150
-      set mysql_ui true
-
-      ## Server Environment & OneSync
-      sv_enforceGameBuild 3258
-      set resources_useSystemChat true
-      set onesync on
-      set gamename "gta5"
-
-      ## Server Branding & Information
-      sv_hostname "PokeFiveM - Pokémon RPG Standalone [Pika Studio]"
-      sets sv_projectName "PokeFiveM Autonomous RPG"
-      sets sv_projectDesc "Full-featured standalone Pokémon RPG with ox_lib & ox_inventory, battles, mounts, companion AI, PC storage, and Pokédex!"
-      sets tags "pokemon, rpg, custom, standalone, pokefivem, pika, battles, companion, mounts, pokedex, ox_inventory, ox_lib"
-      sets locale "en-US"
-
-      ## Admin Permissions & Command Grants
       add_principal group.admin group.user
       add_ace group.admin command allow
       add_ace group.admin command.quit deny
 
-      # PokeFiveM Framework Admin Commands
+      ## Framework Administrative Grants
       add_ace group.admin command.spawnwild allow
       add_ace group.admin command.givepokemon allow
       add_ace group.admin command.giveball allow
@@ -118,7 +125,16 @@ tasks:
       add_ace group.admin command.party allow
       add_ace group.admin command.pokedex allow
 
-      ## Voice & Audio (pma-voice spatial 3D proximity chat)
+      ## ox_inventory Permissions
+      add_ace group.admin inventory.admin allow
+
+  ## voice.cfg - Spatial 3D Audio Settings
+  - action: write_file
+    file: ./voice.cfg
+    data: |
+      ## ===================================================================
+      ## PokeFiveM Audio - pma-voice Proximity Chat Settings
+      ## ===================================================================
       setr voice_useNativeAudio true
       setr voice_useSendingRangeOnly true
       setr voice_enableRadioAnim 1
@@ -127,17 +143,67 @@ tasks:
       setr voice_defaultVolume "0.3"
       setr voice_enableSubmix 1
 
-      ## ox_inventory Configuration
+  ## ox.cfg - Overextended Suite Convars
+  - action: write_file
+    file: ./ox.cfg
+    data: |
+      ## ===================================================================
+      ## PokeFiveM Ox Suite Configuration (ox_lib, ox_inventory, ox_target)
+      ## ===================================================================
       setr inventory:slots 50
       setr inventory:weight 30000
-      setr inventory:target false
+      setr inventory:target true
+      setr ox:primaryColor "yellow"
+      setr ox:primaryShade 7
 
-      ## Security & Anti-Exploit
+  ## server.cfg - Executive Master Server Configuration
+  - action: write_file
+    file: ./server.cfg
+    data: |
+      ## ===================================================================
+      ## PokeFiveM Master Server Configuration
+      ## Developed by: Pika Studio (Enterprise Standalone Framework)
+      ## Zero ESX Dependency | Compatible with Cfx.re & txAdmin
+      ## ===================================================================
+
+      ## Endpoints & Server Port
+      endpoint_add_tcp "0.0.0.0:{{serverPort}}"
+      endpoint_add_udp "0.0.0.0:{{serverPort}}"
+
+      ## License Key & Slots
+      sv_maxclients {{maxClients}}
+      set steam_webApiKey "none"
+      set sv_licenseKey "{{svLicense}}"
+
+      ## Database Connection (Managed by txAdmin)
+      set mysql_connection_string "{{dbConnectionString}}"
+      set mysql_slow_query_warning 150
+      set mysql_ui true
+
+      ## Environment, Game Build & OneSync
+      sv_enforceGameBuild 3258
+      set resources_useSystemChat true
+      set onesync on
+      set gamename "gta5"
+
+      ## Branding & Metadata
+      sv_hostname "PokeFiveM - Autonomous Pokémon RPG [Pika Studio]"
+      sets sv_projectName "PokeFiveM Framework"
+      sets sv_projectDesc "Advanced Pokémon RPG with turn-based battles, mounts, buddy AI, PC storage, ox_inventory & ox_target!"
+      sets tags "pokemon, rpg, standalone, pokefivem, pika, battles, companion, mounts, pokedex, ox_inventory, ox_target, ox_lib"
+      sets locale "en-US"
+
+      ## Load Modular Configurations (Qbox / ESX Architecture)
+      exec permissions.cfg
+      exec voice.cfg
+      exec ox.cfg
+
+      ## Security & Anti-Cheat Natives
       sv_endpointprivacy true
       sv_scriptHookAllowed 0
 
       ## ===================================================================
-      ## Default CFX Resources
+      ## [1] Default CFX Resources
       ## ===================================================================
       ensure mapmanager
       ensure chat
@@ -146,19 +212,21 @@ tasks:
       ensure hardcap
 
       ## ===================================================================
-      ## Overextended Core Stack (oxmysql, ox_lib, ox_inventory)
+      ## [2] Overextended (Ox) Core Suite
       ## ===================================================================
       ensure oxmysql
       ensure ox_lib
+      ensure ox_target
       ensure ox_inventory
 
       ## ===================================================================
-      ## Voice & World Enhancement
+      ## [3] Voice & World Enhancements
       ## ===================================================================
       ensure pma-voice
       ensure bob74_ipl
+      ensure scully_emotemenu
 
       ## ===================================================================
-      ## PokeFiveM Framework Core (Pika Studio)
+      ## [4] PokeFiveM Framework Core (Pika Studio)
       ## ===================================================================
       ensure PokeFiveM

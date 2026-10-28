@@ -71,6 +71,34 @@ RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
     -- Wander task
     TaskWanderStandard(ped, 10.0, 10)
 
+    -- ox_target Integration for Wild Pokémon
+    if GetResourceState('ox_target') == 'started' then
+        exports.ox_target:addLocalEntity(ped, {
+            {
+                name = 'pokefivem_wild_battle',
+                icon = 'fas fa-shield-halved',
+                label = 'Battle ' .. (wildData.name or 'Pokémon'),
+                distance = 3.0,
+                onSelect = function()
+                    if not InBattle then
+                        TriggerServerEvent('pokefivem:server:startBattle', wildData.wildId)
+                    end
+                end
+            },
+            {
+                name = 'pokefivem_wild_throw',
+                icon = 'fas fa-circle-dot',
+                label = 'Throw Pokéball',
+                distance = 15.0,
+                onSelect = function()
+                    if not InBattle then
+                        TriggerEvent('pokefivem:client:throwBall', 'pokeball')
+                    end
+                end
+            }
+        })
+    end
+
     SpawnedWildPeds[wildData.wildId] = {
         entity = ped,
         data = wildData
