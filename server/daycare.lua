@@ -92,3 +92,4 @@ RegisterNetEvent('pokefivem:server:checkDaycare', function()
         PokeCore.Functions.Notify(src, string.format('The Pokémon are getting along well! Check back in %d seconds.', remaining), 'info')
     end
 end)
+

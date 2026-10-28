@@ -37,3 +37,4 @@ RegisterNetEvent('pokefivem:client:tradeSuccess', function()
     PlaySoundFrontend(-1, "LOCAL_PLYR_CASH_COUNTER_COMPLETE", "DLC_HEISTS_GENERAL_FRONTEND_SOUNDS", true)
     PokeCore.Functions.Notify("Trade completed successfully! Pokémon transferred.", "success")
 end)
+

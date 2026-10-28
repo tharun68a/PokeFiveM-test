@@ -92,3 +92,4 @@ RegisterNetEvent('pokefivem:client:startQuestBattle', function(quest)
 
     TriggerEvent('pokefivem:client:startWildBattleDirect', wildData)
 end)
+

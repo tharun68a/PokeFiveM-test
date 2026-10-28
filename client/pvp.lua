@@ -62,3 +62,4 @@ RegisterNetEvent('pokefivem:client:endPvPDuel', function(winnerSrc)
     currentDuel = nil
     PokeCore.Functions.Notify("The Pokémon duel has concluded.", "info")
 end)
+

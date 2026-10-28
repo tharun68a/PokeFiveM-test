@@ -115,3 +115,4 @@ RegisterNetEvent('pokefivem:server:pvpAction', function(duelId, actionType, acti
         activeDuels[duelId] = nil
     end
 end)
+

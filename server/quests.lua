@@ -94,3 +94,4 @@ AddEventHandler('pokefivem:server:onPokemonCaught', function(src, pokedexId)
         end
     end
 end)
+

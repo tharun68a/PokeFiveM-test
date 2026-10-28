@@ -97,3 +97,4 @@ RegisterNetEvent('pokefivem:client:startGymBattle', function(gym)
 
     TriggerEvent('pokefivem:client:startWildBattleDirect', wildData)
 end)
+

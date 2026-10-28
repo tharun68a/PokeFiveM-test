@@ -29,6 +29,15 @@ Config.Player = {
     ThirstRate = 3.8
 }
 
+-- Multicharacter Configuration (ox_lib native)
+Config.Multicharacter = {
+    Enabled = true,
+    MaxSlots = 4,
+    CameraCoords = vector4(-1392.21, -590.45, 30.32, 210.0),
+    PedPreviewCoords = vector4(-1393.12, -592.34, 30.32, 35.0),
+    DefaultSpawn = vector4(298.54, -584.43, 43.26, 75.0)
+}
+
 -- Admin Permissions & ACE Config
 Config.Permissions = {
     ['god'] = { 'admin', 'god' },

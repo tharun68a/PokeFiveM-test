@@ -62,3 +62,4 @@ PokeCore.Shared.Quests = {
         }
     }
 }
+

@@ -152,3 +152,4 @@ RegisterNetEvent('pokefivem:server:confirmTrade', function(tradeId)
         end
     end
 end)
+

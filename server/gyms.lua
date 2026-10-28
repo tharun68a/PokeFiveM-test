@@ -82,3 +82,4 @@ RegisterNetEvent('pokefivem:server:gymDefeated', function(gymId)
         PokeCore.Functions.Notify(src, string.format('Congratulations! You earned the %s and ₽%d!', gym.badge, gym.reward_money), 'success')
     end
 end)
+

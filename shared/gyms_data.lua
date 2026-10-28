@@ -152,3 +152,4 @@ PokeCore.Shared.Gyms = {
         }
     }
 }
+
