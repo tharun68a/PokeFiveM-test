@@ -194,3 +194,4 @@ RegisterNetEvent('pokefivem:client:spawnSelectedCharacter', function(playerData)
 
     DoScreenFadeIn(1000)
 end)
+

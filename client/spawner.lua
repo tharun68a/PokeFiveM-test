@@ -99,9 +99,13 @@ RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
         })
     end
 
+    local shinyTag = wildData.is_shiny and "~y~★ " or ""
+    local cachedLabel = string.format("%s~w~%s ~g~Lv. %d~w~", shinyTag, wildData.name, wildData.level)
+
     SpawnedWildPeds[wildData.wildId] = {
         entity = ped,
-        data = wildData
+        data = wildData,
+        cachedLabel = cachedLabel
     }
 end)
 
@@ -117,28 +121,30 @@ end)
 -- Interaction Loop: 3D Text & Battle Trigger
 CreateThread(function()
     while true do
-        local sleep = 500
-        local playerPed = PlayerPedId()
-        local playerCoords = GetEntityCoords(playerPed)
+        local hasTarget = (GetResourceState('ox_target') == 'started')
+        local sleep = 1000
 
-        if not InBattle then
+        if not InBattle and next(SpawnedWildPeds) then
+            local playerPed = PlayerPedId()
+            local playerCoords = GetEntityCoords(playerPed)
+
             for wildId, wild in pairs(SpawnedWildPeds) do
                 if DoesEntityExist(wild.entity) then
                     local wildCoords = GetEntityCoords(wild.entity)
                     local dist = #(playerCoords - wildCoords)
 
-                    if dist < 18.0 then
+                    if dist < 8.0 then
                         sleep = 0
-                        local shinyTag = wild.data.is_shiny and "~y~★ " or ""
-                        local text = string.format("%s~w~%s ~g~Lv. %d~w~", shinyTag, wild.data.name, wild.data.level)
-                        DrawText3D(wildCoords.x, wildCoords.y, wildCoords.z + 0.6, text)
+                        DrawText3D(wildCoords.x, wildCoords.y, wildCoords.z + 0.6, wild.cachedLabel or wild.data.name)
 
-                        if dist < 2.5 then
+                        if not hasTarget and dist < 2.5 then
                             DrawText3D(wildCoords.x, wildCoords.y, wildCoords.z + 0.35, "~b~[E]~w~ Battle Wild Pokémon")
                             if IsControlJustPressed(0, 38) then -- E key
                                 TriggerServerEvent('pokefivem:server:startWildBattle', wildId)
                             end
                         end
+                    elseif dist < 20.0 and sleep > 300 then
+                        sleep = 300
                     elseif dist > (Config.WildSpawning.DespawnDistance or 80.0) then
                         TriggerServerEvent('pokefivem:server:despawnWild', wildId)
                     end

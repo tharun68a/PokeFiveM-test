@@ -229,3 +229,4 @@ RegisterCommand('logout', function(source)
         TriggerClientEvent('pokefivem:client:openMulticharacter', source)
     end
 end)
+

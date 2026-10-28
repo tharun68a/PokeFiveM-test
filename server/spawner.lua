@@ -5,11 +5,23 @@
 
 ActiveWildPokemon = {}
 local wildIdCounter = 1000
+local playerLastSpawnRequest = {}
+
+AddEventHandler('playerDropped', function()
+    local src = source
+    playerLastSpawnRequest[src] = nil
+end)
 
 -- Request Spawning in a given biome / area
 RegisterNetEvent('pokefivem:server:requestSpawns', function(coords, biome)
     local src = source
     if not Config.WildSpawning.Enabled then return end
+
+    local now = os.time()
+    if playerLastSpawnRequest[src] and (now - playerLastSpawnRequest[src] < 8) then
+        return
+    end
+    playerLastSpawnRequest[src] = now
 
     -- Count active wild pokemons near this player
     local nearbyCount = 0

@@ -85,7 +85,6 @@ RegisterNetEvent('pokefivem:server:checkDaycare', function()
         data.egg_ready = false
         data.deposit_time = os.time()
 
-        PlaySoundFrontend(-1, "LOCAL_PLYR_CASH_COUNTER_COMPLETE", "DLC_HEISTS_GENERAL_FRONTEND_SOUNDS", true)
         PokeCore.Functions.Notify(src, 'The Daycare Lady found an Egg! It was placed in your Party. Walk to hatch it!', 'success')
     else
         local remaining = math.max(0, 300 - elapsed)

@@ -16,9 +16,10 @@ RegisterCommand('mount', function()
 end, false)
 
 function MountLeadPokemon()
-    if #PlayerParty == 0 then return end
-    local lead = PlayerParty[1]
-    if lead.current_hp <= 0 then
+    local party = PlayerParty or (PokeCore.PlayerData and PokeCore.PlayerData.pokemon) or {}
+    if #party == 0 then return end
+    local lead = party[1]
+    if not lead or (lead.current_hp and lead.current_hp <= 0) or lead.status == "fainted" then
         TriggerEvent('pokefivem:client:notify', "Your lead Pokémon is fainted!", 'error')
         return
     end

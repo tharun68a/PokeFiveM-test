@@ -281,12 +281,15 @@ function PokeCore.Player.Save(source)
     end)
 end
 
--- Auto-Save loop every 5 minutes
+-- Auto-Save loop every 5 minutes (Staggered across players to prevent DB load spikes)
 CreateThread(function()
     while true do
         Wait(5 * 60 * 1000)
         for src, _ in pairs(PokeCore.Players) do
-            PokeCore.Player.Save(src)
+            if PokeCore.Players[src] then
+                PokeCore.Player.Save(src)
+                Wait(250)
+            end
         end
     end
 end)

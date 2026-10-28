@@ -51,35 +51,43 @@ CreateThread(function()
         table.insert(spawnedMartPeds, clerk)
     end
 
-    -- Interaction
+    -- Interaction Loop
     while true do
-        local sleep = 800
-        local playerPed = PlayerPedId()
-        local playerCoords = GetEntityCoords(playerPed)
+        if GetResourceState('ox_target') == 'started' then
+            Wait(5000)
+        else
+            local sleep = 1500
+            local playerPed = PlayerPedId()
+            local playerCoords = GetEntityCoords(playerPed)
 
-        for _, mart in ipairs(Config.PokeMarts or {}) do
-            local dist = #(playerCoords - mart.coords)
-            if dist < 5.0 then
-                sleep = 0
-                DrawMarker(1, mart.coords.x, mart.coords.y, mart.coords.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.3, 50, 150, 255, 150, false, false, 2, false, nil, nil, false)
+            for _, mart in ipairs(Config.PokeMarts or {}) do
+                local dist = #(playerCoords - mart.coords)
+                if dist < 25.0 then
+                    if dist < 5.0 then
+                        sleep = 0
+                        DrawMarker(1, mart.coords.x, mart.coords.y, mart.coords.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.3, 50, 150, 255, 150, false, false, 2, false, nil, nil, false)
 
-                if dist < 2.0 then
-                    DrawText3D(mart.coords.x, mart.coords.y, mart.coords.z + 0.9, "~b~PokéMart Clerk~w~")
-                    DrawText3D(mart.coords.x, mart.coords.y, mart.coords.z + 0.65, "~g~[E]~w~ Open PokéMart")
+                        if dist < 2.0 then
+                            DrawText3D(mart.coords.x, mart.coords.y, mart.coords.z + 0.9, "~b~PokéMart Clerk~w~")
+                            DrawText3D(mart.coords.x, mart.coords.y, mart.coords.z + 0.65, "~g~[E]~w~ Open PokéMart")
 
-                    if IsControlJustPressed(0, 38) then
-                        SetNuiFocus(true, true)
-                        SendNUIMessage({
-                            action = "openMart",
-                            name = mart.name,
-                            items = mart.items
-                        })
+                            if IsControlJustPressed(0, 38) then
+                                SetNuiFocus(true, true)
+                                SendNUIMessage({
+                                    action = "openMart",
+                                    name = mart.name,
+                                    items = mart.items
+                                })
+                            end
+                        end
+                    elseif sleep > 300 then
+                        sleep = 300
                     end
                 end
             end
-        end
 
-        Wait(sleep)
+            Wait(sleep)
+        end
     end
 end)
 

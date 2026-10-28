@@ -47,26 +47,34 @@ CreateThread(function()
 
     -- Interaction Marker Loop (Native Fallback)
     while true do
-        local sleep = 800
-        local playerPed = PlayerPedId()
-        local playerCoords = GetEntityCoords(playerPed)
-        local dist = #(playerCoords - daycareCoords)
+        if GetResourceState('ox_target') == 'started' then
+            Wait(5000)
+        else
+            local sleep = 1500
+            local playerPed = PlayerPedId()
+            local playerCoords = GetEntityCoords(playerPed)
+            local dist = #(playerCoords - daycareCoords)
 
-        if dist < 6.0 then
-            sleep = 0
-            DrawMarker(1, daycareCoords.x, daycareCoords.y, daycareCoords.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2, 1.2, 0.3, 240, 200, 80, 160, false, false, 2, false, nil, nil, false)
+            if dist < 25.0 then
+                if dist < 6.0 then
+                    sleep = 0
+                    DrawMarker(1, daycareCoords.x, daycareCoords.y, daycareCoords.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2, 1.2, 0.3, 240, 200, 80, 160, false, false, 2, false, nil, nil, false)
 
-            if dist < 2.0 then
-                DrawText3D(daycareCoords.x, daycareCoords.y, daycareCoords.z + 0.9, "~y~Daycare Caretaker~w~")
-                DrawText3D(daycareCoords.x, daycareCoords.y, daycareCoords.z + 0.65, "~g~[E]~w~ Check Daycare Status & Collect Egg")
+                    if dist < 2.0 then
+                        DrawText3D(daycareCoords.x, daycareCoords.y, daycareCoords.z + 0.9, "~y~Daycare Caretaker~w~")
+                        DrawText3D(daycareCoords.x, daycareCoords.y, daycareCoords.z + 0.65, "~g~[E]~w~ Check Daycare Status & Collect Egg")
 
-                if IsControlJustPressed(0, 38) then -- E key
-                    TriggerServerEvent('pokefivem:server:checkDaycare')
+                        if IsControlJustPressed(0, 38) then -- E key
+                            TriggerServerEvent('pokefivem:server:checkDaycare')
+                        end
+                    end
+                elseif sleep > 300 then
+                    sleep = 300
                 end
             end
-        end
 
-        Wait(sleep)
+            Wait(sleep)
+        end
     end
 end)
 

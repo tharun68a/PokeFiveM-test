@@ -49,29 +49,37 @@ CreateThread(function()
 
     -- Interaction Distance Loop (Native Fallback)
     while true do
-        local sleep = 800
-        local playerPed = PlayerPedId()
-        local playerCoords = GetEntityCoords(playerPed)
+        if GetResourceState('ox_target') == 'started' then
+            Wait(5000)
+        else
+            local sleep = 1500
+            local playerPed = PlayerPedId()
+            local playerCoords = GetEntityCoords(playerPed)
 
-        for _, g in ipairs(spawnedGymLeaders) do
-            local dist = #(playerCoords - g.coords)
-            if dist < 6.0 then
-                sleep = 0
-                DrawMarker(1, g.coords.x, g.coords.y, g.coords.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2, 1.2, 0.3, 255, 215, 0, 160, false, false, 2, false, nil, nil, false)
+            for _, g in ipairs(spawnedGymLeaders) do
+                local dist = #(playerCoords - g.coords)
+                if dist < 25.0 then
+                    if dist < 6.0 then
+                        sleep = 0
+                        DrawMarker(1, g.coords.x, g.coords.y, g.coords.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2, 1.2, 0.3, 255, 215, 0, 160, false, false, 2, false, nil, nil, false)
 
-                if dist < 2.0 then
-                    local gym = PokeCore.Shared.Gyms[g.id]
-                    DrawText3D(g.coords.x, g.coords.y, g.coords.z + 0.9, string.format("~y~Leader %s~w~", gym.leader))
-                    DrawText3D(g.coords.x, g.coords.y, g.coords.z + 0.65, string.format("~g~[E]~w~ Challenge for the %s", gym.badge))
+                        if dist < 2.0 then
+                            local gym = PokeCore.Shared.Gyms[g.id]
+                            DrawText3D(g.coords.x, g.coords.y, g.coords.z + 0.9, string.format("~y~Leader %s~w~", gym.leader))
+                            DrawText3D(g.coords.x, g.coords.y, g.coords.z + 0.65, string.format("~g~[E]~w~ Challenge for the %s", gym.badge))
 
-                    if IsControlJustPressed(0, 38) then -- E key
-                        TriggerServerEvent('pokefivem:server:challengeGym', g.id)
+                            if IsControlJustPressed(0, 38) then -- E key
+                                TriggerServerEvent('pokefivem:server:challengeGym', g.id)
+                            end
+                        end
+                    elseif sleep > 300 then
+                        sleep = 300
                     end
                 end
             end
-        end
 
-        Wait(sleep)
+            Wait(sleep)
+        end
     end
 end)
 

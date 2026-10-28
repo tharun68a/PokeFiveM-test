@@ -26,13 +26,14 @@ function ToggleCompanion()
 end
 
 function SummonCompanion()
-    if #PlayerParty == 0 then
+    local party = PlayerParty or (PokeCore.PlayerData and PokeCore.PlayerData.pokemon) or {}
+    if #party == 0 then
         TriggerEvent('pokefivem:client:notify', "You do not have any Pokémon in your party!", 'error')
         return
     end
 
-    local lead = PlayerParty[1]
-    if lead.current_hp <= 0 or lead.status == "fainted" then
+    local lead = party[1]
+    if not lead or (lead.current_hp and lead.current_hp <= 0) or lead.status == "fainted" then
         TriggerEvent('pokefivem:client:notify', "Your lead Pokémon is fainted!", 'error')
         return
     end
@@ -58,27 +59,32 @@ function SummonCompanion()
     activeCompanionData = lead
     TriggerEvent('pokefivem:client:notify', _L('companion_sent', lead.nickname or pData.name), 'info')
 
-    -- Follow Loop
+    -- Follow Loop (Optimized Ticking)
     CreateThread(function()
-        while activeCompanionPed and DoesEntityExist(activeCompanionPed) do
-            Wait(800)
-            local pPed = PlayerPedId()
-            local pPos = GetEntityCoords(pPed)
-            local cPos = GetEntityCoords(activeCompanionPed)
-            local dist = #(pPos - cPos)
+        local followDist = Config.Companion.FollowDistance or 2.5
+        local followSpeed = Config.Companion.FollowSpeed or 3.0
 
-            -- Auto-recall when player is inside vehicle
+        while activeCompanionPed and DoesEntityExist(activeCompanionPed) do
+            local pPed = PlayerPedId()
             if IsPedInAnyVehicle(pPed, false) and Config.Companion.AutoRecallVehicle then
                 RecallCompanion()
                 break
             end
 
+            local pPos = GetEntityCoords(pPed)
+            local cPos = GetEntityCoords(activeCompanionPed)
+            local dist = #(pPos - cPos)
+
             if dist > 35.0 then
                 -- Teleport catch-up
                 local behind = pPos - (GetEntityForwardVector(pPed) * 2.0)
                 SetEntityCoords(activeCompanionPed, behind.x, behind.y, behind.z, false, false, false, false)
-            elseif dist > (Config.Companion.FollowDistance or 2.5) then
-                TaskGoToEntity(activeCompanionPed, pPed, -1, 1.8, Config.Companion.FollowSpeed or 3.0, 1073741824, 0)
+                Wait(800)
+            elseif dist > followDist then
+                TaskGoToEntity(activeCompanionPed, pPed, -1, 1.8, followSpeed, 1073741824, 0)
+                Wait(600)
+            else
+                Wait(1200) -- Sleep longer when already near trainer
             end
         end
     end)
