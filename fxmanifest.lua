@@ -17,6 +17,8 @@ shared_scripts {
     'shared/natures_data.lua',
     'shared/moves_data.lua',
     'shared/pokedex_data.lua',
+    'shared/gyms_data.lua',
+    'shared/quests_data.lua',
     'shared/utils.lua',
     'config.lua'
 }
@@ -33,7 +35,12 @@ client_scripts {
     'client/companion.lua',
     'client/mounts.lua',
     'client/centers.lua',
-    'client/markers.lua'
+    'client/markers.lua',
+    'client/gyms.lua',
+    'client/pvp.lua',
+    'client/trade.lua',
+    'client/quests.lua',
+    'client/daycare.lua'
 }
 
 server_scripts {
@@ -47,7 +54,12 @@ server_scripts {
     'server/pokemon.lua',
     'server/storage.lua',
     'server/spawner.lua',
-    'server/battle.lua'
+    'server/battle.lua',
+    'server/gyms.lua',
+    'server/pvp.lua',
+    'server/trade.lua',
+    'server/quests.lua',
+    'server/daycare.lua'
 }
 
 files {
