@@ -10,3 +10,4 @@ Place your streamed `.ydr`, `.yft`, `.ytd`, or `.ydd` files directly into this `
 
 In [`config.lua`](../config.lua), set `Model = 'pika'` or your custom streamed model name under `Config.Pokedex[id].Model` or `Config.WildSpawns`.
 When empty or using default GTA peds, the framework gracefully falls back to GTA animal and pet peds (cats, dogs, birds, boars, etc.) with custom floating 3D nameplates, type badges, levels, and health bars.
+

@@ -82,3 +82,19 @@ RegisterNetEvent('pokefivem:client:playConsumeAnim', function(consumeType)
     Wait(3500)
     ClearPedTasks(ped)
 end)
+
+-- Export for ox_inventory & standalone item usage
+exports('useItem', function(data, slot)
+    local itemName = type(data) == 'table' and data.name or data
+    if itemName then
+        if string.find(itemName, 'ball') then
+            TriggerEvent('pokefivem:client:throwBall', itemName)
+        elseif itemName == 'pokedex' then
+            TriggerEvent('pokefivem:client:togglePokedexUI')
+        elseif itemName == 'townmap' then
+            ActivateFrontendMenu(GetHashKey("FE_MENU_ONLY_NAV_TO_MAP"), false, -1)
+        else
+            TriggerServerEvent('pokefivem:server:useItem', itemName, slot)
+        end
+    end
+end)

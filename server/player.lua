@@ -109,7 +109,7 @@ function PokeCore.Player.CreatePlayer(src, data)
     end
 
     -- -------------------------------------------------------------
-    -- Native Inventory Engine
+    -- Native & ox_inventory Dual-Engine Support
     -- -------------------------------------------------------------
     self.Functions.AddItem = function(item, count, slot, metadata)
         count = tonumber(count) or 1
@@ -118,6 +118,16 @@ function PokeCore.Player.CreatePlayer(src, data)
         if not itemInfo then return false end
 
         metadata = metadata or {}
+
+        -- If ox_inventory is running, route directly through ox_inventory
+        if GetResourceState('ox_inventory') == 'started' then
+            local success, response = exports.ox_inventory:AddItem(self.PlayerData.source, item, count, metadata, slot)
+            if success then
+                self.Functions.UpdatePlayerData()
+                return true
+            end
+            return false
+        end
 
         -- Check if item is already in inventory and stackable
         local found = false
@@ -157,6 +167,15 @@ function PokeCore.Player.CreatePlayer(src, data)
         count = tonumber(count) or 1
         item = string.lower(item)
 
+        if GetResourceState('ox_inventory') == 'started' then
+            local success = exports.ox_inventory:RemoveItem(self.PlayerData.source, item, count, nil, slot)
+            if success then
+                self.Functions.UpdatePlayerData()
+                return true
+            end
+            return false
+        end
+
         for idx, it in ipairs(self.PlayerData.items) do
             if it.name == item and (not slot or it.slot == slot) then
                 if it.count >= count then
@@ -175,6 +194,19 @@ function PokeCore.Player.CreatePlayer(src, data)
 
     self.Functions.GetItemByName = function(item)
         item = string.lower(item)
+        if GetResourceState('ox_inventory') == 'started' then
+            local it = exports.ox_inventory:GetItem(self.PlayerData.source, item)
+            if it then
+                return {
+                    name = it.name,
+                    label = it.label,
+                    count = it.count,
+                    slot = it.slot,
+                    metadata = it.metadata
+                }
+            end
+            return nil
+        end
         for _, it in ipairs(self.PlayerData.items) do
             if it.name == item then
                 return it
@@ -185,6 +217,9 @@ function PokeCore.Player.CreatePlayer(src, data)
 
     self.Functions.GetItemCount = function(item)
         item = string.lower(item)
+        if GetResourceState('ox_inventory') == 'started' then
+            return exports.ox_inventory:GetItemCount(self.PlayerData.source, item) or 0
+        end
         local total = 0
         for _, it in ipairs(self.PlayerData.items) do
             if it.name == item then

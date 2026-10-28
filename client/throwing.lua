@@ -17,9 +17,11 @@ function InitiateBallThrow(ballKey)
     local playerPed = PlayerPedId()
     if IsPedInAnyVehicle(playerPed, false) then return end
 
-    -- Check if player has the ball in inventory
+    -- Check if player has the ball in inventory (ox_inventory or native)
     local count = 0
-    if PokeCore.PlayerData and PokeCore.PlayerData.items then
+    if GetResourceState('ox_inventory') == 'started' then
+        count = exports.ox_inventory:Search('count', ballKey) or 0
+    elseif PokeCore.PlayerData and PokeCore.PlayerData.items then
         for _, it in ipairs(PokeCore.PlayerData.items) do
             if it.name == ballKey then
                 count = count + it.count

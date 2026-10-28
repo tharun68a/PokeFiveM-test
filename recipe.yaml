@@ -1,7 +1,7 @@
 $version: 2
 name: PokeFiveM Autonomous RPG Framework
 author: Pika Studio
-description: Full-featured, standalone Pokémon RPG framework for FiveM inspired by Fivemon — Zero ESX dependency, built-in turn-based battles, 3D throwing physics, companion buddy AI, mounts, PC storage, Pokédex, and economy.
+description: Full-featured standalone Pokémon RPG framework for FiveM featuring ox_lib and ox_inventory — Zero ESX dependency, turn-based battles, 3D projectile capture physics, companion buddy AI, mounts, PC storage, Pokédex, and economy.
 
 tasks:
   # 1. Connect to MySQL / MariaDB database via txAdmin deployer
@@ -14,42 +14,64 @@ tasks:
     subpath: resources
     dest: ./resources/[cfx-default]
 
-  # 3. Download oxmysql async database driver
-  - action: download_github
-    src: https://github.com/overextended/oxmysql
-    ref: v2.10.1
-    dest: ./resources/[standalone]/oxmysql
+  # 3. Download oxmysql async database driver (Prebuilt release)
+  - action: download_file
+    url: https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
+    path: ./tmp/oxmysql.zip
+  - action: unzip
+    src: ./tmp/oxmysql.zip
+    dest: ./resources/[ox]
 
-  # 4. Download pma-voice proximity 3D audio & spatial voice chat
+  # 4. Download ox_lib standalone library (UI, Radial, Points, Callbacks)
+  - action: download_file
+    url: https://github.com/overextended/ox_lib/releases/latest/download/ox_lib.zip
+    path: ./tmp/ox_lib.zip
+  - action: unzip
+    src: ./tmp/ox_lib.zip
+    dest: ./resources/[ox]
+
+  # 5. Download ox_inventory standalone inventory (Prebuilt UI & drag-and-drop slots)
+  - action: download_file
+    url: https://github.com/overextended/ox_inventory/releases/latest/download/ox_inventory.zip
+    path: ./tmp/ox_inventory.zip
+  - action: unzip
+    src: ./tmp/ox_inventory.zip
+    dest: ./resources/[ox]
+
+  # 6. Download pma-voice proximity 3D audio & spatial voice chat
   - action: download_github
     src: https://github.com/AvarianKnight/pma-voice
     ref: v6.6.2
     dest: ./resources/[standalone]/pma-voice
 
-  # 5. Download bob74_ipl (GTA V map interiors, IPL fixes, and city buildings)
+  # 7. Download bob74_ipl (GTA V map interiors, IPL fixes, and city buildings)
   - action: download_github
     src: https://github.com/Bob74/bob74_ipl
     ref: master
     dest: ./resources/[standalone]/bob74_ipl
 
-  # 6. Download PokeFiveM Autonomous Framework Core
+  # 8. Download PokeFiveM Autonomous Framework Core
   - action: download_github
     src: https://github.com/tharun68a/PokeFiveM-test
     ref: main
     dest: ./resources/PokeFiveM
 
-  # 7. Execute automated database schema migration for PokeFiveM
+  # 9. Clean up temporary downloaded archives
+  - action: remove_path
+    path: ./tmp
+
+  # 10. Execute automated database schema migration for PokeFiveM
   - action: query_database
     file: ./resources/PokeFiveM/database/schema.sql
 
-  # 8. Generate production-ready Standalone server.cfg
+  # 11. Generate production-ready Standalone server.cfg
   - action: write_file
     file: ./server.cfg
     data: |
       ## ===================================================================
       ## PokeFiveM Server Configuration - Pika Studio
       ## Standalone Autonomous Pokémon RPG Framework (Zero ESX Dependency)
-      ## Inspired by Fivemon & Built for Cfx.re / FiveM
+      ## Complete with ox_lib & ox_inventory Support
       ## ===================================================================
 
       ## Network & Host Endpoints
@@ -75,8 +97,8 @@ tasks:
       ## Server Branding & Information
       sv_hostname "PokeFiveM - Pokémon RPG Standalone [Pika Studio]"
       sets sv_projectName "PokeFiveM Autonomous RPG"
-      sets sv_projectDesc "Full-featured standalone Pokémon RPG framework with battles, mounts, companion AI, PC storage, and Pokédex!"
-      sets tags "pokemon, rpg, custom, standalone, pokefivem, pika, battles, companion, mounts, pokedex"
+      sets sv_projectDesc "Full-featured standalone Pokémon RPG with ox_lib & ox_inventory, battles, mounts, companion AI, PC storage, and Pokédex!"
+      sets tags "pokemon, rpg, custom, standalone, pokefivem, pika, battles, companion, mounts, pokedex, ox_inventory, ox_lib"
       sets locale "en-US"
 
       ## Admin Permissions & Command Grants
@@ -105,6 +127,11 @@ tasks:
       setr voice_defaultVolume "0.3"
       setr voice_enableSubmix 1
 
+      ## ox_inventory Configuration
+      setr inventory:slots 50
+      setr inventory:weight 30000
+      setr inventory:target false
+
       ## Security & Anti-Exploit
       sv_endpointprivacy true
       sv_scriptHookAllowed 0
@@ -119,9 +146,15 @@ tasks:
       ensure hardcap
 
       ## ===================================================================
-      ## Standalone Dependencies
+      ## Overextended Core Stack (oxmysql, ox_lib, ox_inventory)
       ## ===================================================================
       ensure oxmysql
+      ensure ox_lib
+      ensure ox_inventory
+
+      ## ===================================================================
+      ## Voice & World Enhancement
+      ## ===================================================================
       ensure pma-voice
       ensure bob74_ipl
 
