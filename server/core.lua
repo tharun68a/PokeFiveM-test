@@ -115,6 +115,63 @@ function PokeCore.Functions.Notify(source, text, type, length)
     TriggerClientEvent('pokefivem:client:notify', source, text, type or 'info', length or 4000)
 end
 
+-- High-Level Economy & Inventory Helpers
+function PokeCore.Functions.AddMoney(source, account, amount, reason)
+    local player = PokeCore.Functions.GetPlayer(source)
+    if player then
+        return player.Functions.AddMoney(account, amount, reason)
+    end
+    return false
+end
+
+function PokeCore.Functions.RemoveMoney(source, account, amount, reason)
+    local player = PokeCore.Functions.GetPlayer(source)
+    if player then
+        return player.Functions.RemoveMoney(account, amount, reason)
+    end
+    return false
+end
+
+function PokeCore.Functions.SetJob(source, job, grade)
+    local player = PokeCore.Functions.GetPlayer(source)
+    if player then
+        return player.Functions.SetJob(job, grade)
+    end
+    return false
+end
+
+function PokeCore.Functions.AddItem(source, item, count, slot, metadata)
+    local player = PokeCore.Functions.GetPlayer(source)
+    if player then
+        return player.Functions.AddItem(item, count, slot, metadata)
+    end
+    return false
+end
+
+function PokeCore.Functions.RemoveItem(source, item, count, slot)
+    local player = PokeCore.Functions.GetPlayer(source)
+    if player then
+        return player.Functions.RemoveItem(item, count, slot)
+    end
+    return false
+end
+
+function PokeCore.Functions.GetParty(source)
+    local player = PokeCore.Functions.GetPlayer(source)
+    if player then
+        return player.Functions.GetParty()
+    end
+    return {}
+end
+
+function PokeCore.Functions.GetPokedex(source)
+    local player = PokeCore.Functions.GetPlayer(source)
+    if player then
+        return player.Functions.GetPokedex()
+    end
+    return { seen = {}, caught = {} }
+end
+
 -- Framework Paycheck Engine
 CreateThread(function()
     while true do

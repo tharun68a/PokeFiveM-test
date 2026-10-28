@@ -9,6 +9,163 @@
 </head>
 <body>
     <div id="app">
+        <!-- Multicharacter Screen -->
+        <div v-if="showMulticharacter" class="multichar-overlay">
+            <div class="multichar-container">
+                <!-- Header -->
+                <div class="multichar-header">
+                    <div class="multichar-brand">
+                        <div class="brand-pokeball">
+                            <i class="fa-solid fa-compact-disc fa-spin"></i>
+                        </div>
+                        <div class="brand-text">
+                            <h1>PokeFiveM</h1>
+                            <span class="brand-sub">TRAINER REGISTRY &bull; PIKA STUDIO</span>
+                        </div>
+                    </div>
+                    <div class="multichar-stats-chip">
+                        <i class="fa-solid fa-id-badge text-gold"></i>
+                        <span>Trainers: <strong>{{ characters.length }}</strong> / {{ maxSlots }}</span>
+                    </div>
+                </div>
+
+                <!-- Slots Grid -->
+                <div class="multichar-grid">
+                    <div v-for="slot in slotList" :key="slot.slotNumber" class="char-card" :class="{ 'char-card-empty': !slot.char, 'active': selectedChar && slot.char && selectedChar.citizenid === slot.char.citizenid }">
+                        <!-- Active Trainer Card -->
+                        <div v-if="slot.char" class="card-inner" @click="selectedChar = slot.char">
+                            <div class="card-top-row">
+                                <span class="slot-tag">Slot {{ slot.slotNumber }}</span>
+                                <span class="cid-tag">{{ slot.char.citizenid }}</span>
+                            </div>
+
+                            <div class="trainer-avatar-wrap">
+                                <img :src="getTrainerAvatar(slot.char.charinfo.gender)" class="trainer-img" alt="Trainer">
+                            </div>
+
+                            <h2 class="trainer-name">{{ slot.char.charinfo.firstname }} {{ slot.char.charinfo.lastname }}</h2>
+                            <span class="trainer-job-title">{{ slot.char.job.label || 'Pokémon Trainer' }}</span>
+
+                            <div class="trainer-stat-chips">
+                                <div class="stat-chip" title="Pokédollars">
+                                    <i class="fa-solid fa-coins text-warning"></i>
+                                    <span>₽{{ Number((slot.char.accounts && slot.char.accounts.pokedollars) || 0).toLocaleString() }}</span>
+                                </div>
+                                <div class="stat-chip" title="Gym Badges">
+                                    <i class="fa-solid fa-trophy text-gold"></i>
+                                    <span>{{ (slot.char.metadata && slot.char.metadata.badges && slot.char.metadata.badges.length) || 0 }} Badges</span>
+                                </div>
+                                <div class="stat-chip" title="Pokémon Team">
+                                    <i class="fa-solid fa-compact-disc text-primary"></i>
+                                    <span>{{ slot.char.pokemonCount || 0 }} Mon</span>
+                                </div>
+                            </div>
+
+                            <!-- Lead Pokémon Preview -->
+                            <div v-if="slot.char.leadPokemon" class="lead-preview-bar">
+                                <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + slot.char.leadPokemon.pokedex_id + '.png'">
+                                <span>{{ slot.char.leadPokemon.name }} (Lv. {{ slot.char.leadPokemon.level }})</span>
+                            </div>
+
+                            <div class="card-action-bar">
+                                <button class="btn btn-play" @click.stop="confirmPlayCharacter(slot.char.citizenid)">
+                                    <i class="fa-solid fa-play"></i> Start Journey
+                                </button>
+                                <button class="btn btn-del" @click.stop="promptDeleteCharacter(slot.char)">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Empty Slot Card -->
+                        <div v-else class="card-inner empty-slot-inner" @click="openCreateModal(slot.slotNumber)">
+                            <div class="empty-icon-circle">
+                                <i class="fa-solid fa-plus"></i>
+                            </div>
+                            <h3>Empty Slot {{ slot.slotNumber }}</h3>
+                            <p>Register a new Pokémon Trainer journey.</p>
+                            <button class="btn btn-register">
+                                <i class="fa-solid fa-user-plus"></i> Register Trainer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Modal -->
+                <div v-if="showCreateModal" class="modal-overlay">
+                    <div class="create-trainer-modal">
+                        <div class="modal-header">
+                            <h2><i class="fa-solid fa-id-card"></i> Register New Pokémon Trainer</h2>
+                            <button class="close-x" @click="showCreateModal = false"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label><i class="fa-solid fa-user"></i> First Name</label>
+                                    <input type="text" v-model="newTrainer.firstname" placeholder="e.g. Ash" maxlength="16">
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fa-solid fa-user"></i> Last Name</label>
+                                    <input type="text" v-model="newTrainer.lastname" placeholder="e.g. Ketchum" maxlength="16">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label><i class="fa-solid fa-venus-mars"></i> Gender</label>
+                                    <select v-model="newTrainer.gender">
+                                        <option :value="0">Male Trainer</option>
+                                        <option :value="1">Female Trainer</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fa-solid fa-calendar"></i> Date of Birth</label>
+                                    <input type="date" v-model="newTrainer.birthdate">
+                                </div>
+                            </div>
+
+                            <div class="starter-select-wrapper">
+                                <label class="starter-label"><i class="fa-solid fa-paw"></i> Select Your Starter Companion</label>
+                                <div class="starter-cards-grid">
+                                    <div v-for="s in starterChoices" :key="s.id" class="starter-card-option" :class="{ 'chosen': newTrainer.starterId === s.id }" @click="newTrainer.starterId = s.id">
+                                        <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + s.id + '.png'">
+                                        <span class="starter-name">{{ s.name }}</span>
+                                        <span class="starter-type" :style="{ backgroundColor: getTypeColor(s.type1) }">{{ s.type1 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" @click="showCreateModal = false">Cancel</button>
+                            <button class="btn btn-confirm" :disabled="!isTrainerFormValid" @click="submitCreateTrainer">
+                                <i class="fa-solid fa-check"></i> Begin Pokémon Journey
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Confirmation Modal -->
+                <div v-if="showDeleteModal && deletingChar" class="modal-overlay">
+                    <div class="delete-char-modal">
+                        <div class="modal-header modal-header-danger">
+                            <h2><i class="fa-solid fa-triangle-exclamation"></i> Delete Trainer Profile</h2>
+                            <button class="close-x" @click="showDeleteModal = false"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <p>Are you sure you want to permanently delete Trainer <strong>{{ deletingChar.charinfo.firstname }} {{ deletingChar.charinfo.lastname }}</strong> ({{ deletingChar.citizenid }})?</p>
+                            <p class="text-danger-warning">⚠️ This action is irreversible. All captured Pokémon, PC Storage Boxes, inventory items, and gym badges will be permanently erased!</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" @click="showDeleteModal = false">Cancel</button>
+                            <button class="btn btn-danger" @click="confirmDeleteCharacter">
+                                <i class="fa-solid fa-trash"></i> Yes, Delete Trainer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
         <!-- Persistent HUD (Top Left Quick Bar) -->
         <div id="poke-hud" v-if="hudLead" class="hud-container">
             <div class="hud-ball">

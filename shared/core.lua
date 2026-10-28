@@ -52,3 +52,7 @@ end
 function GetCoreObject()
     return PokeCore
 end
+
+exports('GetCoreObject', function()
+    return PokeCore
+end)

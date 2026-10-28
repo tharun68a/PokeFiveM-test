@@ -40,6 +40,99 @@ createApp({
         const martName = ref('');
         const martItems = ref([]);
 
+        // Multicharacter State
+        const showMulticharacter = ref(false);
+        const characters = ref([]);
+        const maxSlots = ref(4);
+        const selectedChar = ref(null);
+        const showCreateModal = ref(false);
+        const showDeleteModal = ref(false);
+        const deletingChar = ref(null);
+        const newTrainer = ref({
+            firstname: '',
+            lastname: '',
+            gender: 0,
+            birthdate: '2000-01-01',
+            starterId: 1
+        });
+        const starterChoices = ref([
+            { id: 1, name: 'Bulbasaur', type1: 'grass' },
+            { id: 4, name: 'Charmander', type1: 'fire' },
+            { id: 7, name: 'Squirtle', type1: 'water' },
+            { id: 25, name: 'Pikachu', type1: 'electric' },
+            { id: 133, name: 'Eevee', type1: 'normal' }
+        ]);
+
+        const getTrainerAvatar = (gender) => {
+            if (Number(gender) === 1) {
+                return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/leaf.png';
+            }
+            return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/red.png';
+        };
+
+        const slotList = computed(() => {
+            const list = [];
+            for (let i = 1; i <= maxSlots.value; i++) {
+                const char = characters.value.find(c => c.slot === i) || null;
+                list.push({ slotNumber: i, char });
+            }
+            return list;
+        });
+
+        const isTrainerFormValid = computed(() => {
+            return newTrainer.value.firstname.trim().length >= 2 &&
+                   newTrainer.value.lastname.trim().length >= 2 &&
+                   newTrainer.value.birthdate &&
+                   newTrainer.value.starterId;
+        });
+
+        const confirmPlayCharacter = (citizenid) => {
+            fetch(`https://${GetParentResourceName()}/selectCharacter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ citizenid })
+            });
+            showMulticharacter.value = false;
+        };
+
+        const openCreateModal = (slotNumber) => {
+            newTrainer.value = {
+                firstname: '',
+                lastname: '',
+                gender: 0,
+                birthdate: '2000-01-01',
+                starterId: 1
+            };
+            showCreateModal.value = true;
+        };
+
+        const submitCreateTrainer = () => {
+            if (!isTrainerFormValid.value) return;
+            fetch(`https://${GetParentResourceName()}/createCharacter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newTrainer.value)
+            });
+            showCreateModal.value = false;
+            showMulticharacter.value = false;
+        };
+
+        const promptDeleteCharacter = (char) => {
+            deletingChar.value = char;
+            showDeleteModal.value = true;
+        };
+
+        const confirmDeleteCharacter = () => {
+            if (!deletingChar.value) return;
+            fetch(`https://${GetParentResourceName()}/deleteCharacter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ citizenid: deletingChar.value.citizenid })
+            });
+            showDeleteModal.value = false;
+            deletingChar.value = null;
+        };
+
         // Colors
         const typeColors = {
             normal: '#A8A878', fire: '#F08030', water: '#6890F0', grass: '#78C850',
@@ -74,6 +167,20 @@ createApp({
                 if (!item || !item.action) return;
 
                 switch (item.action) {
+                    case 'openMulticharacter':
+                        characters.value = item.characters || [];
+                        maxSlots.value = item.maxSlots || 4;
+                        if (item.starters && item.starters.length > 0) {
+                            starterChoices.value = item.starters;
+                        }
+                        if (characters.value.length > 0) {
+                            selectedChar.value = characters.value[0];
+                        }
+                        showMulticharacter.value = true;
+                        break;
+                    case 'closeMulticharacter':
+                        showMulticharacter.value = false;
+                        break;
                     case 'updateHud':
                         hudLead.value = item.lead;
                         break;
@@ -317,6 +424,8 @@ createApp({
         };
 
         return {
+            showMulticharacter, characters, maxSlots, selectedChar, showCreateModal, showDeleteModal, deletingChar, newTrainer, starterChoices,
+            getTrainerAvatar, slotList, isTrainerFormValid, confirmPlayCharacter, openCreateModal, submitCreateTrainer, promptDeleteCharacter, confirmDeleteCharacter,
             hudLead, notifications, showStarter, starters, selectedStarter, confirmStarter,
             inBattle, battleData, battleSubmenu, battleLogText, sendBattleAction, openBagInBattle, openPartyInBattle,
             showParty, partyList, selectedPartyPoke, releasePoke, movePartyUp,

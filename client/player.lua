@@ -12,7 +12,9 @@ CreateThread(function()
         Wait(500)
     end
     Wait(1000)
-    TriggerServerEvent('pokefivem:server:playerLoaded')
+    if not (Config.Multicharacter and Config.Multicharacter.Enabled) then
+        TriggerServerEvent('pokefivem:server:playerLoaded')
+    end
 end)
 
 -- Handle Player Loaded

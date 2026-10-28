@@ -27,6 +27,16 @@ function PokeCore.Functions.GetPlayerData(cb)
     end
 end
 
+-- Check if Player is fully loaded
+function PokeCore.Functions.IsPlayerLoaded()
+    return (PokeCore.PlayerData and PokeCore.PlayerData.citizenid ~= nil)
+end
+
+-- Get Client Party
+function PokeCore.Functions.GetParty()
+    return PlayerParty or {}
+end
+
 -- Client Notification Trigger
 function PokeCore.Functions.Notify(text, type, length)
     TriggerEvent('pokefivem:client:notify', text, type, length)

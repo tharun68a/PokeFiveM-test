@@ -236,11 +236,107 @@ function PokeCore.Player.CreatePlayer(src, data)
         TriggerClientEvent('pokefivem:client:syncPlayerData', self.PlayerData.source, self.PlayerData)
     end
 
+    self.Functions.GetParty = function()
+        local party = MySQL.query.await('SELECT * FROM `pokefivem_pokemon` WHERE `owner` = ? AND `storage_type` = "party" ORDER BY `storage_index` ASC', { self.PlayerData.citizenid }) or {}
+        for _, mon in ipairs(party) do
+            mon.ivs = json.decode(mon.ivs or '{}')
+            mon.evs = json.decode(mon.evs or '{}')
+            mon.moves = json.decode(mon.moves or '[]')
+        end
+        return party
+    end
+
+    self.Functions.GetPokedex = function()
+        local row = MySQL.single.await('SELECT `seen`, `caught` FROM `pokefivem_pokedex` WHERE `citizenid` = ?', { self.PlayerData.citizenid })
+        return {
+            seen = json.decode(row and row.seen or '[]'),
+            caught = json.decode(row and row.caught or '[]')
+        }
+    end
+
     self.Functions.Save = function()
         PokeCore.Player.Save(self.PlayerData.source)
     end
 
     return self
+end
+
+-- Compatibility Validator
+function PokeCore.Player.CheckPlayerData(source, data)
+    return PokeCore.Player.CreatePlayer(source, data)
+end
+
+-- Core Player Login Handler
+function PokeCore.Player.Login(source, citizenid, newData)
+    if not source or not citizenid then return false end
+    local license = PokeCore.Functions.GetLicense(source)
+
+    local charData = MySQL.single.await('SELECT * FROM `pokefivem_characters` WHERE `citizenid` = ? AND `identifier` = ?', { citizenid, license })
+    if not charData then
+        print(string.format('^1[PokeFiveM - ERROR] Character %s not found for license %s^7', citizenid, license))
+        return false
+    end
+
+    -- Fetch character inventory
+    local items = MySQL.query.await('SELECT * FROM `pokefivem_inventory` WHERE `citizenid` = ?', { citizenid }) or {}
+    local inventory = {}
+    for _, it in ipairs(items) do
+        local def = PokeCore.Shared.Items[it.item]
+        if def then
+            table.insert(inventory, {
+                name = it.item,
+                label = def.label,
+                count = it.count,
+                slot = it.slot,
+                weight = def.weight or 100,
+                type = def.type,
+                useable = def.useable,
+                image = def.image,
+                description = def.description,
+                metadata = json.decode(it.metadata or '{}')
+            })
+        end
+    end
+
+    local playerData = {
+        citizenid = citizenid,
+        source = source,
+        identifier = license,
+        license = license,
+        name = GetPlayerName(source),
+        charinfo = json.decode(charData.charinfo or '{}'),
+        job = json.decode(charData.job or '{}'),
+        accounts = json.decode(charData.accounts or '{}'),
+        metadata = json.decode(charData.metadata or '{}'),
+        position = json.decode(charData.position or '{}'),
+        items = inventory
+    }
+
+    local playerObj = PokeCore.Player.CreatePlayer(source, playerData)
+    PokeCore.Players[source] = playerObj
+
+    -- Trigger client spawn and lifecycle hooks
+    TriggerClientEvent('pokefivem:client:spawnSelectedCharacter', source, playerData)
+    TriggerClientEvent('pokefivem:client:onPlayerLoaded', source, playerData)
+    TriggerEvent('pokefivem:server:onPlayerLoaded', citizenid, playerObj)
+    TriggerEvent('pokefivem:server:refreshParty', source)
+
+    local fullName = playerData.charinfo.firstname .. ' ' .. playerData.charinfo.lastname
+    PokeCore.Functions.Notify(source, string.format('Welcome back, Trainer %s!', fullName), 'success')
+    print(string.format('^2[PokeFiveM - Core] Player %s (%s) loaded character %s successfully.^7', GetPlayerName(source), source, citizenid))
+    return true
+end
+
+-- Core Player Logout Handler
+function PokeCore.Player.Logout(source)
+    local player = PokeCore.Players[source]
+    if player then
+        PokeCore.Player.Save(source)
+        PokeCore.Players[source] = nil
+        TriggerClientEvent('pokefivem:client:onPlayerLogout', source)
+        TriggerClientEvent('pokefivem:client:openMulticharacter', source)
+        print(string.format('^3[PokeFiveM - Core] Player %s logged out to character select.^7', source))
+    end
 end
 
 -- Save player to database

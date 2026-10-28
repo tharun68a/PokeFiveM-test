@@ -1,7 +1,7 @@
 -- ====================================================================
--- PokeFiveM Framework - Multicharacter Server Controller (ox_lib Native)
+-- PokeFiveM Framework - Multicharacter Server Controller
 -- Developed by: Pika Studio
--- Standalone Architecture (Zero ESX Dependency)
+-- Autonomous Standalone Framework (Zero ESX Dependency)
 -- ====================================================================
 
 -- Fetch all characters for connecting player
@@ -28,24 +28,27 @@ PokeCore.Functions.CreateCallback('pokefivem:multichar:getCharacters', function(
             local metadata = json.decode(c.metadata or '{}')
             local pos = json.decode(c.position or '{}')
 
-            -- Get Pokémon count
-            MySQL.scalar('SELECT COUNT(*) FROM pokefivem_pokemon WHERE owner = ?', { c.citizenid }, function(pokemonCount)
-                table.insert(results, {
-                    citizenid = c.citizenid,
-                    charinfo = charinfo,
-                    job = json.decode(c.job or '{}'),
-                    accounts = accounts,
-                    metadata = metadata,
-                    position = pos,
-                    pokemonCount = pokemonCount or 0,
-                    slot = idx
-                })
+            -- Get Lead Pokémon and Total Pokémon count
+            MySQL.single('SELECT pokedex_id, name, level FROM pokefivem_pokemon WHERE owner = ? AND storage_type = "party" AND storage_index = 1', { c.citizenid }, function(leadMon)
+                MySQL.scalar('SELECT COUNT(*) FROM pokefivem_pokemon WHERE owner = ?', { c.citizenid }, function(pokemonCount)
+                    table.insert(results, {
+                        citizenid = c.citizenid,
+                        charinfo = charinfo,
+                        job = json.decode(c.job or '{}'),
+                        accounts = accounts,
+                        metadata = metadata,
+                        position = pos,
+                        pokemonCount = pokemonCount or 0,
+                        leadPokemon = leadMon or nil,
+                        slot = idx
+                    })
 
-                processed = processed + 1
-                if processed >= count then
-                    table.sort(results, function(a, b) return a.slot < b.slot end)
-                    cb(results)
-                end
+                    processed = processed + 1
+                    if processed >= count then
+                        table.sort(results, function(a, b) return a.slot < b.slot end)
+                        cb(results)
+                    end
+                end)
             end)
         end
     end)
@@ -54,62 +57,8 @@ end)
 -- Select & Load Character
 RegisterNetEvent('pokefivem:server:selectCharacter', function(citizenid)
     local src = source
-    local license = PokeCore.Functions.GetLicense(src)
-
-    MySQL.single('SELECT * FROM pokefivem_characters WHERE citizenid = ? AND identifier = ?', { citizenid, license }, function(charData)
-        if not charData then
-            PokeCore.Functions.Notify(src, 'Character not found or ownership mismatch.', 'error')
-            return
-        end
-
-        -- Fetch character inventory
-        MySQL.query('SELECT * FROM pokefivem_inventory WHERE citizenid = ?', { citizenid }, function(items)
-            local inventory = {}
-            for _, it in ipairs(items or {}) do
-                local def = PokeCore.Shared.Items[it.item]
-                if def then
-                    table.insert(inventory, {
-                        name = it.item,
-                        label = def.label,
-                        count = it.count,
-                        slot = it.slot,
-                        weight = def.weight or 100,
-                        type = def.type,
-                        useable = def.useable,
-                        image = def.image,
-                        description = def.description,
-                        metadata = json.decode(it.metadata or '{}')
-                    })
-                end
-            end
-
-            local playerData = {
-                citizenid = citizenid,
-                source = src,
-                identifier = license,
-                license = license,
-                name = GetPlayerName(src),
-                charinfo = json.decode(charData.charinfo or '{}'),
-                job = json.decode(charData.job or '{}'),
-                accounts = json.decode(charData.accounts or '{}'),
-                metadata = json.decode(charData.metadata or '{}'),
-                position = json.decode(charData.position or '{}'),
-                items = inventory
-            }
-
-            -- Instantiate Player Object
-            local playerObj = PokeCore.Player.CheckPlayerData(src, playerData)
-            PokeCore.Players[src] = playerObj
-
-            -- Trigger client spawn and load
-            TriggerClientEvent('pokefivem:client:spawnSelectedCharacter', src, playerData)
-            TriggerClientEvent('pokefivem:client:onPlayerLoaded', src, playerData)
-            TriggerEvent('pokefivem:server:onPlayerLoaded', citizenid, playerObj)
-
-            local fullName = playerData.charinfo.firstname .. ' ' .. playerData.charinfo.lastname
-            PokeCore.Functions.Notify(src, string.format('Welcome back, Trainer %s!', fullName), 'success')
-        end)
-    end)
+    if not citizenid then return end
+    PokeCore.Player.Login(src, citizenid)
 end)
 
 -- Create New Character
@@ -121,15 +70,15 @@ RegisterNetEvent('pokefivem:server:createCharacter', function(data)
     -- Verify slot limits
     MySQL.scalar('SELECT COUNT(*) FROM pokefivem_characters WHERE identifier = ?', { license }, function(currentCount)
         local maxSlots = (Config.Multicharacter and Config.Multicharacter.MaxSlots) or 4
-        if currentCount >= maxSlots then
+        if (currentCount or 0) >= maxSlots then
             PokeCore.Functions.Notify(src, 'You have reached the maximum character slots limit!', 'error')
             return
         end
 
         local citizenid = "PKM" .. tostring(math.random(10000, 99999))
         local charinfo = {
-            firstname = data.firstname or "Red",
-            lastname = data.lastname or "Trainer",
+            firstname = (data.firstname and data.firstname:gsub("%s+", "")) or "Red",
+            lastname = (data.lastname and data.lastname:gsub("%s+", "")) or "Trainer",
             birthdate = data.birthdate or "2000-01-01",
             gender = tonumber(data.gender) or 0
         }
@@ -154,11 +103,11 @@ RegisterNetEvent('pokefivem:server:createCharacter', function(data)
             thirst = 100,
             isdead = false,
             inlaststand = false,
-            starter_claimed = false,
+            starter_claimed = true,
             badges = {},
             battles_won = 0,
             battles_lost = 0,
-            pokemon_caught = 0,
+            pokemon_caught = 1,
             quests = {}
         }
 
@@ -190,10 +139,66 @@ RegisterNetEvent('pokefivem:server:createCharacter', function(data)
                        (?, 'pokedex', 1, 3, '{}'),
                        (?, 'water', 3, 4, '{}'),
                        (?, 'sandwich', 3, 5, '{}')
-            ]], { citizenid, citizenid, citizenid, citizenid, citizenid })
+            ]], { citizenid, citizenid, citizenid, citizenid, citizenid }, function()
+                -- Grant Selected Starter Pokémon
+                local starterId = tonumber(data.starterId) or 1
+                local pData = GetPokedexEntry(starterId) or { id = 1, name = "Bulbasaur" }
+                local ivs = PokeUtils.GenerateRandomIVs()
+                local nature = GetRandomNature()
+                local maxHp = PokeUtils.CalculateMaxHP(pData.baseStats and pData.baseStats.hp or 45, ivs.hp, 0, 5)
 
-            -- Load immediately
-            TriggerEvent('pokefivem:server:selectCharacter', citizenid)
+                local moves = {}
+                for _, m in ipairs(pData.moves or {}) do
+                    if m.level <= 5 then
+                        local moveData = GetMove(m.move)
+                        if moveData then
+                            table.insert(moves, {
+                                key = m.move,
+                                name = moveData.name,
+                                type = moveData.type,
+                                power = moveData.power,
+                                accuracy = moveData.accuracy,
+                                pp = moveData.pp,
+                                max_pp = moveData.pp
+                            })
+                        end
+                    end
+                end
+                if #moves == 0 then
+                    local tackle = GetMove("Tackle") or { name = "Tackle", type = "normal", power = 40, accuracy = 100, pp = 35 }
+                    table.insert(moves, { key = "Tackle", name = tackle.name, type = tackle.type, power = tackle.power, accuracy = tackle.accuracy, pp = tackle.pp, max_pp = tackle.pp })
+                end
+
+                local trainerFullName = charinfo.firstname .. " " .. charinfo.lastname
+                MySQL.insert([[
+                    INSERT INTO pokefivem_pokemon (owner, pokedex_id, nickname, level, exp, nature, ability, is_shiny, gender, ivs, evs, moves, current_hp, max_hp, status, storage_type, storage_index, original_trainer, caught_ball, caught_location)
+                    VALUES (?, ?, ?, 5, 0, ?, 'Overgrow', 0, 0, ?, ?, ?, ?, ?, 'none', 'party', 1, ?, 'pokeball', 'Pallet Town')
+                ]], {
+                    citizenid,
+                    pData.id,
+                    pData.name,
+                    nature,
+                    json.encode(ivs),
+                    json.encode(PokeUtils.GenerateZeroEVs()),
+                    json.encode(moves),
+                    maxHp,
+                    maxHp,
+                    trainerFullName
+                }, function()
+                    -- Add starter to Pokédex
+                    MySQL.insert([[
+                        INSERT INTO pokefivem_pokedex (citizenid, seen, caught)
+                        VALUES (?, ?, ?)
+                    ]], {
+                        citizenid,
+                        json.encode({ pData.id }),
+                        json.encode({ pData.id })
+                    }, function()
+                        -- Log player into server immediately
+                        PokeCore.Player.Login(src, citizenid)
+                    end)
+                end)
+            end)
         end)
     end)
 end)
@@ -222,11 +227,5 @@ end)
 
 -- Switch Character Command (/logout)
 RegisterCommand('logout', function(source)
-    local player = PokeCore.Functions.GetPlayer(source)
-    if player then
-        player.Functions.Save()
-        PokeCore.Players[source] = nil
-        TriggerClientEvent('pokefivem:client:openMulticharacter', source)
-    end
-end)
-
+    PokeCore.Player.Logout(source)
+end, false)
