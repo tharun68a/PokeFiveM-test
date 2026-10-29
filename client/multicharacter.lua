@@ -1,11 +1,13 @@
 -- ====================================================================
--- PokeFiveM Framework - Client Multicharacter Controller
+-- PokeFiveM Framework - Client Multicharacter & Ped Preview Controller
 -- Developed by: Pika Studio
 -- Autonomous Standalone Framework (Zero ESX Dependency)
 -- ====================================================================
 
 local charCam = nil
 local inCharSelect = false
+local previewPed = nil
+local previewCompanion = nil
 
 -- Disable auto-spawn from spawnmanager
 AddEventHandler('onClientResourceStart', function(resourceName)
@@ -13,6 +15,80 @@ AddEventHandler('onClientResourceStart', function(resourceName)
         exports.spawnmanager:setAutoSpawn(false)
     end
 end)
+
+-- Safe Cleanup for Preview Entities
+local function CleanUpPreviewEntities()
+    if previewPed and DoesEntityExist(previewPed) then
+        DeleteEntity(previewPed)
+        previewPed = nil
+    end
+    if previewCompanion and DoesEntityExist(previewCompanion) then
+        DeleteEntity(previewCompanion)
+        previewCompanion = nil
+    end
+end
+
+-- Spawn or Update 3D Character Preview Ped in Front of Camera
+local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
+    CleanUpPreviewEntities()
+
+    local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
+    gender = tonumber(gender) or 0
+    local modelName = (gender == 1) and "mp_f_freemode_01" or "mp_m_freemode_01"
+    local modelHash = GetHashKey(modelName)
+
+    RequestModel(modelHash)
+    local timeout = GetGameTimer() + 3500
+    while not HasModelLoaded(modelHash) and GetGameTimer() < timeout do
+        Wait(50)
+    end
+
+    if HasModelLoaded(modelHash) then
+        previewPed = CreatePed(4, modelHash, pedCoords.x, pedCoords.y, pedCoords.z, pedCoords.w, false, true)
+        SetEntityHeading(previewPed, pedCoords.w)
+        SetEntityInvincible(previewPed, true)
+        SetBlockingOfNonTemporaryEvents(previewPed, true)
+        FreezeEntityPosition(previewPed, false)
+        SetEntityCanBeDamaged(previewPed, false)
+
+        -- Apply complete Trainer Outfit (Drawables, Textures, Hats/Caps, Bags)
+        PokeCore.Functions.ApplyTrainerOutfit(previewPed, style, gender)
+
+        -- Play confident trainer stance animation
+        local animDict = "move_m@confident"
+        RequestAnimDict(animDict)
+        local aTimeout = GetGameTimer() + 2000
+        while not HasAnimDictLoaded(animDict) and GetGameTimer() < aTimeout do
+            Wait(50)
+        end
+        if HasAnimDictLoaded(animDict) then
+            TaskPlayAnim(previewPed, animDict, "idle", 8.0, -8.0, -1, 1, 0, false, false, false)
+        end
+        SetModelAsNoLongerNeeded(modelHash)
+    end
+
+    -- If a lead Pokémon exists for this character, spawn companion beside the trainer
+    if leadPokedexId then
+        local pData = GetPokedexEntry(leadPokedexId)
+        if pData and pData.model then
+            local monHash = GetHashKey(pData.model)
+            RequestModel(monHash)
+            local mTimeout = GetGameTimer() + 2500
+            while not HasModelLoaded(monHash) and GetGameTimer() < mTimeout do
+                Wait(50)
+            end
+            if HasModelLoaded(monHash) then
+                local compCoords = vector3(pedCoords.x + 0.8, pedCoords.y - 0.2, pedCoords.z)
+                previewCompanion = CreatePed(28, monHash, compCoords.x, compCoords.y, compCoords.z, pedCoords.w, false, true)
+                SetEntityHeading(previewCompanion, pedCoords.w)
+                SetEntityInvincible(previewCompanion, true)
+                SetBlockingOfNonTemporaryEvents(previewCompanion, true)
+                FreezeEntityPosition(previewCompanion, false)
+                SetModelAsNoLongerNeeded(monHash)
+            end
+        end
+    end
+end
 
 -- Initialize Multicharacter on Session Start
 CreateThread(function()
@@ -67,12 +143,29 @@ RegisterNetEvent('pokefivem:client:openMulticharacter', function()
 
     -- Request Characters from Server
     PokeCore.Functions.TriggerCallback('pokefivem:multichar:getCharacters', function(characters)
+        local defaultGender = 0
+        local defaultStyle = 'red'
+        local defaultLeadId = nil
+
+        if characters and #characters > 0 then
+            local first = characters[1]
+            defaultGender = (first.charinfo and first.charinfo.gender) or 0
+            defaultStyle = (first.charinfo and first.charinfo.style) or (defaultGender == 1 and 'leaf' or 'red')
+            if first.leadPokemon then
+                defaultLeadId = first.leadPokemon.pokedex_id
+            end
+        end
+
+        -- Spawn initial preview ped
+        SpawnOrUpdatePreviewPed(defaultGender, defaultStyle, defaultLeadId)
+
         SetNuiFocus(true, true)
         SendNUIMessage({
             action = 'openMulticharacter',
             characters = characters or {},
             maxSlots = (Config.Multicharacter and Config.Multicharacter.MaxSlots) or 4,
-            starters = Config.StarterPokemon or {}
+            starters = Config.StarterPokemon or {},
+            outfits = PokeCore.Shared.TrainerOutfits or {}
         })
 
         DoScreenFadeIn(800)
@@ -82,7 +175,7 @@ end)
 -- Spawn Selected Character Handler
 RegisterNetEvent('pokefivem:client:spawnSelectedCharacter', function(playerData)
     inCharSelect = false
-    local ped = PlayerPedId()
+    CleanUpPreviewEntities()
 
     -- Close NUI
     SetNuiFocus(false, false)
@@ -96,6 +189,29 @@ RegisterNetEvent('pokefivem:client:spawnSelectedCharacter', function(playerData)
         DestroyCam(charCam, false)
         charCam = nil
     end
+
+    local charinfo = playerData.charinfo or {}
+    local gender = tonumber(charinfo.gender) or 0
+    local targetModel = (gender == 1) and `mp_f_freemode_01` or `mp_m_freemode_01`
+    local ped = PlayerPedId()
+
+    -- Apply target gender model if different
+    if GetEntityModel(ped) ~= targetModel then
+        RequestModel(targetModel)
+        local tTimeout = GetGameTimer() + 3000
+        while not HasModelLoaded(targetModel) and GetGameTimer() < tTimeout do
+            Wait(50)
+        end
+        if HasModelLoaded(targetModel) then
+            SetPlayerModel(PlayerId(), targetModel)
+            SetModelAsNoLongerNeeded(targetModel)
+            ped = PlayerPedId()
+        end
+    end
+
+    -- Apply Trainer Outfit to player ped
+    local style = charinfo.style or (gender == 1 and 'leaf' or 'red')
+    PokeCore.Functions.ApplyTrainerOutfit(ped, style, gender)
 
     local pos = playerData.position or Config.Player.DefaultSpawn
     SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, false)
@@ -118,6 +234,7 @@ end)
 -- NUI Callbacks
 -- ====================================================================
 
+-- Select Character
 RegisterNUICallback('selectCharacter', function(data, cb)
     if data and data.citizenid then
         TriggerServerEvent('pokefivem:server:selectCharacter', data.citizenid)
@@ -125,6 +242,7 @@ RegisterNUICallback('selectCharacter', function(data, cb)
     cb('ok')
 end)
 
+-- Create New Character
 RegisterNUICallback('createCharacter', function(data, cb)
     if data then
         TriggerServerEvent('pokefivem:server:createCharacter', data)
@@ -132,9 +250,67 @@ RegisterNUICallback('createCharacter', function(data, cb)
     cb('ok')
 end)
 
+-- Delete Character
 RegisterNUICallback('deleteCharacter', function(data, cb)
     if data and data.citizenid then
         TriggerServerEvent('pokefivem:server:deleteCharacter', data.citizenid)
     end
     cb('ok')
 end)
+
+-- Preview Character (When clicking or hovering over a character slot)
+RegisterNUICallback('previewCharacter', function(data, cb)
+    if not inCharSelect then cb('ok') return end
+    if data and data.char then
+        local c = data.char
+        local gender = (c.charinfo and c.charinfo.gender) or 0
+        local style = (c.charinfo and c.charinfo.style) or (gender == 1 and 'leaf' or 'red')
+        local leadId = c.leadPokemon and c.leadPokemon.pokedex_id or nil
+        SpawnOrUpdatePreviewPed(gender, style, leadId)
+    else
+        -- Empty slot preview (Default trainer)
+        local gender = (data and data.gender) or 0
+        local style = (gender == 1) and 'leaf' or 'red'
+        SpawnOrUpdatePreviewPed(gender, style, nil)
+    end
+    cb('ok')
+end)
+
+-- Preview Style (When user changes gender or clicks an outfit in registration modal)
+RegisterNUICallback('previewStyle', function(data, cb)
+    if not inCharSelect then cb('ok') return end
+    local gender = (data and tonumber(data.gender)) or 0
+    local style = (data and data.style) or (gender == 1 and 'leaf' or 'red')
+    SpawnOrUpdatePreviewPed(gender, style, nil)
+    cb('ok')
+end)
+
+-- In-Game Command: /trainer or /outfit (Change outfit on the fly)
+RegisterCommand('trainer', function(source, args)
+    local styleArg = args[1] and string.lower(args[1])
+    local ped = PlayerPedId()
+    local isFemale = (GetEntityModel(ped) == `mp_f_freemode_01`)
+    local gender = isFemale and 1 or 0
+
+    if styleArg and PokeCore.Shared.TrainerOutfits[styleArg] then
+        local outfit = PokeCore.Shared.TrainerOutfits[styleArg]
+        -- If model differs, switch model first
+        local targetModel = (outfit.gender == 1) and `mp_f_freemode_01` or `mp_m_freemode_01`
+        if GetEntityModel(ped) ~= targetModel then
+            RequestModel(targetModel)
+            while not HasModelLoaded(targetModel) do Wait(50) end
+            SetPlayerModel(PlayerId(), targetModel)
+            SetModelAsNoLongerNeeded(targetModel)
+            ped = PlayerPedId()
+        end
+        PokeCore.Functions.ApplyTrainerOutfit(ped, styleArg, outfit.gender)
+        PokeCore.Functions.Notify(string.format('Equipped %s outfit!', outfit.label), 'success')
+    else
+        -- Print available styles
+        local list = {}
+        for k, v in pairs(PokeCore.Shared.TrainerOutfits) do
+            table.insert(list, k)
+        end
+        PokeCore.Functions.Notify('Usage: /trainer [' .. table.concat(list, ', ') .. ']', 'info')
+    end
+end, false)

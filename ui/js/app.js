@@ -52,9 +52,24 @@ createApp({
             firstname: '',
             lastname: '',
             gender: 0,
+            style: 'red',
             birthdate: '2000-01-01',
             starterId: 1
         });
+        const outfits = ref({
+            red: { name: 'red', label: 'Red (Kanto)', gender: 0, description: 'Pallet Town legend with red cap and trainer jacket.' },
+            ethan: { name: 'ethan', label: 'Ethan (Johto)', gender: 0, description: 'Johto explorer with backward cap and hoodie.' },
+            lucas: { name: 'lucas', label: 'Lucas (Sinnoh)', gender: 0, description: 'Sinnoh champion with blue beret and runners.' },
+            leaf: { name: 'leaf', label: 'Leaf (Kanto)', gender: 1, description: 'Kanto challenger with sunhat and turquoise top.' },
+            dawn: { name: 'dawn', label: 'Dawn (Sinnoh)', gender: 1, description: 'Sinnoh coordinator with white beanie and vest.' },
+            serena: { name: 'serena', label: 'Serena (Kalos)', gender: 1, description: 'Kalos stylist with fashionable fedora and boots.' }
+        });
+
+        const availableOutfits = computed(() => {
+            const g = Number(newTrainer.value.gender) || 0;
+            return Object.values(outfits.value).filter(o => o.gender === g);
+        });
+
         const starterChoices = ref([
             { id: 1, name: 'Bulbasaur', type1: 'grass' },
             { id: 4, name: 'Charmander', type1: 'fire' },
@@ -83,8 +98,19 @@ createApp({
             return newTrainer.value.firstname.trim().length >= 2 &&
                    newTrainer.value.lastname.trim().length >= 2 &&
                    newTrainer.value.birthdate &&
-                   newTrainer.value.starterId;
+                   newTrainer.value.starterId &&
+                   newTrainer.value.style;
         });
+
+        const selectSlot = (slot) => {
+            if (!slot || !slot.char) return;
+            selectedChar.value = slot.char;
+            fetch(`https://${GetParentResourceName()}/previewCharacter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ char: slot.char })
+            });
+        };
 
         const confirmPlayCharacter = (citizenid) => {
             fetch(`https://${GetParentResourceName()}/selectCharacter`, {
@@ -100,10 +126,35 @@ createApp({
                 firstname: '',
                 lastname: '',
                 gender: 0,
+                style: 'red',
                 birthdate: '2000-01-01',
                 starterId: 1
             };
+            fetch(`https://${GetParentResourceName()}/previewStyle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gender: 0, style: 'red' })
+            });
             showCreateModal.value = true;
+        };
+
+        const onGenderChange = () => {
+            const g = Number(newTrainer.value.gender) || 0;
+            newTrainer.value.style = (g === 1) ? 'leaf' : 'red';
+            fetch(`https://${GetParentResourceName()}/previewStyle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gender: g, style: newTrainer.value.style })
+            });
+        };
+
+        const selectOutfitStyle = (styleName) => {
+            newTrainer.value.style = styleName;
+            fetch(`https://${GetParentResourceName()}/previewStyle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gender: newTrainer.value.gender, style: styleName })
+            });
         };
 
         const submitCreateTrainer = () => {
@@ -172,6 +223,9 @@ createApp({
                         maxSlots.value = item.maxSlots || 4;
                         if (item.starters && item.starters.length > 0) {
                             starterChoices.value = item.starters;
+                        }
+                        if (item.outfits && Object.keys(item.outfits).length > 0) {
+                            outfits.value = item.outfits;
                         }
                         if (characters.value.length > 0) {
                             selectedChar.value = characters.value[0];
@@ -425,6 +479,7 @@ createApp({
 
         return {
             showMulticharacter, characters, maxSlots, selectedChar, showCreateModal, showDeleteModal, deletingChar, newTrainer, starterChoices,
+            outfits, availableOutfits, selectSlot, onGenderChange, selectOutfitStyle,
             getTrainerAvatar, slotList, isTrainerFormValid, confirmPlayCharacter, openCreateModal, submitCreateTrainer, promptDeleteCharacter, confirmDeleteCharacter,
             hudLead, notifications, showStarter, starters, selectedStarter, confirmStarter,
             inBattle, battleData, battleSubmenu, battleLogText, sendBattleAction, openBagInBattle, openPartyInBattle,

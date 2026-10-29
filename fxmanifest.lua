@@ -13,6 +13,7 @@ shared_scripts {
     'shared/jobs.lua',
     'shared/items.lua',
     'shared/locale.lua',
+    'shared/trainer_outfits.lua',
     'shared/types_data.lua',
     'shared/natures_data.lua',
     'shared/moves_data.lua',

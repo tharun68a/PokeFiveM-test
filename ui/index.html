@@ -33,7 +33,7 @@
                 <div class="multichar-grid">
                     <div v-for="slot in slotList" :key="slot.slotNumber" class="char-card" :class="{ 'char-card-empty': !slot.char, 'active': selectedChar && slot.char && selectedChar.citizenid === slot.char.citizenid }">
                         <!-- Active Trainer Card -->
-                        <div v-if="slot.char" class="card-inner" @click="selectedChar = slot.char">
+                        <div v-if="slot.char" class="card-inner" @click="selectSlot(slot)">
                             <div class="card-top-row">
                                 <span class="slot-tag">Slot {{ slot.slotNumber }}</span>
                                 <span class="cid-tag">{{ slot.char.citizenid }}</span>
@@ -112,7 +112,7 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label><i class="fa-solid fa-venus-mars"></i> Gender</label>
-                                    <select v-model="newTrainer.gender">
+                                    <select v-model="newTrainer.gender" @change="onGenderChange">
                                         <option :value="0">Male Trainer</option>
                                         <option :value="1">Female Trainer</option>
                                     </select>
@@ -120,6 +120,19 @@
                                 <div class="form-group">
                                     <label><i class="fa-solid fa-calendar"></i> Date of Birth</label>
                                     <input type="date" v-model="newTrainer.birthdate">
+                                </div>
+                            </div>
+
+                            <div class="trainer-outfit-wrapper">
+                                <label class="starter-label"><i class="fa-solid fa-shirt"></i> Select Trainer Style & Outfit</label>
+                                <div class="outfit-cards-grid">
+                                    <div v-for="outfit in availableOutfits" :key="outfit.name" class="outfit-card-option" :class="{ 'chosen': newTrainer.style === outfit.name }" @click="selectOutfitStyle(outfit.name)">
+                                        <div class="outfit-badge">
+                                            <i :class="newTrainer.gender === 1 ? 'fa-solid fa-person-dress' : 'fa-solid fa-person'"></i>
+                                        </div>
+                                        <span class="outfit-name">{{ outfit.label }}</span>
+                                        <p class="outfit-desc">{{ outfit.description }}</p>
+                                    </div>
                                 </div>
                             </div>
 

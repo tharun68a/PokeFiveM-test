@@ -91,12 +91,13 @@ RegisterNetEvent('pokefivem:server:createCharacter', function(data)
             return
         end
 
-        local citizenid = "PKM" .. tostring(math.random(10000, 99999))
+        local gender = tonumber(data.gender) or 0
         local charinfo = {
             firstname = (data.firstname and data.firstname:gsub("%s+", "")) or "Red",
             lastname = (data.lastname and data.lastname:gsub("%s+", "")) or "Trainer",
             birthdate = data.birthdate or "2000-01-01",
-            gender = tonumber(data.gender) or 0
+            gender = gender,
+            style = data.style or (gender == 1 and "leaf" or "red")
         }
 
         local job = {

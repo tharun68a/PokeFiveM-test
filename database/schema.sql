@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `pokefivem_users` (
 CREATE TABLE IF NOT EXISTS `pokefivem_characters` (
     `citizenid` VARCHAR(16) NOT NULL PRIMARY KEY,
     `identifier` VARCHAR(64) NOT NULL,
-    `charinfo` LONGTEXT DEFAULT '{"firstname":"Red","lastname":"Trainer","birthdate":"2000-01-01","gender":0}',
+    `charinfo` LONGTEXT DEFAULT '{"firstname":"Red","lastname":"Trainer","birthdate":"2000-01-01","gender":0,"style":"red"}',
     `job` LONGTEXT DEFAULT '{"name":"trainer","label":"Pokémon Trainer","grade":0,"grade_name":"Rookie Trainer","payment":75,"onduty":true}',
     `accounts` LONGTEXT DEFAULT '{"cash":1000,"bank":5000,"pokedollars":2500}',
     `metadata` LONGTEXT DEFAULT '{"hunger":100,"thirst":100,"isdead":false,"inlaststand":false,"starter_claimed":false,"badges":[],"battles_won":0,"battles_lost":0,"pokemon_caught":0}',
