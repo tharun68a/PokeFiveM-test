@@ -71,11 +71,11 @@ Config.WildMinLevel = 2
 -- Wild Spawning System
 Config.WildSpawning = {
     Enabled = true,
-    SpawnInterval = 12000,
-    MaxWildNearby = 6,
-    MinDistance = 18.0,
-    MaxDistance = 55.0,
-    DespawnDistance = 75.0,
+    SpawnInterval = 15000,
+    MaxWildNearby = 5,
+    MinDistance = 15.0,
+    MaxDistance = 45.0,
+    DespawnDistance = 120.0,
     DespawnTimer = 300,
     AggressiveChance = 0.20,
     FleeChance = 0.25

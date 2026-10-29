@@ -41,8 +41,17 @@ CreateThread(function()
         local repelOn = isRepelActive and (GetGameTimer() < repelExpiresAt)
         if not IsPedInAnyVehicle(ped, false) and not InBattle and not repelOn then
             local coords = GetEntityCoords(ped)
-            local biome = GetCurrentBiome()
-            TriggerServerEvent('pokefivem:server:requestSpawns', coords, biome)
+            -- Only request new spawns if we have fewer than 3 active nearby
+            local localNearby = 0
+            for _, w in pairs(SpawnedWildPeds) do
+                if DoesEntityExist(w.entity) and #(coords - GetEntityCoords(w.entity)) < 70.0 then
+                    localNearby = localNearby + 1
+                end
+            end
+            if localNearby < 3 then
+                local biome = GetCurrentBiome()
+                TriggerServerEvent('pokefivem:server:requestSpawns', coords, biome)
+            end
         end
     end
 end)
@@ -66,8 +75,11 @@ RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
     end
 
     -- Find ground Z
-    local foundGround, groundZ = GetGroundZFor_3dCoord(wildData.coords.x, wildData.coords.y, wildData.coords.z + 5.0, false)
-    local finalZ = foundGround and groundZ or wildData.coords.z
+    local foundGround, groundZ = GetGroundZFor_3dCoord(wildData.coords.x, wildData.coords.y, wildData.coords.z + 10.0, false)
+    if not foundGround then
+        foundGround, groundZ = GetGroundZFor_3dCoord(wildData.coords.x, wildData.coords.y, wildData.coords.z + 50.0, false)
+    end
+    local finalZ = (foundGround and groundZ > 0.0) and groundZ or wildData.coords.z
 
     local ped = CreatePed(4, modelHash, wildData.coords.x, wildData.coords.y, finalZ, math.random(0, 359) + 0.0, false, true)
     SetModelAsNoLongerNeeded(modelHash)
@@ -76,6 +88,7 @@ RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
     SetBlockingOfNonTemporaryEvents(ped, true)
     SetPedCanRagdoll(ped, false)
     SetEntityInvincible(ped, true)
+    PlaceObjectOnGroundProperly(ped)
 
     -- Wander task
     TaskWanderStandard(ped, 10.0, 10)
@@ -152,9 +165,9 @@ CreateThread(function()
                                 TriggerServerEvent('pokefivem:server:startWildBattle', wildId)
                             end
                         end
-                    elseif dist < 20.0 and sleep > 300 then
+                    elseif dist < 25.0 and sleep > 300 then
                         sleep = 300
-                    elseif dist > (Config.WildSpawning.DespawnDistance or 80.0) then
+                    elseif dist > (Config.WildSpawning.DespawnDistance or 120.0) then
                         TriggerServerEvent('pokefivem:server:despawnWild', wildId)
                     end
                 end
