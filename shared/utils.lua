@@ -240,7 +240,7 @@ function PokeUtils.GetPokemonModel(pokedexId)
 
     -- On client side, verify if streamed custom model is mounted in CD image
     if IsDuplicityVersion and not IsDuplicityVersion() then
-        -- 1. Check custom 3D model
+        -- 1. Check explicit customModel key if defined
         if pData.customModel then
             local customHash = (type(pData.customModel) == 'number') and pData.customModel or GetHashKey(pData.customModel)
             if IsModelInCdimage(customHash) and IsModelValid(customHash) then
@@ -248,7 +248,20 @@ function PokeUtils.GetPokemonModel(pokedexId)
             end
         end
 
-        -- 2. Check native fallback ped
+        -- 2. Auto-detect streamed Add-on Ped named after the Pokémon (e.g. stream/pikachu.ydd, stream/charizard.ydd)
+        if pData.name then
+            local nameHash = GetHashKey(string.lower(pData.name))
+            if IsModelInCdimage(nameHash) and IsModelValid(nameHash) then
+                return nameHash
+            end
+            local cleanName = string.lower(pData.name:gsub("%s+", ""):gsub("[^%w]", ""))
+            local cleanNameHash = GetHashKey(cleanName)
+            if IsModelInCdimage(cleanNameHash) and IsModelValid(cleanNameHash) then
+                return cleanNameHash
+            end
+        end
+
+        -- 3. Check native fallback ped
         if pData.model then
             local nativeHash = (type(pData.model) == 'number') and pData.model or GetHashKey(pData.model)
             if IsModelInCdimage(nativeHash) and IsModelValid(nativeHash) then

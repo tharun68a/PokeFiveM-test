@@ -59,7 +59,7 @@ function SummonCompanion()
     activeCompanionData = lead
     TriggerEvent('pokefivem:client:notify', _L('companion_sent', lead.nickname or pData.name), 'info')
 
-    -- Follow Loop (Optimized Ticking)
+    -- Follow & HUD Loop (Optimized Ticking)
     CreateThread(function()
         local followDist = Config.Companion.FollowDistance or 2.5
         local followSpeed = Config.Companion.FollowSpeed or 3.0
@@ -85,6 +85,30 @@ function SummonCompanion()
                 Wait(600)
             else
                 Wait(1200) -- Sleep longer when already near trainer
+            end
+        end
+    end)
+
+    -- Floating 3D Companion Overhead Tag
+    CreateThread(function()
+        while activeCompanionPed and DoesEntityExist(activeCompanionPed) do
+            local pPed = PlayerPedId()
+            local pPos = GetEntityCoords(pPed)
+            local cPos = GetEntityCoords(activeCompanionPed)
+            local dist = #(pPos - cPos)
+
+            if dist < 20.0 then
+                local pName = activeCompanionData.nickname or pData.name
+                local curHp = activeCompanionData.current_hp or 20
+                local maxHp = activeCompanionData.max_hp or 20
+                local hpPct = math.floor((curHp / math.max(1, maxHp)) * 100)
+                local hpColor = (hpPct > 50) and "~g~" or ((hpPct > 20) and "~y~" or "~r~")
+                local label = string.format("~b~[Companion]~w~ %s ~w~(Lv. %d) %s%d%% HP", pName, activeCompanionData.level or 5, hpColor, hpPct)
+
+                DrawText3D(cPos.x, cPos.y, cPos.z + 0.65, label)
+                Wait(0)
+            else
+                Wait(1000)
             end
         end
     end)
