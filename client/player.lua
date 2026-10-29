@@ -21,6 +21,7 @@ end)
 RegisterNetEvent('pokefivem:client:onPlayerLoaded', function(playerData)
     PokeCore.PlayerData = playerData
     isLoaded = true
+    LocalPlayer.state:set('isLoggedIn', true, false)
 
     -- Position Check & Spawn
     local ped = PlayerPedId()

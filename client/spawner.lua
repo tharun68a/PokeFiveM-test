@@ -39,7 +39,9 @@ CreateThread(function()
         Wait(Config.WildSpawning.SpawnInterval or 12000)
         local ped = PlayerPedId()
         local repelOn = isRepelActive and (GetGameTimer() < repelExpiresAt)
-        if not IsPedInAnyVehicle(ped, false) and not InBattle and not repelOn then
+        local loggedIn = LocalPlayer.state and LocalPlayer.state.isLoggedIn
+
+        if loggedIn and not IsPedInAnyVehicle(ped, false) and not InBattle and not repelOn then
             local coords = GetEntityCoords(ped)
             -- Only request new spawns if we have fewer than 3 active nearby
             local localNearby = 0
@@ -74,12 +76,15 @@ RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
         while not HasModelLoaded(modelHash) do Wait(50) end
     end
 
+    -- Request map collision at spawn point
+    RequestCollisionAtCoord(wildData.coords.x, wildData.coords.y, wildData.coords.z)
+
     -- Find ground Z
     local foundGround, groundZ = GetGroundZFor_3dCoord(wildData.coords.x, wildData.coords.y, wildData.coords.z + 10.0, false)
     if not foundGround then
         foundGround, groundZ = GetGroundZFor_3dCoord(wildData.coords.x, wildData.coords.y, wildData.coords.z + 50.0, false)
     end
-    local finalZ = (foundGround and groundZ > 0.0) and groundZ or wildData.coords.z
+    local finalZ = (foundGround and groundZ > -50.0) and groundZ or wildData.coords.z
 
     local ped = CreatePed(4, modelHash, wildData.coords.x, wildData.coords.y, finalZ, math.random(0, 359) + 0.0, false, true)
     SetModelAsNoLongerNeeded(modelHash)
@@ -139,7 +144,8 @@ RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
     SpawnedWildPeds[wildData.wildId] = {
         entity = ped,
         data = wildData,
-        cachedLabel = cachedLabel
+        cachedLabel = cachedLabel,
+        spawnedAt = GetGameTimer()
     }
 end)
 
@@ -180,7 +186,10 @@ CreateThread(function()
                     elseif dist < 25.0 and sleep > 300 then
                         sleep = 300
                     elseif dist > (Config.WildSpawning.DespawnDistance or 120.0) then
-                        TriggerServerEvent('pokefivem:server:despawnWild', wildId)
+                        -- Minimum 30s grace period before distance despawn
+                        if wild.spawnedAt and (GetGameTimer() - wild.spawnedAt > 30000) then
+                            TriggerServerEvent('pokefivem:server:despawnWild', wildId)
+                        end
                     end
                 end
             end

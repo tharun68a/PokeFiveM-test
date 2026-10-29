@@ -204,30 +204,30 @@ Config.PokeMarts = {
     }
 }
 
--- Biome Spawn Profiles
+-- Biome Spawn Profiles (Prioritizing Streamed 3D Pokémon Models)
 Config.Biomes = {
     grass = {
-        names = { "Bulbasaur", "Oddish", "Bellsprout", "Caterpie", "Weedle", "Pidgey", "Rattata", "Pikachu", "Nidoran_m", "Nidoran_f", "Abra", "Eevee" },
+        names = { "Bulbasaur", "Pikachu", "Charmander", "Squirtle", "Meowth", "Lucario", "Scyther", "Eevee" },
         levels = { min = 3, max = 22 }
     },
     forest = {
-        names = { "Caterpie", "Metapod", "Butterfree", "Weedle", "Kakuna", "Beedrill", "Pidgeotto", "Pinsir", "Scyther", "Tangela", "Pikachu" },
+        names = { "Bulbasaur", "Scyther", "Gardevoir", "Braixen", "Cinderace", "Machoke", "Pikachu" },
         levels = { min = 8, max = 32 }
     },
     water = {
-        names = { "Squirtle", "Psyduck", "Poliwag", "Tentacool", "Slowpoke", "Magikarp", "Goldeen", "Staryu", "Lapras", "Krabby", "Shellder" },
+        names = { "Squirtle", "Golduck", "Greninja", "Lapras", "Magikarp", "Gyarados" },
         levels = { min = 5, max = 35 }
     },
     mountain = {
-        names = { "Geodude", "Graveler", "Onix", "Machop", "Machoke", "Mankey", "Charmander", "Clefairy", "Zubat", "Golbat", "Rhyhorn" },
+        names = { "Geodude", "Machoke", "Machamp", "Hitmonchan", "Charmander", "Charizard", "Lucario", "Garchomp" },
         levels = { min = 10, max = 45 }
     },
     urban = {
-        names = { "Rattata", "Raticate", "Meowth", "Magnemite", "Voltorb", "Porygon", "Koffing", "Grimer", "Eevee", "Pikachu", "Abra" },
+        names = { "Pikachu", "Meowth", "Alakazam", "Lucario", "Blaziken", "Zoroark", "Infernape", "Mismagius" },
         levels = { min = 5, max = 28 }
     },
     cave = {
-        names = { "Zubat", "Golbat", "Geodude", "Diglett", "Dugtrio", "Gastly", "Haunter", "Onix", "Cubone" },
+        names = { "Geodude", "Alakazam", "Machoke", "Garchomp", "Zoroark", "Mewtwo" },
         levels = { min = 12, max = 40 }
     }
 }

@@ -122,3 +122,4 @@ RegisterNetEvent('pokefivem:server:cancelEvolution', function(token)
     EvolutionTokens[src] = nil
     TriggerClientEvent('pokefivem:client:notify', src, string.format("Huh? %s stopped evolving!", pending.oldName), 'info', 5000)
 end)
+

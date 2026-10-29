@@ -69,3 +69,4 @@ RegisterNetEvent('pokefivem:client:startForaging', function(node)
     ClearPedTasks(ped)
     TriggerServerEvent('pokefivem:server:forageNode', node.id, node.type)
 end)
+

@@ -108,3 +108,4 @@ RegisterNetEvent('pokefivem:client:pokeStopSpun', function(stopId, rewards)
     end
     TriggerEvent('pokefivem:client:notify', msg, 'success', 5000)
 end)
+

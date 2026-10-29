@@ -61,3 +61,4 @@ RegisterNetEvent('pokefivem:server:spinPokeStop', function(stopId)
 
     TriggerClientEvent('pokefivem:client:pokeStopSpun', src, stopId, rewardedItems)
 end)
+

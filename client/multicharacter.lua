@@ -8,6 +8,8 @@ local charCam = nil
 local inCharSelect = false
 local previewPed = nil
 local previewCompanion = nil
+local hasOpenedMultichar = false
+local isPlayerLoaded = false
 
 -- Disable auto-spawn from spawnmanager
 AddEventHandler('onClientResourceStart', function(resourceName)
@@ -152,6 +154,9 @@ end)
 
 -- Open Multicharacter Selection Interface
 RegisterNetEvent('pokefivem:client:openMulticharacter', function()
+    if hasOpenedMultichar or isPlayerLoaded then return end
+    hasOpenedMultichar = true
+
     ShutdownLoadingScreen()
     ShutdownLoadingScreenNui()
     inCharSelect = true
@@ -211,6 +216,8 @@ end)
 
 -- Spawn Selected Character Handler
 RegisterNetEvent('pokefivem:client:spawnSelectedCharacter', function(playerData)
+    hasOpenedMultichar = true
+    isPlayerLoaded = true
     inCharSelect = false
     CleanUpPreviewEntities()
 
@@ -266,6 +273,9 @@ end)
 
 -- Player Logout Event
 RegisterNetEvent('pokefivem:client:onPlayerLogout', function()
+    hasOpenedMultichar = false
+    isPlayerLoaded = false
+    LocalPlayer.state:set('isLoggedIn', false, false)
     local ped = PlayerPedId()
     FreezeEntityPosition(ped, true)
     SetEntityVisible(ped, false, false)

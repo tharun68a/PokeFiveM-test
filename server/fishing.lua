@@ -82,3 +82,4 @@ RegisterNetEvent('pokefivem:server:fishingEncounter', function(rodType)
     -- Trigger wild battle
     TriggerClientEvent('pokefivem:client:startWildBattle', src, wildStats)
 end)
+

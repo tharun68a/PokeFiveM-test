@@ -43,3 +43,4 @@ RegisterNetEvent('pokefivem:server:forageNode', function(nodeId, nodeType)
     exports.ox_inventory:AddItem(src, chosen.item, qty)
     TriggerClientEvent('pokefivem:client:notify', src, string.format("Harvested %d %s!", qty, chosen.label), 'success')
 end)
+

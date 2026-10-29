@@ -126,3 +126,4 @@ RegisterNetEvent('pokefivem:server:damageRaidBoss', function(raidId, damage)
         end)
     end
 end)
+
