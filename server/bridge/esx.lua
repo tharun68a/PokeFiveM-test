@@ -281,20 +281,31 @@ function ESX.GetJobs()
 end
 
 -- ====================================================================
--- ESX Event Hooks (Lifecycle Synchronization)
+-- ESX Event Hooks (Lifecycle Synchronization & ox_inventory Protection)
 -- ====================================================================
 
-RegisterNetEvent('pokefivem:server:onPlayerLoaded', function(src)
-    local source = src or source
-    local xPlayer = ESX.GetPlayerFromId(source)
+local loadedSources = {}
+
+AddEventHandler('pokefivem:server:onPlayerLoaded', function(source, playerObj)
+    local src = tonumber(source) or (playerObj and playerObj.PlayerData and tonumber(playerObj.PlayerData.source))
+    if not src then return end
+
+    -- Guard against duplicate esx:playerLoaded triggers to prevent ox_inventory crash
+    if loadedSources[src] then
+        return
+    end
+
+    local xPlayer = ESX.GetPlayerFromId(src)
     if xPlayer then
-        TriggerEvent('esx:playerLoaded', source, xPlayer)
-        PokeCore.Functions.Log('Bridge', string.format('ESX Bridge triggered esx:playerLoaded for [%d] %s', source, xPlayer.name), 'info')
+        loadedSources[src] = true
+        TriggerEvent('esx:playerLoaded', src, xPlayer)
+        PokeCore.Functions.Log('Bridge', string.format('ESX Bridge triggered esx:playerLoaded for [%d] %s', src, xPlayer.name), 'info')
     end
 end)
 
 AddEventHandler('playerDropped', function(reason)
     local src = source
+    loadedSources[src] = nil
     if ESX.Players[src] then
         TriggerEvent('esx:playerDropped', src, reason)
         ESX.Players[src] = nil

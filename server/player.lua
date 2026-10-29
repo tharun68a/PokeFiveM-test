@@ -273,6 +273,13 @@ end
 -- Core Player Login Handler
 function PokeCore.Player.Login(source, citizenid, newData)
     if not source or not citizenid then return false end
+
+    -- Guard against duplicate login calls for already-active player (prevents ox_inventory duplicate load)
+    if PokeCore.Players[source] and PokeCore.Players[source].PlayerData and PokeCore.Players[source].PlayerData.citizenid == citizenid then
+        print(string.format('^3[PokeFiveM - INFO] Player [%s] already logged in (%s). Skipping duplicate load.^7', source, citizenid))
+        return true
+    end
+
     local license = PokeCore.Functions.GetLicense(source)
 
     local charData = MySQL.single.await('SELECT * FROM `pokefivem_characters` WHERE `citizenid` = ? AND `identifier` = ?', { citizenid, license })
@@ -322,7 +329,7 @@ function PokeCore.Player.Login(source, citizenid, newData)
     -- Trigger client spawn and lifecycle hooks
     TriggerClientEvent('pokefivem:client:spawnSelectedCharacter', source, playerData)
     TriggerClientEvent('pokefivem:client:onPlayerLoaded', source, playerData)
-    TriggerEvent('pokefivem:server:onPlayerLoaded', citizenid, playerObj)
+    TriggerEvent('pokefivem:server:onPlayerLoaded', source, playerObj)
     TriggerEvent('pokefivem:server:refreshParty', source)
 
     local fullName = playerData.charinfo.firstname .. ' ' .. playerData.charinfo.lastname

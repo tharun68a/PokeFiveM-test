@@ -43,7 +43,8 @@ client_scripts {
     'client/pvp.lua',
     'client/trade.lua',
     'client/quests.lua',
-    'client/daycare.lua'
+    'client/daycare.lua',
+    'client/world.lua'
 }
 
 server_scripts {
