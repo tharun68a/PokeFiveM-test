@@ -29,6 +29,7 @@ client_scripts {
     'client/callbacks.lua',
     'client/notifications.lua',
     'client/player.lua',
+    'client/bridge/esx.lua',
     'client/multicharacter.lua',
     'client/main.lua',
     'client/spawner.lua',
@@ -50,6 +51,7 @@ server_scripts {
     'server/core.lua',
     'server/callbacks.lua',
     'server/player.lua',
+    'server/bridge/esx.lua',
     'server/multicharacter.lua',
     'server/events.lua',
     'server/inventory.lua',
@@ -73,6 +75,8 @@ files {
 
 exports {
     'GetCoreObject',
+    'GetSharedObject',
+    'getSharedObject',
     'GetPlayerParty',
     'GetPlayerPokemon',
     'GivePokemon',
@@ -85,6 +89,8 @@ exports {
 
 server_exports {
     'GetCoreObject',
+    'GetSharedObject',
+    'getSharedObject',
     'GivePokemonToPlayer',
     'GetPlayerPartyData',
     'HealPlayerParty',

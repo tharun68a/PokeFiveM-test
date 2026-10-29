@@ -211,9 +211,8 @@ tasks:
       set mysql_ui true
 
       ## Environment, Game Build & OneSync
-      ## sv_enforceGameBuild is commented out by default so players connect instantly with 0 MB download.
-      ## Uncomment below if you wish to enforce GTA DLC build 3258:
-      # sv_enforceGameBuild 3258
+      ## Set sv_enforceGameBuild 3258 to prevent massive DLC downloads on client connect
+      sv_enforceGameBuild 3258
       set resources_useSystemChat true
       set onesync on
       set gamename "gta5"
@@ -289,6 +288,7 @@ tasks:
       ## ===================================================================
       ## [1] Default CFX Resources
       ## ===================================================================
+      ensure mapmanager
       ensure chat
       ensure spawnmanager
       ensure sessionmanager

@@ -169,3 +169,4 @@ function PokeCore.Functions.ApplyTrainerOutfit(ped, outfitKey, gender)
 
     return true
 end
+

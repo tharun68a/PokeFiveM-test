@@ -12,7 +12,11 @@ local previewCompanion = nil
 -- Disable auto-spawn from spawnmanager
 AddEventHandler('onClientResourceStart', function(resourceName)
     if resourceName == GetCurrentResourceName() then
-        exports.spawnmanager:setAutoSpawn(false)
+        pcall(function()
+            if exports.spawnmanager then
+                exports.spawnmanager:setAutoSpawn(false)
+            end
+        end)
     end
 end)
 
@@ -95,25 +99,49 @@ CreateThread(function()
     while not NetworkIsSessionActive() do Wait(250) end
     Wait(500)
 
-    exports.spawnmanager:setAutoSpawn(false)
+    pcall(function()
+        if exports.spawnmanager then
+            exports.spawnmanager:setAutoSpawn(false)
+        end
+    end)
 
     if Config.Multicharacter and Config.Multicharacter.Enabled then
         local camCoords = Config.Multicharacter.CameraCoords or vector4(-1392.21, -590.45, 30.32, 210.0)
 
-        -- Initial silent spawn to dismiss loading screen and transition into game
-        exports.spawnmanager:spawnPlayer({
-            x = camCoords.x,
-            y = camCoords.y,
-            z = camCoords.z,
-            heading = camCoords.w,
-            model = `mp_m_freemode_01`,
-            skipFade = true
-        }, function()
-            ShutdownLoadingScreen()
-            ShutdownLoadingScreenNui()
-            TriggerEvent('pokefivem:client:openMulticharacter')
+        local hasSpawned = false
+        pcall(function()
+            if exports.spawnmanager then
+                exports.spawnmanager:spawnPlayer({
+                    x = camCoords.x,
+                    y = camCoords.y,
+                    z = camCoords.z,
+                    heading = camCoords.w,
+                    model = `mp_m_freemode_01`,
+                    skipFade = true
+                }, function()
+                    hasSpawned = true
+                    ShutdownLoadingScreen()
+                    ShutdownLoadingScreenNui()
+                    TriggerEvent('pokefivem:client:openMulticharacter')
+                end)
+            end
+        end)
+
+        -- Fallback if spawnmanager is missing or delayed
+        SetTimeout(2000, function()
+            if not hasSpawned then
+                local ped = PlayerPedId()
+                SetEntityCoords(ped, camCoords.x, camCoords.y, camCoords.z - 1.0, false, false, false, false)
+                FreezeEntityPosition(ped, true)
+                SetEntityVisible(ped, false, false)
+                ShutdownLoadingScreen()
+                ShutdownLoadingScreenNui()
+                TriggerEvent('pokefivem:client:openMulticharacter')
+            end
         end)
     else
+        ShutdownLoadingScreen()
+        ShutdownLoadingScreenNui()
         TriggerServerEvent('pokefivem:server:playerLoaded')
     end
 end)
@@ -129,6 +157,8 @@ RegisterNetEvent('pokefivem:client:openMulticharacter', function()
     DoScreenFadeOut(0)
 
     local camCoords = Config.Multicharacter.CameraCoords or vector4(-1392.21, -590.45, 30.32, 210.0)
+    local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
+
     SetEntityCoords(ped, camCoords.x, camCoords.y, camCoords.z - 1.0, false, false, false, false)
     FreezeEntityPosition(ped, true)
     SetEntityVisible(ped, false, false)
@@ -137,8 +167,11 @@ RegisterNetEvent('pokefivem:client:openMulticharacter', function()
         charCam = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
         SetCamCoord(charCam, camCoords.x, camCoords.y, camCoords.z + 1.2)
         SetCamRot(charCam, -5.0, 0.0, camCoords.w, 2)
+        PointCamAtCoord(charCam, pedCoords.x, pedCoords.y, pedCoords.z + 0.9)
         SetCamActive(charCam, true)
         RenderScriptCams(true, false, 0, true, true)
+    else
+        PointCamAtCoord(charCam, pedCoords.x, pedCoords.y, pedCoords.z + 0.9)
     end
 
     -- Request Characters from Server
