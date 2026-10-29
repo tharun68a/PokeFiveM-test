@@ -78,11 +78,44 @@ createApp({
             { id: 133, name: 'Eevee', type1: 'normal' }
         ]);
 
-        const getTrainerAvatar = (gender) => {
-            if (Number(gender) === 1) {
-                return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/leaf.png';
-            }
-            return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/red.png';
+        const trainerSprites = {
+            'red': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/red.png',
+            'ash': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/red.png',
+            'ethan': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/ethan.png',
+            'lucas': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/lucas.png',
+            'brendan': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/brendan.png',
+            'hilbert': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/hilbert.png',
+            'calem': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/calem.png',
+            'rocket_m': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/rocket-grunt-m.png',
+            'leaf': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/leaf.png',
+            'dawn': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/dawn.png',
+            'may': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/may.png',
+            'serena': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/serena.png',
+            'rosa': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/rosa.png',
+            'gloria': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/gloria.png',
+            'rocket_f': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/rocket-grunt-f.png'
+        };
+
+        const getTrainerAvatar = (gender, style) => {
+            if (style && trainerSprites[style]) return trainerSprites[style];
+            if (Number(gender) === 1) return trainerSprites['leaf'];
+            return trainerSprites['red'];
+        };
+
+        const rotatePed = (diff) => {
+            fetch(`https://${GetParentResourceName()}/rotatePed`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ diff: diff || 20 })
+            });
+        };
+
+        const resetPedHeading = () => {
+            fetch(`https://${GetParentResourceName()}/resetPedHeading`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
         };
 
         const slotList = computed(() => {
@@ -479,7 +512,7 @@ createApp({
 
         return {
             showMulticharacter, characters, maxSlots, selectedChar, showCreateModal, showDeleteModal, deletingChar, newTrainer, starterChoices,
-            outfits, availableOutfits, selectSlot, onGenderChange, selectOutfitStyle,
+            outfits, availableOutfits, selectSlot, onGenderChange, selectOutfitStyle, rotatePed, resetPedHeading,
             getTrainerAvatar, slotList, isTrainerFormValid, confirmPlayCharacter, openCreateModal, submitCreateTrainer, promptDeleteCharacter, confirmDeleteCharacter,
             hudLead, notifications, showStarter, starters, selectedStarter, confirmStarter,
             inBattle, battleData, battleSubmenu, battleLogText, sendBattleAction, openBagInBattle, openPartyInBattle,

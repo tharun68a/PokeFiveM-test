@@ -9,173 +9,266 @@
 </head>
 <body>
     <div id="app">
-        <!-- Multicharacter Screen -->
-        <div v-if="showMulticharacter" class="multichar-overlay">
-            <div class="multichar-container">
-                <!-- Header -->
-                <div class="multichar-header">
-                    <div class="multichar-brand">
-                        <div class="brand-pokeball">
-                            <i class="fa-solid fa-compact-disc fa-spin"></i>
-                        </div>
-                        <div class="brand-text">
-                            <h1>PokeFiveM</h1>
-                            <span class="brand-sub">TRAINER REGISTRY &bull; PIKA STUDIO</span>
-                        </div>
+        <!-- Multicharacter Screen (Popular Open-Source Glassmorphism Framework) -->
+        <div v-if="showMulticharacter" class="multichar-viewport">
+            <!-- Left Dock: Trainer Slots -->
+            <div class="multichar-left-dock">
+                <div class="multichar-brand-card">
+                    <div class="brand-pokeball">
+                        <i class="fa-solid fa-compact-disc fa-spin"></i>
                     </div>
-                    <div class="multichar-stats-chip">
-                        <i class="fa-solid fa-id-badge text-gold"></i>
-                        <span>Trainers: <strong>{{ characters.length }}</strong> / {{ maxSlots }}</span>
+                    <div class="brand-text">
+                        <h1>PokeFiveM</h1>
+                        <span class="brand-sub">TRAINER REGISTRY &bull; PIKA STUDIO</span>
                     </div>
                 </div>
 
-                <!-- Slots Grid -->
-                <div class="multichar-grid">
-                    <div v-for="slot in slotList" :key="slot.slotNumber" class="char-card" :class="{ 'char-card-empty': !slot.char, 'active': selectedChar && slot.char && selectedChar.citizenid === slot.char.citizenid }">
-                        <!-- Active Trainer Card -->
-                        <div v-if="slot.char" class="card-inner" @click="selectSlot(slot)">
-                            <div class="card-top-row">
-                                <span class="slot-tag">Slot {{ slot.slotNumber }}</span>
-                                <span class="cid-tag">{{ slot.char.citizenid }}</span>
+                <div class="multichar-slots-header">
+                    <span><i class="fa-solid fa-address-book"></i> Select Trainer</span>
+                    <span class="badge-slot-count">{{ characters.length }} / {{ maxSlots }}</span>
+                </div>
+
+                <div class="multichar-slots-scroll">
+                    <div v-for="slot in slotList" :key="slot.slotNumber"
+                         class="char-slot-item"
+                         :class="{ 'is-empty': !slot.char, 'is-active': selectedChar && slot.char && selectedChar.citizenid === slot.char.citizenid }"
+                         @click="slot.char ? selectSlot(slot) : openCreateModal(slot.slotNumber)">
+                        
+                        <!-- Occupied Slot -->
+                        <div v-if="slot.char" class="slot-item-inner">
+                            <div class="slot-avatar-col">
+                                <img :src="getTrainerAvatar(slot.char.charinfo.gender, slot.char.charinfo.style)" class="slot-avatar-img">
                             </div>
-
-                            <div class="trainer-avatar-wrap">
-                                <img :src="getTrainerAvatar(slot.char.charinfo.gender)" class="trainer-img" alt="Trainer">
-                            </div>
-
-                            <h2 class="trainer-name">{{ slot.char.charinfo.firstname }} {{ slot.char.charinfo.lastname }}</h2>
-                            <span class="trainer-job-title">{{ slot.char.job.label || 'Pokémon Trainer' }}</span>
-
-                            <div class="trainer-stat-chips">
-                                <div class="stat-chip" title="Pokédollars">
-                                    <i class="fa-solid fa-coins text-warning"></i>
-                                    <span>₽{{ Number((slot.char.accounts && slot.char.accounts.pokedollars) || 0).toLocaleString() }}</span>
+                            <div class="slot-info-col">
+                                <div class="slot-header-line">
+                                    <span class="slot-number-badge">Slot {{ slot.slotNumber }}</span>
+                                    <span class="slot-cid-badge">{{ slot.char.citizenid }}</span>
                                 </div>
-                                <div class="stat-chip" title="Gym Badges">
-                                    <i class="fa-solid fa-trophy text-gold"></i>
-                                    <span>{{ (slot.char.metadata && slot.char.metadata.badges && slot.char.metadata.badges.length) || 0 }} Badges</span>
-                                </div>
-                                <div class="stat-chip" title="Pokémon Team">
-                                    <i class="fa-solid fa-compact-disc text-primary"></i>
-                                    <span>{{ slot.char.pokemonCount || 0 }} Mon</span>
+                                <h3 class="slot-trainer-name">{{ slot.char.charinfo.firstname }} {{ slot.char.charinfo.lastname }}</h3>
+                                <div class="slot-mini-badges">
+                                    <span class="mini-chip"><i class="fa-solid fa-coins text-warning"></i> ₽{{ Number((slot.char.accounts && slot.char.accounts.pokedollars) || 0).toLocaleString() }}</span>
+                                    <span class="mini-chip"><i class="fa-solid fa-trophy text-gold"></i> {{ (slot.char.metadata && slot.char.metadata.badges && slot.char.metadata.badges.length) || 0 }} Badges</span>
                                 </div>
                             </div>
-
-                            <!-- Lead Pokémon Preview -->
-                            <div v-if="slot.char.leadPokemon" class="lead-preview-bar">
+                            <div v-if="slot.char.leadPokemon" class="slot-lead-mini" :title="slot.char.leadPokemon.name">
                                 <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + slot.char.leadPokemon.pokedex_id + '.png'">
-                                <span>{{ slot.char.leadPokemon.name }} (Lv. {{ slot.char.leadPokemon.level }})</span>
-                            </div>
-
-                            <div class="card-action-bar">
-                                <button class="btn btn-play" @click.stop="confirmPlayCharacter(slot.char.citizenid)">
-                                    <i class="fa-solid fa-play"></i> Start Journey
-                                </button>
-                                <button class="btn btn-del" @click.stop="promptDeleteCharacter(slot.char)">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
                             </div>
                         </div>
 
-                        <!-- Empty Slot Card -->
-                        <div v-else class="card-inner empty-slot-inner" @click="openCreateModal(slot.slotNumber)">
-                            <div class="empty-icon-circle">
-                                <i class="fa-solid fa-plus"></i>
+                        <!-- Empty Slot -->
+                        <div v-else class="slot-item-empty">
+                            <div class="slot-empty-icon"><i class="fa-solid fa-plus"></i></div>
+                            <div class="slot-empty-text">
+                                <h4>Empty Slot {{ slot.slotNumber }}</h4>
+                                <span>Create a new Trainer journey</span>
                             </div>
-                            <h3>Empty Slot {{ slot.slotNumber }}</h3>
-                            <p>Register a new Pokémon Trainer journey.</p>
-                            <button class="btn btn-register">
-                                <i class="fa-solid fa-user-plus"></i> Register Trainer
-                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Registration Modal -->
-                <div v-if="showCreateModal" class="modal-overlay">
-                    <div class="create-trainer-modal">
-                        <div class="modal-header">
-                            <h2><i class="fa-solid fa-id-card"></i> Register New Pokémon Trainer</h2>
-                            <button class="close-x" @click="showCreateModal = false"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label><i class="fa-solid fa-user"></i> First Name</label>
-                                    <input type="text" v-model="newTrainer.firstname" placeholder="e.g. Ash" maxlength="16">
-                                </div>
-                                <div class="form-group">
-                                    <label><i class="fa-solid fa-user"></i> Last Name</label>
-                                    <input type="text" v-model="newTrainer.lastname" placeholder="e.g. Ketchum" maxlength="16">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label><i class="fa-solid fa-venus-mars"></i> Gender</label>
-                                    <select v-model="newTrainer.gender" @change="onGenderChange">
-                                        <option :value="0">Male Trainer</option>
-                                        <option :value="1">Female Trainer</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label><i class="fa-solid fa-calendar"></i> Date of Birth</label>
-                                    <input type="date" v-model="newTrainer.birthdate">
-                                </div>
-                            </div>
+                <div class="multichar-hint-bar">
+                    <i class="fa-solid fa-keyboard"></i> Click a slot to inspect 3D Trainer & Pokémon
+                </div>
+            </div>
 
-                            <div class="trainer-outfit-wrapper">
-                                <label class="starter-label"><i class="fa-solid fa-shirt"></i> Select Trainer Style & Outfit</label>
-                                <div class="outfit-cards-grid">
-                                    <div v-for="outfit in availableOutfits" :key="outfit.name" class="outfit-card-option" :class="{ 'chosen': newTrainer.style === outfit.name }" @click="selectOutfitStyle(outfit.name)">
-                                        <div class="outfit-badge">
-                                            <i :class="newTrainer.gender === 1 ? 'fa-solid fa-person-dress' : 'fa-solid fa-person'"></i>
-                                        </div>
-                                        <span class="outfit-name">{{ outfit.label }}</span>
-                                        <p class="outfit-desc">{{ outfit.description }}</p>
-                                    </div>
-                                </div>
-                            </div>
+            <!-- Center Bottom: 3D Ped Rotation Controls -->
+            <div class="multichar-ped-controls">
+                <button class="btn-ped-rot" @click="rotatePed(-25)" title="Rotate Left">
+                    <i class="fa-solid fa-rotate-left"></i> Rotate Left
+                </button>
+                <button class="btn-ped-rot btn-ped-reset" @click="resetPedHeading()" title="Front View">
+                    <i class="fa-solid fa-person"></i> Front
+                </button>
+                <button class="btn-ped-rot" @click="rotatePed(25)" title="Rotate Right">
+                    Rotate Right <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
 
-                            <div class="starter-select-wrapper">
-                                <label class="starter-label"><i class="fa-solid fa-paw"></i> Select Your Starter Companion</label>
-                                <div class="starter-cards-grid">
-                                    <div v-for="s in starterChoices" :key="s.id" class="starter-card-option" :class="{ 'chosen': newTrainer.starterId === s.id }" @click="newTrainer.starterId = s.id">
-                                        <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + s.id + '.png'">
-                                        <span class="starter-name">{{ s.name }}</span>
-                                        <span class="starter-type" :style="{ backgroundColor: getTypeColor(s.type1) }">{{ s.type1 }}</span>
-                                    </div>
-                                </div>
-                            </div>
+            <!-- Right Dock: Active Trainer Passport Card -->
+            <div v-if="selectedChar" class="multichar-right-dock">
+                <div class="trainer-passport-card">
+                    <div class="passport-banner">
+                        <div class="passport-badge"><i class="fa-solid fa-id-card"></i> POKÉMON LEAGUE PASSPORT</div>
+                        <span class="passport-serial">{{ selectedChar.citizenid }}</span>
+                    </div>
+
+                    <div class="passport-profile-row">
+                        <div class="passport-avatar-frame">
+                            <img :src="getTrainerAvatar(selectedChar.charinfo.gender, selectedChar.charinfo.style)" class="passport-avatar-img">
                         </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" @click="showCreateModal = false">Cancel</button>
-                            <button class="btn btn-confirm" :disabled="!isTrainerFormValid" @click="submitCreateTrainer">
-                                <i class="fa-solid fa-check"></i> Begin Pokémon Journey
-                            </button>
+                        <div class="passport-name-box">
+                            <h2>{{ selectedChar.charinfo.firstname }} {{ selectedChar.charinfo.lastname }}</h2>
+                            <span class="passport-rank"><i class="fa-solid fa-award text-gold"></i> {{ selectedChar.job.label || 'Pokémon Trainer' }}</span>
+                            <div class="passport-meta-tags">
+                                <span><i class="fa-solid fa-venus-mars"></i> {{ selectedChar.charinfo.gender === 1 ? 'Female' : 'Male' }}</span>
+                                <span><i class="fa-solid fa-shirt"></i> {{ selectedChar.charinfo.style || 'Red' }}</span>
+                                <span><i class="fa-solid fa-cake-candles"></i> {{ selectedChar.charinfo.birthdate || '2000-01-01' }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Delete Confirmation Modal -->
-                <div v-if="showDeleteModal && deletingChar" class="modal-overlay">
-                    <div class="delete-char-modal">
-                        <div class="modal-header modal-header-danger">
-                            <h2><i class="fa-solid fa-triangle-exclamation"></i> Delete Trainer Profile</h2>
-                            <button class="close-x" @click="showDeleteModal = false"><i class="fa-solid fa-xmark"></i></button>
+                    <!-- Financial Summary -->
+                    <div class="passport-financials-grid">
+                        <div class="fin-card">
+                            <span class="fin-label">Pokédollars</span>
+                            <span class="fin-val text-warning">₽{{ Number((selectedChar.accounts && selectedChar.accounts.pokedollars) || 0).toLocaleString() }}</span>
                         </div>
-                        <div class="modal-body text-center">
-                            <p>Are you sure you want to permanently delete Trainer <strong>{{ deletingChar.charinfo.firstname }} {{ deletingChar.charinfo.lastname }}</strong> ({{ deletingChar.citizenid }})?</p>
-                            <p class="text-danger-warning">⚠️ This action is irreversible. All captured Pokémon, PC Storage Boxes, inventory items, and gym badges will be permanently erased!</p>
+                        <div class="fin-card">
+                            <span class="fin-label">Cash Wallet</span>
+                            <span class="fin-val text-success">${{ Number((selectedChar.accounts && selectedChar.accounts.cash) || 0).toLocaleString() }}</span>
                         </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" @click="showDeleteModal = false">Cancel</button>
-                            <button class="btn btn-danger" @click="confirmDeleteCharacter">
-                                <i class="fa-solid fa-trash"></i> Yes, Delete Trainer
-                            </button>
+                        <div class="fin-card">
+                            <span class="fin-label">Bank Account</span>
+                            <span class="fin-val text-primary">${{ Number((selectedChar.accounts && selectedChar.accounts.bank) || 0).toLocaleString() }}</span>
                         </div>
                     </div>
-                </div>
 
+                    <!-- Adventure Record -->
+                    <div class="passport-adventure-stats">
+                        <div class="adv-stat-item">
+                            <i class="fa-solid fa-shield-halved text-gold"></i>
+                            <div>
+                                <strong>{{ (selectedChar.metadata && selectedChar.metadata.badges && selectedChar.metadata.badges.length) || 0 }}</strong>
+                                <span>Gym Badges</span>
+                            </div>
+                        </div>
+                        <div class="adv-stat-item">
+                            <i class="fa-solid fa-circle-dot text-danger"></i>
+                            <div>
+                                <strong>{{ selectedChar.pokemonCount || 0 }}</strong>
+                                <span>Pokémon Caught</span>
+                            </div>
+                        </div>
+                        <div class="adv-stat-item">
+                            <i class="fa-solid fa-trophy text-info"></i>
+                            <div>
+                                <strong>{{ (selectedChar.metadata && selectedChar.metadata.battles_won) || 0 }}</strong>
+                                <span>Battles Won</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Companion Lead Pokémon Preview -->
+                    <div class="passport-lead-box" v-if="selectedChar.leadPokemon">
+                        <span class="lead-header-label"><i class="fa-solid fa-paw"></i> ACTIVE PARTY LEADER</span>
+                        <div class="lead-content-row">
+                            <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + selectedChar.leadPokemon.pokedex_id + '.png'" class="lead-artwork-img">
+                            <div class="lead-desc-col">
+                                <h3>{{ selectedChar.leadPokemon.nickname || selectedChar.leadPokemon.name }}</h3>
+                                <span class="lead-sub">Species: {{ selectedChar.leadPokemon.name }} &bull; Level {{ selectedChar.leadPokemon.level }}</span>
+                                <div class="lead-tag-row">
+                                    <span class="lead-tag-ready"><i class="fa-solid fa-heart text-success"></i> Ready to Battle</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="passport-actions-row">
+                        <button class="btn-passport-play" @click="confirmPlayCharacter(selectedChar.citizenid)">
+                            <i class="fa-solid fa-play"></i> START JOURNEY
+                        </button>
+                        <button class="btn-passport-del" @click="promptDeleteCharacter(selectedChar)" title="Delete Character">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Modal (Trainer Creation) -->
+            <div v-if="showCreateModal" class="modal-overlay">
+                <div class="create-trainer-panel">
+                    <div class="modal-header">
+                        <h2><i class="fa-solid fa-id-card"></i> Register New Pokémon Trainer</h2>
+                        <button class="close-x" @click="showCreateModal = false"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="modal-body-scrollable">
+                        <!-- Identity Info -->
+                        <div class="form-section-title"><i class="fa-solid fa-user"></i> 1. Trainer Identity</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" v-model="newTrainer.firstname" placeholder="e.g. Red" maxlength="16">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" v-model="newTrainer.lastname" placeholder="e.g. Ketchum" maxlength="16">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-venus-mars"></i> Gender</label>
+                                <select v-model="newTrainer.gender" @change="onGenderChange">
+                                    <option :value="0">Male Trainer</option>
+                                    <option :value="1">Female Trainer</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-calendar"></i> Date of Birth</label>
+                                <input type="date" v-model="newTrainer.birthdate">
+                            </div>
+                        </div>
+
+                        <!-- Outfit Selection -->
+                        <div class="form-section-title"><i class="fa-solid fa-shirt"></i> 2. Choose Trainer Outfit Preset (Live 3D Preview)</div>
+                        <div class="outfit-cards-grid">
+                            <div v-for="outfit in availableOutfits" :key="outfit.name"
+                                 class="outfit-card-option"
+                                 :class="{ 'chosen': newTrainer.style === outfit.name }"
+                                 @click="selectOutfitStyle(outfit.name)">
+                                <div class="outfit-icon-circle">
+                                    <i :class="newTrainer.gender === 1 ? 'fa-solid fa-person-dress' : 'fa-solid fa-person'"></i>
+                                </div>
+                                <div class="outfit-card-texts">
+                                    <span class="outfit-name">{{ outfit.label }}</span>
+                                    <p class="outfit-desc">{{ outfit.description }}</p>
+                                </div>
+                                <div v-if="newTrainer.style === outfit.name" class="outfit-check-badge">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Starter Selection -->
+                        <div class="form-section-title"><i class="fa-solid fa-paw"></i> 3. Choose Starter Pokémon Companion</div>
+                        <div class="starter-cards-grid">
+                            <div v-for="s in starterChoices" :key="s.id"
+                                 class="starter-card-option"
+                                 :class="{ 'chosen': newTrainer.starterId === s.id }"
+                                 @click="newTrainer.starterId = s.id">
+                                <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + s.id + '.png'">
+                                <span class="starter-name">{{ s.name }}</span>
+                                <span class="starter-type" :style="{ backgroundColor: getTypeColor(s.type1) }">{{ s.type1 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @click="showCreateModal = false">Cancel</button>
+                        <button class="btn btn-confirm" :disabled="!isTrainerFormValid" @click="submitCreateTrainer">
+                            <i class="fa-solid fa-check"></i> Begin Pokémon Journey
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div v-if="showDeleteModal && deletingChar" class="modal-overlay">
+                <div class="delete-char-modal">
+                    <div class="modal-header modal-header-danger">
+                        <h2><i class="fa-solid fa-triangle-exclamation"></i> Delete Trainer Profile</h2>
+                        <button class="close-x" @click="showDeleteModal = false"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <p>Are you sure you want to permanently delete Trainer <strong>{{ deletingChar.charinfo.firstname }} {{ deletingChar.charinfo.lastname }}</strong> ({{ deletingChar.citizenid }})?</p>
+                        <p class="text-danger-warning">⚠️ This action is irreversible. All captured Pokémon, PC Storage Boxes, inventory items, and gym badges will be permanently erased!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @click="showDeleteModal = false">Cancel</button>
+                        <button class="btn btn-danger" @click="confirmDeleteCharacter">
+                            <i class="fa-solid fa-trash"></i> Yes, Delete Trainer
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 

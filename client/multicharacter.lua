@@ -326,6 +326,38 @@ RegisterNUICallback('previewStyle', function(data, cb)
     cb('ok')
 end)
 
+-- Rotate Preview Ped
+RegisterNUICallback('rotatePed', function(data, cb)
+    if previewPed and DoesEntityExist(previewPed) then
+        local currentHeading = GetEntityHeading(previewPed)
+        local diff = (data and tonumber(data.diff)) or 20.0
+        SetEntityHeading(previewPed, (currentHeading + diff) % 360.0)
+    end
+    cb('ok')
+end)
+
+-- Reset Ped Heading
+RegisterNUICallback('resetPedHeading', function(data, cb)
+    if previewPed and DoesEntityExist(previewPed) then
+        local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
+        SetEntityHeading(previewPed, pedCoords.w)
+    end
+    cb('ok')
+end)
+
+-- Studio Lighting during Character Preview
+CreateThread(function()
+    while true do
+        if inCharSelect then
+            local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
+            DrawLightWithRange(pedCoords.x, pedCoords.y + 0.6, pedCoords.z + 1.2, 255, 255, 255, 6.0, 2.2)
+            Wait(0)
+        else
+            Wait(1000)
+        end
+    end
+end)
+
 -- In-Game Command: /trainer or /outfit (Change outfit on the fly)
 RegisterCommand('trainer', function(source, args)
     local styleArg = args[1] and string.lower(args[1])
