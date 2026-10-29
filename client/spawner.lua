@@ -51,7 +51,7 @@ end)
 RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
     if SpawnedWildPeds[wildData.wildId] then return end
 
-    local modelHash = wildData.model or `a_c_pug`
+    local modelHash = (wildData.pokedex_id and GetPokemonModel(wildData.pokedex_id)) or wildData.model or `a_c_pug`
     RequestModel(modelHash)
     local timeout = 0
     while not HasModelLoaded(modelHash) and timeout < 30 do
@@ -60,7 +60,7 @@ RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
     end
 
     if not HasModelLoaded(modelHash) then
-        modelHash = `a_c_pug` -- safe fallback
+        modelHash = wildData.model or `a_c_pug` -- safe fallback
         RequestModel(modelHash)
         while not HasModelLoaded(modelHash) do Wait(50) end
     end

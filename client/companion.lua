@@ -39,7 +39,7 @@ function SummonCompanion()
     end
 
     local pData = GetPokedexEntry(lead.pokedex_id)
-    local modelHash = (pData and pData.model) or `a_c_pug`
+    local modelHash = GetPokemonModel(lead.pokedex_id)
 
     RequestModel(modelHash)
     while not HasModelLoaded(modelHash) do Wait(10) end

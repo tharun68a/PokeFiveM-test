@@ -74,8 +74,8 @@ local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
     -- If a lead Pokémon exists for this character, spawn companion beside the trainer
     if leadPokedexId then
         local pData = GetPokedexEntry(leadPokedexId)
-        if pData and pData.model then
-            local monHash = GetHashKey(pData.model)
+        if pData then
+            local monHash = GetPokemonModel(leadPokedexId)
             RequestModel(monHash)
             local mTimeout = GetGameTimer() + 2500
             while not HasModelLoaded(monHash) and GetGameTimer() < mTimeout do

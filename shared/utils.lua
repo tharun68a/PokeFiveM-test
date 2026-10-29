@@ -228,3 +228,42 @@ function PokeUtils.CalculateExpReward(pokedexId, level)
     return math.max(1, math.floor(exp))
 end
 
+-- ====================================================================
+-- Optimal 3D Pokemon Model Resolver (Dual-Fallback Architecture)
+-- Priority 1: Streamed 3D custom model from Sketchfab collection if present
+-- Priority 2: Configured ped model (e.g. animal/pet ped with floating 3D HUD)
+-- Priority 3: Fail-safe native fallback (a_c_pug)
+-- ====================================================================
+function PokeUtils.GetPokemonModel(pokedexId)
+    local pData = GetPokedexEntry(pokedexId)
+    if not pData then return `a_c_pug` end
+
+    -- On client side, verify if streamed custom model is mounted in CD image
+    if IsDuplicityVersion and not IsDuplicityVersion() then
+        -- 1. Check custom 3D model
+        if pData.customModel then
+            local customHash = (type(pData.customModel) == 'number') and pData.customModel or GetHashKey(pData.customModel)
+            if IsModelInCdimage(customHash) and IsModelValid(customHash) then
+                return customHash
+            end
+        end
+
+        -- 2. Check native fallback ped
+        if pData.model then
+            local nativeHash = (type(pData.model) == 'number') and pData.model or GetHashKey(pData.model)
+            if IsModelInCdimage(nativeHash) and IsModelValid(nativeHash) then
+                return nativeHash
+            end
+        end
+    end
+
+    if pData.customModel then
+        return (type(pData.customModel) == 'number') and pData.customModel or GetHashKey(pData.customModel)
+    end
+    return pData.model or `a_c_pug`
+end
+
+function GetPokemonModel(pokedexId)
+    return PokeUtils.GetPokemonModel(pokedexId)
+end
+
