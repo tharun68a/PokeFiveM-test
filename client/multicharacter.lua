@@ -39,6 +39,8 @@ local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
     CleanUpPreviewEntities()
 
     local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
+    RequestCollisionAtCoord(pedCoords.x, pedCoords.y, pedCoords.z)
+
     gender = tonumber(gender) or 0
     local modelName = (gender == 1) and "mp_f_freemode_01" or "mp_m_freemode_01"
     local modelHash = GetHashKey(modelName)
@@ -54,10 +56,12 @@ local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
         SetEntityHeading(previewPed, pedCoords.w)
         SetEntityInvincible(previewPed, true)
         SetBlockingOfNonTemporaryEvents(previewPed, true)
-        FreezeEntityPosition(previewPed, false)
+        FreezeEntityPosition(previewPed, true) -- Kept frozen so it never falls into the void
         SetEntityCanBeDamaged(previewPed, false)
+        SetEntityVisible(previewPed, true, false)
+        ResetEntityAlpha(previewPed)
 
-        -- Apply complete Trainer Outfit (Drawables, Textures, Hats/Caps, Bags)
+        -- Apply complete Trainer Outfit (Face, Hair, Drawables, Textures, Hats/Caps, Bags)
         if PokeCore.Functions and PokeCore.Functions.ApplyTrainerOutfit then
             PokeCore.Functions.ApplyTrainerOutfit(previewPed, style, gender)
         elseif ApplyTrainerOutfit then
@@ -93,7 +97,9 @@ local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
                 SetEntityHeading(previewCompanion, pedCoords.w)
                 SetEntityInvincible(previewCompanion, true)
                 SetBlockingOfNonTemporaryEvents(previewCompanion, true)
-                FreezeEntityPosition(previewCompanion, false)
+                FreezeEntityPosition(previewCompanion, true)
+                SetEntityVisible(previewCompanion, true, false)
+                ResetEntityAlpha(previewCompanion)
                 SetModelAsNoLongerNeeded(monHash)
             end
         end
@@ -237,21 +243,21 @@ RegisterNetEvent('pokefivem:client:spawnSelectedCharacter', function(playerData)
     local charinfo = playerData.charinfo or {}
     local gender = tonumber(charinfo.gender) or 0
     local targetModel = (gender == 1) and `mp_f_freemode_01` or `mp_m_freemode_01`
-    local ped = PlayerPedId()
 
     -- Apply target gender model if different
-    if GetEntityModel(ped) ~= targetModel then
-        RequestModel(targetModel)
-        local tTimeout = GetGameTimer() + 3000
-        while not HasModelLoaded(targetModel) and GetGameTimer() < tTimeout do
-            Wait(50)
-        end
-        if HasModelLoaded(targetModel) then
-            SetPlayerModel(PlayerId(), targetModel)
-            SetModelAsNoLongerNeeded(targetModel)
-            ped = PlayerPedId()
-        end
+    RequestModel(targetModel)
+    local tTimeout = GetGameTimer() + 5000
+    while not HasModelLoaded(targetModel) and GetGameTimer() < tTimeout do
+        Wait(50)
     end
+    if HasModelLoaded(targetModel) then
+        SetPlayerModel(PlayerId(), targetModel)
+        SetModelAsNoLongerNeeded(targetModel)
+    end
+
+    local ped = PlayerPedId()
+    SetPedDefaultComponentVariation(ped)
+    SetPedHeadBlendData(ped, 0, 0, 0, 0, 0, 0, 0.5, 0.5, 0.0, false)
 
     -- Apply Trainer Outfit to player ped
     local style = charinfo.style or (gender == 1 and 'leaf' or 'red')
@@ -262,11 +268,14 @@ RegisterNetEvent('pokefivem:client:spawnSelectedCharacter', function(playerData)
     end
 
     local pos = playerData.position or Config.Player.DefaultSpawn
-    SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, false)
+    RequestCollisionAtCoord(pos.x, pos.y, pos.z)
+    SetEntityCoordsNoOffset(ped, pos.x, pos.y, pos.z, false, false, false)
     SetEntityHeading(ped, pos.heading or 75.0)
     FreezeEntityPosition(ped, false)
     SetEntityVisible(ped, true, false)
+    ResetEntityAlpha(ped)
     SetEntityInvincible(ped, false)
+    ClearPedTasksImmediately(ped)
 
     DoScreenFadeIn(1000)
 end)

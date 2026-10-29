@@ -345,22 +345,33 @@ function PokeCore.Functions.ApplyTrainerOutfit(ped, outfitKey, gender)
         outfit = (gender == 1) and PokeCore.Shared.TrainerOutfits['leaf'] or PokeCore.Shared.TrainerOutfits['red']
     end
 
-    -- Clear all existing props first
-    ClearPedProp(ped, 0)
-    ClearPedProp(ped, 1)
-    ClearPedProp(ped, 2)
-    ClearPedProp(ped, 6)
-    ClearPedProp(ped, 7)
+    -- 1. Ensure ped is visible and has base GTA freemode components
+    SetEntityVisible(ped, true, false)
+    ResetEntityAlpha(ped)
+    SetPedDefaultComponentVariation(ped)
 
-    -- Apply components
-    for compId, compData in pairs(outfit.components or {}) do
-        SetPedComponentVariation(ped, compId, compData.drawable, compData.texture, 2)
+    -- 2. Apply proper GTA V Head Blend Data so face and skin render properly
+    SetPedHeadBlendData(ped, 
+        0, 0, 0,
+        0, 0, 0,
+        0.5, 0.5, 0.0,
+        false
+    )
+
+    -- 3. Clear all existing props first
+    for i = 0, 7 do
+        ClearPedProp(ped, i)
     end
 
-    -- Apply props (hats, glasses)
+    -- 4. Apply components
+    for compId, compData in pairs(outfit.components or {}) do
+        SetPedComponentVariation(ped, tonumber(compId), compData.drawable, compData.texture, 2)
+    end
+
+    -- 5. Apply props (hats, glasses)
     for propId, propData in pairs(outfit.props or {}) do
         if propData.drawable >= 0 then
-            SetPedPropIndex(ped, propId, propData.drawable, propData.texture, true)
+            SetPedPropIndex(ped, tonumber(propId), propData.drawable, propData.texture, true)
         end
     end
 
