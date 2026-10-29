@@ -81,6 +81,38 @@ function PokeCore.Functions.GetPlayerByCitizenId(citizenid)
     return nil
 end
 
+-- Generate Unique Citizen ID
+function PokeCore.Functions.CreateCitizenId(cb)
+    local function generateCandidate()
+        local letters = ""
+        for _ = 1, 3 do
+            letters = letters .. string.char(math.random(65, 90)) -- A-Z
+        end
+        local numbers = tostring(math.random(10000, 99999))
+        return letters .. numbers
+    end
+
+    if cb then
+        local function checkId()
+            local candidate = generateCandidate()
+            if exports['oxmysql'] then
+                exports['oxmysql']:scalar('SELECT COUNT(*) FROM `pokefivem_characters` WHERE `citizenid` = ?', { candidate }, function(count)
+                    if (count or 0) == 0 then
+                        cb(candidate)
+                    else
+                        checkId()
+                    end
+                end)
+            else
+                cb(candidate)
+            end
+        end
+        checkId()
+    else
+        return generateCandidate()
+    end
+end
+
 -- Get All Active Players
 function PokeCore.Functions.GetPlayers()
     local sources = {}

@@ -91,129 +91,145 @@ RegisterNetEvent('pokefivem:server:createCharacter', function(data)
             return
         end
 
-        local gender = tonumber(data.gender) or 0
-        local charinfo = {
-            firstname = (data.firstname and data.firstname:gsub("%s+", "")) or "Red",
-            lastname = (data.lastname and data.lastname:gsub("%s+", "")) or "Trainer",
-            birthdate = data.birthdate or "2000-01-01",
-            gender = gender,
-            style = data.style or (gender == 1 and "leaf" or "red")
-        }
+        PokeCore.Functions.CreateCitizenId(function(citizenid)
+            if not citizenid then
+                citizenid = string.upper(PokeCore.Shared.RandomStr(3)) .. tostring(math.random(10000, 99999))
+            end
 
-        local job = {
-            name = "trainer",
-            label = "Pokémon Trainer",
-            grade = 0,
-            grade_name = "Rookie Trainer",
-            payment = 75,
-            onduty = true
-        }
+            local gender = tonumber(data.gender) or 0
+            local charinfo = {
+                firstname = (data.firstname and data.firstname:gsub("%s+", "")) or "Red",
+                lastname = (data.lastname and data.lastname:gsub("%s+", "")) or "Trainer",
+                birthdate = data.birthdate or "2000-01-01",
+                gender = gender,
+                style = data.style or (gender == 1 and "leaf" or "red")
+            }
 
-        local accounts = {
-            cash = Config.Money.MoneyTypes.cash or 1000,
-            bank = Config.Money.MoneyTypes.bank or 5000,
-            pokedollars = Config.Money.MoneyTypes.pokedollars or 2500
-        }
+            local job = {
+                name = "trainer",
+                label = "Pokémon Trainer",
+                grade = 0,
+                grade_name = "Rookie Trainer",
+                payment = 75,
+                onduty = true
+            }
 
-        local metadata = {
-            hunger = 100,
-            thirst = 100,
-            isdead = false,
-            inlaststand = false,
-            starter_claimed = true,
-            badges = {},
-            battles_won = 0,
-            battles_lost = 0,
-            pokemon_caught = 1,
-            quests = {}
-        }
+            local accounts = {
+                cash = Config.Money.MoneyTypes.cash or 1000,
+                bank = Config.Money.MoneyTypes.bank or 5000,
+                pokedollars = Config.Money.MoneyTypes.pokedollars or 2500
+            }
 
-        local defaultSpawn = Config.Player.DefaultSpawn or vector4(298.54, -584.43, 43.26, 75.0)
-        local position = {
-            x = defaultSpawn.x,
-            y = defaultSpawn.y,
-            z = defaultSpawn.z,
-            heading = defaultSpawn.w
-        }
+            local metadata = {
+                hunger = 100,
+                thirst = 100,
+                isdead = false,
+                inlaststand = false,
+                starter_claimed = true,
+                badges = {},
+                battles_won = 0,
+                battles_lost = 0,
+                pokemon_caught = 1,
+                quests = {}
+            }
 
-        MySQL.insert([[
-            INSERT INTO pokefivem_characters (citizenid, identifier, charinfo, job, accounts, metadata, position)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ]], {
-            citizenid,
-            license,
-            json.encode(charinfo),
-            json.encode(job),
-            json.encode(accounts),
-            json.encode(metadata),
-            json.encode(position)
-        }, function(insertId)
-            -- Starter package items
-            MySQL.query([[
-                INSERT INTO pokefivem_inventory (citizenid, item, count, slot, metadata)
-                VALUES (?, 'pokeball', 10, 1, '{}'),
-                       (?, 'potion', 5, 2, '{}'),
-                       (?, 'pokedex', 1, 3, '{}'),
-                       (?, 'water', 3, 4, '{}'),
-                       (?, 'sandwich', 3, 5, '{}')
-            ]], { citizenid, citizenid, citizenid, citizenid, citizenid }, function()
-                -- Grant Selected Starter Pokémon
-                local starterId = tonumber(data.starterId) or 1
-                local pData = GetPokedexEntry(starterId) or { id = 1, name = "Bulbasaur" }
-                local ivs = PokeUtils.GenerateRandomIVs()
-                local nature = GetRandomNature()
-                local maxHp = PokeUtils.CalculateMaxHP(pData.baseStats and pData.baseStats.hp or 45, ivs.hp, 0, 5)
+            local defaultSpawn = Config.Player.DefaultSpawn or vector4(298.54, -584.43, 43.26, 75.0)
+            local position = {
+                x = defaultSpawn.x,
+                y = defaultSpawn.y,
+                z = defaultSpawn.z,
+                heading = defaultSpawn.w
+            }
 
-                local moves = {}
-                for _, m in ipairs(pData.moves or {}) do
-                    if m.level <= 5 then
-                        local moveData = GetMove(m.move)
-                        if moveData then
-                            table.insert(moves, {
-                                key = m.move,
-                                name = moveData.name,
-                                type = moveData.type,
-                                power = moveData.power,
-                                accuracy = moveData.accuracy,
-                                pp = moveData.pp,
-                                max_pp = moveData.pp
-                            })
+            MySQL.insert([[
+                INSERT INTO pokefivem_characters (citizenid, identifier, charinfo, job, accounts, metadata, position)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ]], {
+                citizenid,
+                license,
+                json.encode(charinfo),
+                json.encode(job),
+                json.encode(accounts),
+                json.encode(metadata),
+                json.encode(position)
+            }, function(insertId)
+                -- Starter package items
+                MySQL.query([[
+                    INSERT INTO pokefivem_inventory (citizenid, item, count, slot, metadata)
+                    VALUES (?, 'pokeball', 10, 1, '{}'),
+                           (?, 'potion', 5, 2, '{}'),
+                           (?, 'pokedex', 1, 3, '{}'),
+                           (?, 'water', 3, 4, '{}'),
+                           (?, 'sandwich', 3, 5, '{}')
+                ]], { citizenid, citizenid, citizenid, citizenid, citizenid }, function()
+                    -- Grant Selected Starter Pokémon
+                    local starterId = tonumber(data.starterId) or 1
+                    local pData = GetPokedexEntry(starterId) or { id = 1, name = "Bulbasaur" }
+                    local ivs = PokeUtils.GenerateRandomIVs()
+                    local nature = GetRandomNature()
+                    local maxHp = PokeUtils.CalculateMaxHP(pData.baseStats and pData.baseStats.hp or 45, ivs.hp, 0, 5)
+
+                    local moves = {}
+                    for _, m in ipairs(pData.moves or {}) do
+                        if m.level <= 5 then
+                            local moveData = GetMove(m.move)
+                            if moveData then
+                                table.insert(moves, {
+                                    key = m.move,
+                                    name = moveData.name,
+                                    type = moveData.type,
+                                    power = moveData.power,
+                                    accuracy = moveData.accuracy,
+                                    pp = moveData.pp,
+                                    max_pp = moveData.pp
+                                })
+                            end
                         end
                     end
-                end
-                if #moves == 0 then
-                    local tackle = GetMove("Tackle") or { name = "Tackle", type = "normal", power = 40, accuracy = 100, pp = 35 }
-                    table.insert(moves, { key = "Tackle", name = tackle.name, type = tackle.type, power = tackle.power, accuracy = tackle.accuracy, pp = tackle.pp, max_pp = tackle.pp })
-                end
+                    if #moves == 0 then
+                        local tackle = GetMove("Tackle") or { name = "Tackle", type = "normal", power = 40, accuracy = 100, pp = 35 }
+                        table.insert(moves, { key = "Tackle", name = tackle.name, type = tackle.type, power = tackle.power, accuracy = tackle.accuracy, pp = tackle.pp, max_pp = tackle.pp })
+                    end
 
-                local trainerFullName = charinfo.firstname .. " " .. charinfo.lastname
-                MySQL.insert([[
-                    INSERT INTO pokefivem_pokemon (owner, pokedex_id, nickname, level, exp, nature, ability, is_shiny, gender, ivs, evs, moves, current_hp, max_hp, status, storage_type, storage_index, original_trainer, caught_ball, caught_location)
-                    VALUES (?, ?, ?, 5, 0, ?, 'Overgrow', 0, 0, ?, ?, ?, ?, ?, 'none', 'party', 1, ?, 'pokeball', 'Pallet Town')
-                ]], {
-                    citizenid,
-                    pData.id,
-                    pData.name,
-                    nature,
-                    json.encode(ivs),
-                    json.encode(PokeUtils.GenerateZeroEVs()),
-                    json.encode(moves),
-                    maxHp,
-                    maxHp,
-                    trainerFullName
-                }, function()
-                    -- Add starter to Pokédex
+                    local trainerFullName = charinfo.firstname .. " " .. charinfo.lastname
+                    local starterAbility = "Overgrow"
+                    if pData.id == 4 then
+                        starterAbility = "Blaze"
+                    elseif pData.id == 7 then
+                        starterAbility = "Torrent"
+                    elseif pData.abilities and pData.abilities[1] then
+                        starterAbility = pData.abilities[1]
+                    end
+
                     MySQL.insert([[
-                        INSERT INTO pokefivem_pokedex (citizenid, seen, caught)
-                        VALUES (?, ?, ?)
+                        INSERT INTO pokefivem_pokemon (owner, pokedex_id, nickname, level, exp, nature, ability, is_shiny, gender, ivs, evs, moves, current_hp, max_hp, status, storage_type, storage_index, original_trainer, caught_ball, caught_location)
+                        VALUES (?, ?, ?, 5, 0, ?, ?, 0, 0, ?, ?, ?, ?, ?, 'none', 'party', 1, ?, 'pokeball', 'Pallet Town')
                     ]], {
                         citizenid,
-                        json.encode({ pData.id }),
-                        json.encode({ pData.id })
+                        pData.id,
+                        pData.name,
+                        nature,
+                        starterAbility,
+                        json.encode(ivs),
+                        json.encode(PokeUtils.GenerateZeroEVs()),
+                        json.encode(moves),
+                        maxHp,
+                        maxHp,
+                        trainerFullName
                     }, function()
-                        PokeCore.Functions.Log('Multichar', string.format('Trainer %s created new profile %s (%s, Starter: #%d %s)', GetPlayerName(src) or "Trainer", citizenid, trainerFullName, pData.id, pData.name), 'info')
-                        -- Log player into server immediately
-                        PokeCore.Player.Login(src, citizenid)
+                        -- Add starter to Pokédex
+                        MySQL.insert([[
+                            INSERT INTO pokefivem_pokedex (citizenid, seen, caught)
+                            VALUES (?, ?, ?)
+                        ]], {
+                            citizenid,
+                            json.encode({ pData.id }),
+                            json.encode({ pData.id })
+                        }, function()
+                            PokeCore.Functions.Log('Multichar', string.format('Trainer %s created new profile %s (%s, Starter: #%d %s)', GetPlayerName(src) or "Trainer", citizenid, trainerFullName, pData.id, pData.name), 'info')
+                            -- Log player into server immediately
+                            PokeCore.Player.Login(src, citizenid)
+                        end)
                     end)
                 end)
             end)
