@@ -25,12 +25,21 @@ function GetCurrentBiome()
     return "grass"
 end
 
+local isRepelActive = false
+local repelExpiresAt = 0
+
+RegisterNetEvent('pokefivem:client:applyRepel', function(durSec)
+    isRepelActive = true
+    repelExpiresAt = GetGameTimer() + ((durSec or 120) * 1000)
+end)
+
 -- Periodic Wild Spawn Requester
 CreateThread(function()
     while true do
         Wait(Config.WildSpawning.SpawnInterval or 12000)
         local ped = PlayerPedId()
-        if not IsPedInAnyVehicle(ped, false) and not InBattle then
+        local repelOn = isRepelActive and (GetGameTimer() < repelExpiresAt)
+        if not IsPedInAnyVehicle(ped, false) and not InBattle and not repelOn then
             local coords = GetEntityCoords(ped)
             local biome = GetCurrentBiome()
             TriggerServerEvent('pokefivem:server:requestSpawns', coords, biome)

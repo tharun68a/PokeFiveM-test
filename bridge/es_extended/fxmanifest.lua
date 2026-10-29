@@ -23,3 +23,4 @@ server_exports {
     'getSharedObject',
     'GetSharedObject'
 }
+

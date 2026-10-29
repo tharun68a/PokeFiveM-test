@@ -27,3 +27,4 @@ exports('GetSharedObject', GetSharedObject)
 AddEventHandler('esx:getSharedObject', function(cb)
     if cb then cb(FetchCore()) end
 end)
+

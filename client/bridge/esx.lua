@@ -237,3 +237,4 @@ end)
 RegisterNetEvent('pokefivem:client:notify', function(message, type, length)
     TriggerEvent('esx:showNotification', message)
 end)
+

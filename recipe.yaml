@@ -160,12 +160,16 @@ tasks:
     dest: ./resources/[standalone]/scully_emotemenu
 
   # -------------------------------------------------------------------
-  # 6. PokeFiveM Framework Core (Pika Studio)
+  # 6. PokeFiveM Framework Core & Standalone ESX Bridge (Pika Studio)
   # -------------------------------------------------------------------
   - action: download_github
     src: https://github.com/tharun68a/PokeFiveM-test
     ref: main
     dest: ./resources/PokeFiveM
+
+  - action: move_path
+    src: ./resources/PokeFiveM/bridge/es_extended
+    dest: ./resources/es_extended
 
   # -------------------------------------------------------------------
   # 7. Clean up temporary archives
@@ -310,6 +314,7 @@ tasks:
       ensure scully_emotemenu
 
       ## ===================================================================
-      ## [4] PokeFiveM Framework Core (Pika Studio)
+      ## [4] PokeFiveM Framework Core & ESX Compatibility Bridge (Pika Studio)
       ## ===================================================================
       ensure PokeFiveM
+      ensure es_extended

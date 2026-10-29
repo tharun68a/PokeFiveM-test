@@ -123,6 +123,7 @@ ensure bob74_ipl
 ensure scully_emotemenu
 
 ## ===================================================================
-## [4] PokeFiveM Framework Core (Pika Studio)
+## [4] PokeFiveM Framework Core & ESX Compatibility Bridge (Pika Studio)
 ## ===================================================================
 ensure PokeFiveM
+ensure es_extended

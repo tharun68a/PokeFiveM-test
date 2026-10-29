@@ -303,3 +303,4 @@ AddEventHandler('playerDropped', function(reason)
 end)
 
 PokeCore.Functions.Log('Bridge', 'PokeFiveM ESX Compatibility Bridge (Server) initialized.', 'info')
+
