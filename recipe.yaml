@@ -7,9 +7,11 @@ description: Enterprise-grade standalone Pokémon RPG Framework for FiveM (Zero 
 
 tasks:
   # -------------------------------------------------------------------
-  # 1. Database Connection via txAdmin Deployer
+  # 1. Database Connection via txAdmin Deployer & Schema Deployment
   # -------------------------------------------------------------------
   - action: connect_database
+  - action: query_database
+    file: ./database.sql
 
   # -------------------------------------------------------------------
   # 2. CFX Official Base Resources
@@ -314,7 +316,16 @@ tasks:
       ensure scully_emotemenu
 
       ## ===================================================================
-      ## [4] PokeFiveM Framework Core & ESX Compatibility Bridge (Pika Studio)
+      ## [4] PokeFiveM Modular Suite (Pika Studio)
       ## ===================================================================
+      ensure [PokeAssets]
+      ensure [PokeCore]
+      ensure [PokeDex]
+      ensure [PokeBattle]
+      ensure [PokeCompanion]
+      ensure [PokeSpawner]
+      ensure [PokeCenter]
+      ensure [PokeGyms]
+      ensure [PokeWorld]
       ensure PokeFiveM
       ensure es_extended
