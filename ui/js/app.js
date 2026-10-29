@@ -40,6 +40,25 @@ createApp({
         const martName = ref('');
         const martItems = ref([]);
 
+        // Evolution State
+        const evolutionData = ref(null);
+        const evolutionStage = ref('idle');
+        const evolutionToggle = ref(false);
+        let evolutionTimer = null;
+        let evolutionFlashInterval = null;
+
+        const closeEvolution = () => {
+            fetch(`https://${GetParentResourceName()}/finishEvolution`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            }).catch(() => {});
+            evolutionData.value = null;
+            evolutionStage.value = 'idle';
+            if (evolutionFlashInterval) clearInterval(evolutionFlashInterval);
+            if (evolutionTimer) clearTimeout(evolutionTimer);
+        };
+
         // Multicharacter State
         const showMulticharacter = ref(false);
         const characters = ref([]);
@@ -282,6 +301,32 @@ createApp({
                 if (!item || !item.action) return;
 
                 switch (item.action) {
+                    case 'startEvolution':
+                        evolutionData.value = item.data;
+                        evolutionStage.value = 'evolving';
+                        evolutionToggle.value = false;
+                        if (evolutionFlashInterval) clearInterval(evolutionFlashInterval);
+                        if (evolutionTimer) clearTimeout(evolutionTimer);
+
+                        // Pulse/flash silhouette rapidly
+                        let flashSpeed = 350;
+                        evolutionFlashInterval = setInterval(() => {
+                            evolutionToggle.value = !evolutionToggle.value;
+                        }, flashSpeed);
+
+                        // Complete evolution cutscene after 6 seconds
+                        evolutionTimer = setTimeout(() => {
+                            clearInterval(evolutionFlashInterval);
+                            evolutionStage.value = 'complete';
+                            evolutionToggle.value = true;
+                        }, 6000);
+                        break;
+                    case 'cancelEvolution':
+                        if (evolutionFlashInterval) clearInterval(evolutionFlashInterval);
+                        if (evolutionTimer) clearTimeout(evolutionTimer);
+                        evolutionData.value = null;
+                        evolutionStage.value = 'idle';
+                        break;
                     case 'playHealSound':
                         playPokeCenterHealJingle();
                         break;
@@ -554,6 +599,7 @@ createApp({
             showPC, currentBox, maxBoxes, boxPokemon, selectedPCPoke, selectPCPoke, changeBox, withdrawSelectedPC, depositPartyToPC, releasePCPoke, getPokeAtBoxSlot,
             showPokedex, pokedexSearch, filteredPokedex, selectedDexEntry, isSeen, isCaught,
             showMart, martName, martItems, buyMartItem,
+            evolutionData, evolutionStage, evolutionToggle, closeEvolution,
             closeUI, getTypeColor, getHpColor, getToastIcon
         };
     }

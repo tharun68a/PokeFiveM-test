@@ -90,6 +90,18 @@ RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
     SetEntityInvincible(ped, true)
     PlaceObjectOnGroundProperly(ped)
 
+    -- Play Shiny Particle Effects & Sound if Shiny
+    if wildData.is_shiny then
+        PlaySoundFrontend(-1, "CHECKPOINT_PERFECT", "HUD_MINI_GAME_SOUNDSET", true)
+        RequestNamedPtfxAsset("core")
+        local ptfxTimeout = GetGameTimer() + 2000
+        while not HasNamedPtfxAssetLoaded("core") and GetGameTimer() < ptfxTimeout do Wait(20) end
+        if HasNamedPtfxAssetLoaded("core") then
+            UseParticleFxAssetNextCall("core")
+            StartParticleFxNonLoopedOnEntity("firework_player_flare", ped, 0.0, 0.0, 0.4, 0.0, 0.0, 0.0, 0.8, false, false, false)
+        end
+    end
+
     -- Wander task
     TaskWanderStandard(ped, 10.0, 10)
 

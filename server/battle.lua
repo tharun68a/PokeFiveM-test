@@ -197,6 +197,28 @@ function ExecuteAttack(battle, attackerRole, move, callback)
     end
 
     local dmg, typeMult, isCrit, effectiveness = PokeUtils.CalculateDamage(attacker, defender, move.name)
+
+    -- Held Items Damage Boosts
+    if attacker.held_item == 'choice_band' and (move.category == 'Physical' or (move.power and move.power > 0)) then
+        dmg = math.floor(dmg * 1.5)
+    elseif attacker.held_item == 'life_orb' then
+        dmg = math.floor(dmg * 1.3)
+        attacker.current_hp = math.max(1, attacker.current_hp - math.floor(attacker.max_hp * 0.1))
+    end
+
+    -- Focus Sash Survival Check
+    if defender.current_hp == defender.max_hp and dmg >= defender.current_hp and defender.held_item == 'focus_sash' then
+        dmg = defender.current_hp - 1
+        defender.held_item = nil
+        TriggerClientEvent('pokefivem:client:notify', src, string.format("%s hung on using its Focus Sash!", defender.name), 'info')
+    end
+
+    -- Rocky Helmet Recoil
+    if defender.held_item == 'rocky_helmet' and dmg > 0 then
+        local recoil = math.max(1, math.floor(attacker.max_hp / 6))
+        attacker.current_hp = math.max(0, attacker.current_hp - recoil)
+    end
+
     defender.current_hp = math.max(0, defender.current_hp - dmg)
 
     if attackerRole == 'wild' then

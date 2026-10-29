@@ -1775,4 +1775,134 @@ body {
     line-height: 1.5;
 }
 
+/* ==================================================================== */
+/* Cinematic Evolution Cutscene                                         */
+/* ==================================================================== */
+.evolution-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at center, rgba(30, 41, 59, 0.96) 0%, rgba(2, 6, 23, 0.99) 100%);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(20px);
+}
+
+.evolution-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 900px;
+    height: 80vh;
+    text-align: center;
+}
+
+.evolution-header {
+    margin-top: 20px;
+}
+
+.evolution-tag {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 6px 16px;
+    border-radius: 20px;
+}
+
+.evolution-title {
+    color: #f8fafc;
+    font-size: 32px;
+    font-weight: 900;
+    margin-top: 18px;
+    text-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+}
+
+.evolution-stage-view {
+    position: relative;
+    width: 360px;
+    height: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.evolution-halo-ring {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    border: 2px dashed rgba(56, 189, 248, 0.4);
+    animation: spinRing 12s linear infinite;
+}
+
+@keyframes spinRing {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.evolution-silhouette-box {
+    width: 280px;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.evolution-silhouette-box.is-pulsing img {
+    filter: brightness(0) invert(1) drop-shadow(0 0 20px #38bdf8);
+    animation: evoPulse 0.4s infinite alternate;
+}
+
+.evolution-silhouette-box.is-evolved img {
+    filter: drop-shadow(0 0 35px #38bdf8);
+    animation: evoReveal 1.2s ease-out forwards;
+}
+
+@keyframes evoPulse {
+    from { transform: scale(0.92); opacity: 0.7; }
+    to { transform: scale(1.1); opacity: 1.0; }
+}
+
+@keyframes evoReveal {
+    0% { transform: scale(0.7); filter: brightness(3) drop-shadow(0 0 50px #fff); }
+    50% { transform: scale(1.15); filter: brightness(1.5) drop-shadow(0 0 40px #38bdf8); }
+    100% { transform: scale(1.0); filter: drop-shadow(0 0 25px #38bdf8); }
+}
+
+.evolution-sprite-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.evolution-footer {
+    margin-bottom: 30px;
+}
+
+.evolution-cancel-hint {
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.key-badge {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: #f8fafc;
+    font-weight: 800;
+}
+
+
 

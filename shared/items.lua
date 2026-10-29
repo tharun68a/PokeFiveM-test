@@ -775,6 +775,146 @@ PokeCore.Shared.Items = {
         image = 'fly_mount.png',
         description = 'Aerodynamic harness to take flight across the skies upon your Flying Pokémon (Charizard, Pidgeot, Dragonite).',
         price = 30000
+    },
+
+    -- ================================================================
+    -- Fishing Rods (Water Encounters)
+    -- ================================================================
+    ['old_rod'] = {
+        name = 'old_rod',
+        label = 'Old Rod',
+        weight = 500,
+        type = 'rod',
+        unique = true,
+        useable = true,
+        image = 'old_rod.png',
+        description = 'An old and battered fishing rod. Cast into water bodies to hook wild Magikarp and Goldeen.',
+        price = 1000
+    },
+    ['good_rod'] = {
+        name = 'good_rod',
+        label = 'Good Rod',
+        weight = 500,
+        type = 'rod',
+        unique = true,
+        useable = true,
+        image = 'good_rod.png',
+        description = 'A sturdy, reliable fishing rod that catches diverse coastal and river Pokémon (Poliwag, Tentacool, Shellder).',
+        price = 5000
+    },
+    ['super_rod'] = {
+        name = 'super_rod',
+        label = 'Super Rod',
+        weight = 500,
+        type = 'rod',
+        unique = true,
+        useable = true,
+        image = 'super_rod.png',
+        description = 'The ultimate fishing rod designed to hook powerful oceanic titans (Gyarados, Lapras, Dratini).',
+        price = 15000
+    },
+
+    -- ================================================================
+    -- Foraging Berries & Apricorns
+    -- ================================================================
+    ['berry_oran'] = {
+        name = 'berry_oran',
+        label = 'Oran Berry',
+        weight = 50,
+        type = 'berry',
+        unique = false,
+        useable = true,
+        image = 'berry_oran.png',
+        description = 'A peculiar berry that restores 10 HP to a Pokémon in need.',
+        price = 100
+    },
+    ['berry_sitrus'] = {
+        name = 'berry_sitrus',
+        label = 'Sitrus Berry',
+        weight = 50,
+        type = 'berry',
+        unique = false,
+        useable = true,
+        image = 'berry_sitrus.png',
+        description = 'A delicious healing berry that restores 30 HP to an injured Pokémon.',
+        price = 250
+    },
+    ['berry_leppa'] = {
+        name = 'berry_leppa',
+        label = 'Leppa Berry',
+        weight = 50,
+        type = 'berry',
+        unique = false,
+        useable = true,
+        image = 'berry_leppa.png',
+        description = 'Restores 10 PP to a selected exhausted Pokémon move.',
+        price = 300
+    },
+    ['berry_lum'] = {
+        name = 'berry_lum',
+        label = 'Lum Berry',
+        weight = 50,
+        type = 'berry',
+        unique = false,
+        useable = true,
+        image = 'berry_lum.png',
+        description = 'A miracle curative berry that removes any status affliction (Sleep, Poison, Burn, Paralysis, Freeze).',
+        price = 400
+    },
+    ['apricorn_red'] = {
+        name = 'apricorn_red',
+        label = 'Red Apricorn',
+        weight = 50,
+        type = 'apricorn',
+        unique = false,
+        useable = false,
+        image = 'apricorn_red.png',
+        description = 'A firm red apricorn used by ball crafters to forge Level Balls and Poké Balls.',
+        price = 80
+    },
+    ['apricorn_blue'] = {
+        name = 'apricorn_blue',
+        label = 'Blue Apricorn',
+        weight = 50,
+        type = 'apricorn',
+        unique = false,
+        useable = false,
+        image = 'apricorn_blue.png',
+        description = 'A vibrant blue apricorn used in forging Dive Balls and Lure Balls.',
+        price = 80
+    },
+    ['apricorn_yellow'] = {
+        name = 'apricorn_yellow',
+        label = 'Yellow Apricorn',
+        weight = 50,
+        type = 'apricorn',
+        unique = false,
+        useable = false,
+        image = 'apricorn_yellow.png',
+        description = 'A smooth yellow apricorn forged into Fast Balls.',
+        price = 80
+    },
+    ['apricorn_black'] = {
+        name = 'apricorn_black',
+        label = 'Black Apricorn',
+        weight = 50,
+        type = 'apricorn',
+        unique = false,
+        useable = false,
+        image = 'apricorn_black.png',
+        description = 'A heavy black apricorn forged into Heavy Balls and Dusk Balls.',
+        price = 80
+    },
+    ['link_cable'] = {
+        name = 'link_cable',
+        label = 'Linking Cord',
+        weight = 100,
+        type = 'stone',
+        unique = false,
+        useable = true,
+        image = 'link_cable.png',
+        description = 'A mysterious technological cable that triggers trade-based evolutions on Kadabra, Machoke, Graveler, Haunter.',
+        price = 3000
     }
 }
 

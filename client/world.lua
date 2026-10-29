@@ -211,6 +211,9 @@ CreateThread(function()
         AddTextComponentString(string.format("Trainer: %s", tr.name))
         EndTextCommandSetBlipName(blip)
 
+        -- Save created ped reference
+        tr.entity = ped
+
         -- ox_target interaction
         if GetResourceState('ox_target') == 'started' then
             exports.ox_target:addLocalEntity(ped, {
@@ -227,17 +230,54 @@ CreateThread(function()
         end
     end
 
-    -- Floating Trainer Overhead Indicator Loop
+    local defeatedTrainers = {}
+
+    -- Floating Trainer Overhead Indicator & Line-of-Sight Alert Loop
     while true do
         local pPed = PlayerPedId()
         local pCoords = GetEntityCoords(pPed)
-        local sleep = 1000
+        local sleep = 500
 
         for _, tr in ipairs(WorldTrainers) do
             local dist = #(pCoords - vector3(tr.coords.x, tr.coords.y, tr.coords.z))
-            if dist < 12.0 then
+            if dist < 15.0 then
                 sleep = 0
-                DrawText3D(tr.coords.x, tr.coords.y, tr.coords.z + 1.05, string.format("~y~[ ! ] ~w~%s ~b~(%s)", tr.name, tr.title))
+                local tag = defeatedTrainers[tr.name] and "~g~[✓] " or "~y~[ ! ] "
+                DrawText3D(tr.coords.x, tr.coords.y, tr.coords.z + 1.05, string.format("%s~w~%s ~b~(%s)", tag, tr.name, tr.title))
+
+                -- Line of Sight Battle Trigger (If not yet defeated and within 8 meters)
+                if not defeatedTrainers[tr.name] and dist < 8.5 and not InBattle and tr.entity and DoesEntityExist(tr.entity) then
+                    local fwd = GetEntityForwardVector(tr.entity)
+                    local diff = pCoords - vector3(tr.coords.x, tr.coords.y, tr.coords.z)
+                    local len = #(diff)
+                    local dot = (len > 0.01) and ((fwd.x * diff.x + fwd.y * diff.y) / len) or 0
+
+                    -- Trainer is looking towards player (dot > 0.45) with clear vision
+                    if dot > 0.45 and HasEntityClearLosToEntity(tr.entity, pPed, 17) then
+                        defeatedTrainers[tr.name] = true
+
+                        PlaySoundFrontend(-1, "Beep_Red", "DLC_HEIST_HACKING_SNAKE_SOUNDS", true)
+                        TriggerEvent('pokefivem:client:notify', string.format('[%s]: "%s"', tr.name, tr.dialogue), 'error', 5000)
+
+                        -- Brief pause and initiate Trainer Battle
+                        SetTimeout(1200, function()
+                            local starterData = GetPokedexEntry(tr.starter)
+                            local opponent = {
+                                pokedex_id = tr.starter,
+                                name = starterData and starterData.name or "Rattata",
+                                level = 12,
+                                trainer_name = tr.name,
+                                hp = 45,
+                                maxHp = 45,
+                                moves = {
+                                    { name = "Quick Attack", type = "Normal", power = 40, accuracy = 100, currentPp = 30, maxPp = 30 },
+                                    { name = "Tackle", type = "Normal", power = 40, accuracy = 100, currentPp = 35, maxPp = 35 }
+                                }
+                            }
+                            TriggerClientEvent('pokefivem:client:startWildBattle', opponent)
+                        end)
+                    end
+                end
             end
         end
         Wait(sleep)

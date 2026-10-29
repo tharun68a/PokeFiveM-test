@@ -21,6 +21,7 @@ shared_scripts {
     'shared/gyms_data.lua',
     'shared/quests_data.lua',
     'shared/uri_engine.lua',
+    'shared/evolution_data.lua',
     'shared/utils.lua',
     'config.lua'
 }
@@ -45,6 +46,11 @@ client_scripts {
     'client/trade.lua',
     'client/quests.lua',
     'client/daycare.lua',
+    'client/evolution.lua',
+    'client/fishing.lua',
+    'client/pokestops.lua',
+    'client/raids.lua',
+    'client/foraging.lua',
     'client/world.lua'
 }
 
@@ -66,7 +72,12 @@ server_scripts {
     'server/pvp.lua',
     'server/trade.lua',
     'server/quests.lua',
-    'server/daycare.lua'
+    'server/daycare.lua',
+    'server/evolution.lua',
+    'server/fishing.lua',
+    'server/pokestops.lua',
+    'server/raids.lua',
+    'server/foraging.lua'
 }
 
 files {

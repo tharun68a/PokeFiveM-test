@@ -597,6 +597,34 @@
             </div>
         </div>
 
+        <!-- Cinematic Evolution Cutscene Modal -->
+        <div v-if="evolutionData" class="evolution-overlay">
+            <div class="evolution-container">
+                <div class="evolution-header">
+                    <span class="evolution-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> POKÉMON EVOLUTION</span>
+                    <h1 class="evolution-title">{{ evolutionStage === 'evolving' ? 'What? ' + evolutionData.oldName + ' is evolving!' : 'Congratulations! Your ' + evolutionData.oldName + ' evolved into ' + evolutionData.newName + '!' }}</h1>
+                </div>
+
+                <div class="evolution-stage-view">
+                    <div class="evolution-halo-ring"></div>
+                    <div class="evolution-silhouette-box" :class="{ 'is-pulsing': evolutionStage === 'evolving', 'is-evolved': evolutionStage === 'complete' }">
+                        <img :src="evolutionStage === 'evolving' ? ('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + (evolutionToggle ? evolutionData.newPokedexId : evolutionData.oldPokedexId) + '.png') : ('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + evolutionData.newPokedexId + '.png')" class="evolution-sprite-img">
+                    </div>
+                </div>
+
+                <div class="evolution-footer">
+                    <div v-if="evolutionStage === 'evolving'" class="evolution-cancel-hint">
+                        <span class="key-badge">B</span> or <span class="key-badge">Backspace</span> to Cancel Evolution
+                    </div>
+                    <div v-else class="evolution-success-actions">
+                        <button class="btn btn-confirm btn-lg" @click="closeEvolution">
+                            <i class="fa-solid fa-check"></i> Continue Journey
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Vue 3 CDN & Application Script -->
