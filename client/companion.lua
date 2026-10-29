@@ -42,19 +42,46 @@ function SummonCompanion()
     local modelHash = GetPokemonModel(lead.pokedex_id)
 
     RequestModel(modelHash)
-    while not HasModelLoaded(modelHash) do Wait(10) end
+    local waitCount = 0
+    while not HasModelLoaded(modelHash) and waitCount < 30 do
+        Wait(50)
+        waitCount = waitCount + 1
+    end
+
+    if not HasModelLoaded(modelHash) then
+        modelHash = `a_c_pug`
+        RequestModel(modelHash)
+        while not HasModelLoaded(modelHash) do Wait(10) end
+    end
 
     local playerPed = PlayerPedId()
     local pCoords = GetEntityCoords(playerPed)
     local forward = GetEntityForwardVector(playerPed)
     local spawnPos = pCoords - (forward * 1.5)
 
-    activeCompanionPed = CreatePed(28, modelHash, spawnPos.x, spawnPos.y, spawnPos.z, GetEntityHeading(playerPed), true, true)
+    -- Ped Type 4 (CIVMALE) accommodates both bipedal and quadrupedal custom Pokémon models smoothly
+    activeCompanionPed = CreatePed(4, modelHash, spawnPos.x, spawnPos.y, spawnPos.z, GetEntityHeading(playerPed), true, true)
     SetModelAsNoLongerNeeded(modelHash)
 
     SetEntityInvincible(activeCompanionPed, true)
     SetBlockingOfNonTemporaryEvents(activeCompanionPed, true)
     SetPedCanRagdoll(activeCompanionPed, false)
+
+    -- Flame FX for Fire Starters (Charmander / Charmeleon / Charizard)
+    if lead.pokedex_id == 4 or lead.pokedex_id == 5 or lead.pokedex_id == 6 then
+        CreateThread(function()
+            RequestNamedPtfxAsset("core")
+            local ptfxWait = 0
+            while not HasNamedPtfxAssetLoaded("core") and ptfxWait < 20 do
+                Wait(50)
+                ptfxWait = ptfxWait + 1
+            end
+            if HasNamedPtfxAssetLoaded("core") and activeCompanionPed and DoesEntityExist(activeCompanionPed) then
+                UseParticleFxAssetNextCall("core")
+                StartParticleFxLoopedOnEntity("ent_amb_candle_flame", activeCompanionPed, 0.0, -0.3, 0.25, 0.0, 0.0, 0.0, 1.2, false, false, false)
+            end
+        end)
+    end
 
     activeCompanionData = lead
     TriggerEvent('pokefivem:client:notify', _L('companion_sent', lead.nickname or pData.name), 'info')

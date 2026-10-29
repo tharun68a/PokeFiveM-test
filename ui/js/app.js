@@ -244,6 +244,37 @@ createApp({
             return 'fa-solid fa-circle-info text-primary';
         };
 
+        // Authentic 6-Note 16-Bit Pokémon Center Recovery Jingle
+        const playPokeCenterHealJingle = () => {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [
+                    { f: 392.00, d: 0.16 }, // G4
+                    { f: 440.00, d: 0.16 }, // A4
+                    { f: 493.88, d: 0.16 }, // B4
+                    { f: 587.33, d: 0.32 }, // D5
+                    { f: 523.25, d: 0.32 }, // C5
+                    { f: 659.25, d: 0.65 }  // E5
+                ];
+                let t = ctx.currentTime + 0.05;
+                notes.forEach(n => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(n.f, t);
+                    gain.gain.setValueAtTime(0.22, t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + n.d - 0.02);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(t);
+                    osc.stop(t + n.d);
+                    t += n.d;
+                });
+            } catch (e) {
+                console.error("Audio error:", e);
+            }
+        };
+
         // Window Message Listener
         onMounted(() => {
             window.addEventListener('message', (event) => {
@@ -251,6 +282,9 @@ createApp({
                 if (!item || !item.action) return;
 
                 switch (item.action) {
+                    case 'playHealSound':
+                        playPokeCenterHealJingle();
+                        break;
                     case 'openMulticharacter':
                         characters.value = item.characters || [];
                         maxSlots.value = item.maxSlots || 4;

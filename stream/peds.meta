@@ -11801,5 +11801,265 @@
       <MinLod value="0" />
       <MaxLod value="3" />
     </Item>
+      <Item>
+      <ModelName>pikachu</ModelName>
+      <PropsName>pikachu_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>dpikachu</ModelName>
+      <PropsName>dpikachu_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>infernape</ModelName>
+      <PropsName>infernape_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>mismagius</ModelName>
+      <PropsName>mismagius_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>charizard1</ModelName>
+      <PropsName>charizard1_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>blaziken1</ModelName>
+      <PropsName>blaziken1_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>gardevoir1</ModelName>
+      <PropsName>gardevoir1_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>lucario1</ModelName>
+      <PropsName>lucario1_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>mewtwo1</ModelName>
+      <PropsName>mewtwo1_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>scyther1</ModelName>
+      <PropsName>scyther1_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>hitmonchan1</ModelName>
+      <PropsName>hitmonchan1_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>haunter</ModelName>
+      <PropsName>haunter_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
+    <Item>
+      <ModelName>haunter1</ModelName>
+      <PropsName>haunter1_p</PropsName>
+      <WasPointedAtTargetAudioName />
+      <PedType>CIVMALE</PedType>
+      <MovementClipSet>creatures@dog@move</MovementClipSet>
+      <StrafeClipSet>move_ped_strafing</StrafeClipSet>
+      <MovementToStrafeClipSet>move_ped_to_strafe</MovementToStrafeClipSet>
+      <InjuredStrafeClipSet>move_strafe_injured</InjuredStrafeClipSet>
+      <VisualDamageDictName />
+      <PedVoicedData>ANIMALS</PedVoicedData>
+      <BoneDamageDictName />
+      <DamageVelocityType>DVT_PUPPET</DamageVelocityType>
+      <AnimDictHostName />
+      <IsStreamedGfx value="false" />
+      <CanAttackWithVehicles value="false" />
+      <AllowHitReactionsOnVehicles value="false" />
+      <MinLod value="0" />
+      <MaxLod value="3" />
+    </Item>
   </InitDatas>
 </CPedModelInfo__InitDataList>

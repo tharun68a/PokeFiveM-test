@@ -69,7 +69,7 @@ RegisterNetEvent('pokefivem:client:spawnWildPokemon', function(wildData)
     local foundGround, groundZ = GetGroundZFor_3dCoord(wildData.coords.x, wildData.coords.y, wildData.coords.z + 5.0, false)
     local finalZ = foundGround and groundZ or wildData.coords.z
 
-    local ped = CreatePed(28, modelHash, wildData.coords.x, wildData.coords.y, finalZ, math.random(0, 359) + 0.0, false, true)
+    local ped = CreatePed(4, modelHash, wildData.coords.x, wildData.coords.y, finalZ, math.random(0, 359) + 0.0, false, true)
     SetModelAsNoLongerNeeded(modelHash)
 
     SetEntityAsMissionEntity(ped, true, true)

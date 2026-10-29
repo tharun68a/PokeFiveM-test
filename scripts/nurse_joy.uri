@@ -1,0 +1,47 @@
+-- ====================================================================
+-- Fivemon / PokeFiveM Scripting Language (.uri)
+-- Nurse Joy NPC & Pokémon Center Recovery Routine
+-- ====================================================================
+
+npc "Nurse Joy" {
+    model: "s_f_y_scrubs_01"
+    role: "pokemon_center_healer"
+    dialogue: {
+        greeting: "Hello, and welcome to the Pokémon Center!"
+        inquiry: "We restore your tired Pokémon to full vitality. Shall I heal your party?"
+        healing: "Okay, we'll need your Pokémon for just a few seconds..."
+        completed: "Thank you for waiting! We've restored your Pokémon to full health."
+        farewell: "We hope to see you again!"
+    }
+    sound: "pokemon_recovery"
+    animation: "mini@cpr@char_a@cpr_str"
+    jingle_duration: 3500
+    facilities: [
+        {
+            name: "Pallet Town Central PokéCenter"
+            zone: "Legion Square"
+            coords: [298.54, -584.43, 43.26, 75.0]
+        },
+        {
+            name: "Cinnabar Desert Clinic"
+            zone: "Sandy Shores"
+            coords: [1839.62, 3672.93, 34.28, 210.0]
+        },
+        {
+            name: "Viridian North Care Outpost"
+            zone: "Paleto Bay"
+            coords: [-247.12, 6331.45, 32.43, 315.0]
+        },
+        {
+            name: "Vermilion Coast Promenade Center"
+            zone: "Vespucci Beach"
+            coords: [-1324.89, -1513.72, 4.45, 120.0]
+        }
+    ]
+    actions: {
+        heal: true
+        access_pc: true
+        cancel: true
+    }
+}
+

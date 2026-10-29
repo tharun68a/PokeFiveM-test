@@ -1,5 +1,6 @@
 PokedexData = {
     [1] = {
+        customModel = "bulbasaur",
         id = 1, name = "Bulbasaur", type1 = "grass", type2 = "poison",
         baseStats = { hp = 45, attack = 49, defense = 49, sp_attack = 65, sp_defense = 65, speed = 45 },
         catchRate = 45, baseExp = 64, growthRate = "medium_slow",
@@ -44,6 +45,7 @@ PokedexData = {
         model = `a_c_boar`, height = 2.0, weight = 100.0
     },
     [4] = {
+        customModel = "charmander",
         id = 4, name = "Charmander", type1 = "fire",
         baseStats = { hp = 39, attack = 52, defense = 43, sp_attack = 60, sp_defense = 50, speed = 65 },
         catchRate = 45, baseExp = 62, growthRate = "medium_slow",
@@ -75,6 +77,7 @@ PokedexData = {
         model = `a_c_coyote`, height = 1.1, weight = 19.0
     },
     [6] = {
+        customModel = "charizard",
         id = 6, name = "Charizard", type1 = "fire", type2 = "flying",
         baseStats = { hp = 78, attack = 84, defense = 78, sp_attack = 109, sp_defense = 85, speed = 100 },
         catchRate = 45, baseExp = 240, growthRate = "medium_slow",
@@ -89,6 +92,7 @@ PokedexData = {
         model = `a_c_cormorant`, height = 1.7, weight = 90.5
     },
     [7] = {
+        customModel = "squirtle",
         id = 7, name = "Squirtle", type1 = "water",
         baseStats = { hp = 44, attack = 48, defense = 65, sp_attack = 50, sp_defense = 64, speed = 43 },
         catchRate = 45, baseExp = 63, growthRate = "medium_slow",
@@ -225,6 +229,7 @@ PokedexData = {
         model = `a_c_rat`, height = 0.3, weight = 3.5
     },
     [25] = {
+        customModel = "pikachu",
         id = 25, name = "Pikachu", type1 = "electric",
         baseStats = { hp = 35, attack = 55, defense = 40, sp_attack = 50, sp_defense = 50, speed = 90 },
         catchRate = 190, baseExp = 112, growthRate = "medium_fast",
@@ -297,6 +302,7 @@ PokedexData = {
         model = `a_c_cat_01`, height = 0.9, weight = 19.5
     },
     [65] = {
+        customModel = "alakazam",
         id = 65, name = "Alakazam", type1 = "psychic",
         baseStats = { hp = 55, attack = 50, defense = 45, sp_attack = 135, sp_defense = 95, speed = 120 },
         catchRate = 50, baseExp = 225, growthRate = "medium_slow",
@@ -323,6 +329,7 @@ PokedexData = {
         model = `a_c_chimp`, height = 0.8, weight = 19.5
     },
     [68] = {
+        customModel = "machamp",
         id = 68, name = "Machamp", type1 = "fighting",
         baseStats = { hp = 90, attack = 130, defense = 80, sp_attack = 65, sp_defense = 85, speed = 55 },
         catchRate = 45, baseExp = 227, growthRate = "medium_slow",
@@ -336,6 +343,7 @@ PokedexData = {
         model = `a_c_chimp`, height = 1.6, weight = 130.0
     },
     [74] = {
+        customModel = "geodude",
         id = 74, name = "Geodude", type1 = "rock", type2 = "ground",
         baseStats = { hp = 40, attack = 80, defense = 100, sp_attack = 30, sp_defense = 30, speed = 20 },
         catchRate = 255, baseExp = 60, growthRate = "medium_slow",
@@ -510,6 +518,7 @@ PokedexData = {
         model = `a_c_cormorant`, height = 2.2, weight = 210.0
     },
     [150] = {
+        customModel = "mewtwo",
         id = 150, name = "Mewtwo", type1 = "psychic",
         baseStats = { hp = 106, attack = 110, defense = 90, sp_attack = 154, sp_defense = 90, speed = 130 },
         catchRate = 3, baseExp = 306, growthRate = "slow",
@@ -522,6 +531,127 @@ PokedexData = {
             { level = 75, move = "HyperBeam" }
         },
         model = `a_c_cat_01`, height = 2.0, weight = 122.0
+    }
+
+    [52] = {
+        id = 52, name = "Meowth", type1 = "normal", customModel = "meowth",
+        baseStats = { hp = 40, attack = 45, defense = 35, sp_attack = 40, sp_defense = 40, speed = 90 },
+        catchRate = 255, baseExp = 58, growthRate = "medium_fast",
+        abilities = { "Pickup", "Technician" },
+        moves = { { level = 1, move = "Scratch" }, { level = 6, move = "Bite" }, { level = 12, move = "PayDay" }, { level = 30, move = "Slash" } },
+        model = `a_c_cat_01`, height = 0.4, weight = 4.2
+    },
+    [55] = {
+        id = 55, name = "Golduck", type1 = "water", customModel = "golduck",
+        baseStats = { hp = 80, attack = 82, defense = 78, sp_attack = 95, sp_defense = 80, speed = 85 },
+        catchRate = 75, baseExp = 175, growthRate = "medium_fast",
+        abilities = { "Damp", "Cloud Nine" },
+        moves = { { level = 1, move = "WaterGun" }, { level = 15, move = "Confusion" }, { level = 28, move = "HydroPump" } },
+        model = `a_c_pug`, height = 1.7, weight = 76.6
+    },
+    [67] = {
+        id = 67, name = "Machoke", type1 = "fighting", customModel = "machoke",
+        baseStats = { hp = 80, attack = 100, defense = 70, sp_attack = 50, sp_defense = 60, speed = 45 },
+        catchRate = 90, baseExp = 142, growthRate = "medium_slow",
+        abilities = { "Guts", "No Guard" },
+        moves = { { level = 1, move = "KarateChop" }, { level = 20, move = "LowKick" }, { level = 36, move = "CrossChop" } },
+        model = `a_c_pug`, height = 1.5, weight = 70.5
+    },
+    [107] = {
+        id = 107, name = "Hitmonchan", type1 = "fighting", customModel = "hitmonchan",
+        baseStats = { hp = 50, attack = 105, defense = 79, sp_attack = 35, sp_defense = 110, speed = 76 },
+        catchRate = 45, baseExp = 159, growthRate = "medium_fast",
+        abilities = { "Keen Eye", "Iron Fist" },
+        moves = { { level = 1, move = "CometPunch" }, { level = 10, move = "FirePunch" }, { level = 10, move = "IcePunch" }, { level = 10, move = "ThunderPunch" } },
+        model = `a_c_pug`, height = 1.4, weight = 50.2
+    },
+    [123] = {
+        id = 123, name = "Scyther", type1 = "bug", type2 = "flying", customModel = "scyther",
+        baseStats = { hp = 70, attack = 110, defense = 80, sp_attack = 55, sp_defense = 80, speed = 105 },
+        catchRate = 45, baseExp = 100, growthRate = "medium_fast",
+        abilities = { "Swarm", "Technician" },
+        moves = { { level = 1, move = "QuickAttack" }, { level = 13, move = "WingAttack" }, { level = 29, move = "Slash" } },
+        model = `a_c_pug`, height = 1.5, weight = 56.0
+    },
+    [257] = {
+        id = 257, name = "Blaziken", type1 = "fire", type2 = "fighting", customModel = "blaziken",
+        baseStats = { hp = 80, attack = 120, defense = 70, sp_attack = 110, sp_defense = 70, speed = 80 },
+        catchRate = 45, baseExp = 239, growthRate = "medium_slow",
+        abilities = { "Blaze", "Speed Boost" },
+        moves = { { level = 1, move = "DoubleKick" }, { level = 16, move = "BlazeKick" }, { level = 36, move = "SkyUppercut" } },
+        model = `a_c_coyote`, height = 1.9, weight = 52.0
+    },
+    [282] = {
+        id = 282, name = "Gardevoir", type1 = "psychic", type2 = "fairy", customModel = "gardevoir",
+        baseStats = { hp = 68, attack = 65, defense = 65, sp_attack = 125, sp_defense = 115, speed = 80 },
+        catchRate = 45, baseExp = 233, growthRate = "slow",
+        abilities = { "Synchronize", "Trace" },
+        moves = { { level = 1, move = "Confusion" }, { level = 20, move = "Psychic" }, { level = 35, move = "Moonblast" } },
+        model = `a_c_cat_01`, height = 1.6, weight = 48.4
+    },
+    [392] = {
+        id = 392, name = "Infernape", type1 = "fire", type2 = "fighting", customModel = "infernape",
+        baseStats = { hp = 76, attack = 104, defense = 71, sp_attack = 104, sp_defense = 71, speed = 108 },
+        catchRate = 45, baseExp = 240, growthRate = "medium_slow",
+        abilities = { "Blaze", "Iron Fist" },
+        moves = { { level = 1, move = "MachPunch" }, { level = 14, move = "FlameWheel" }, { level = 36, move = "CloseCombat" } },
+        model = `a_c_coyote`, height = 1.2, weight = 35.0
+    },
+    [429] = {
+        id = 429, name = "Mismagius", type1 = "ghost", customModel = "mismagius",
+        baseStats = { hp = 60, attack = 60, defense = 60, sp_attack = 105, sp_defense = 105, speed = 105 },
+        catchRate = 45, baseExp = 173, growthRate = "fast",
+        abilities = { "Levitate" },
+        moves = { { level = 1, move = "ShadowBall" }, { level = 10, move = "Psybeam" }, { level = 25, move = "PowerGem" } },
+        model = `a_c_cat_01`, height = 0.9, weight = 4.4
+    },
+    [445] = {
+        id = 445, name = "Garchomp", type1 = "dragon", type2 = "ground", customModel = "garchomp",
+        baseStats = { hp = 108, attack = 130, defense = 95, sp_attack = 80, sp_defense = 85, speed = 102 },
+        catchRate = 45, baseExp = 270, growthRate = "slow",
+        abilities = { "Sand Veil", "Rough Skin" },
+        moves = { { level = 1, move = "DragonRage" }, { level = 24, move = "DragonClaw" }, { level = 40, move = "Earthquake" } },
+        model = `a_c_coyote`, height = 1.9, weight = 95.0
+    },
+    [448] = {
+        id = 448, name = "Lucario", type1 = "fighting", type2 = "steel", customModel = "lucario",
+        baseStats = { hp = 70, attack = 110, defense = 70, sp_attack = 115, sp_defense = 70, speed = 90 },
+        catchRate = 45, baseExp = 184, growthRate = "medium_slow",
+        abilities = { "Steadfast", "Inner Focus" },
+        moves = { { level = 1, move = "QuickAttack" }, { level = 19, move = "ForcePalm" }, { level = 37, move = "AuraSphere" }, { level = 42, move = "CloseCombat" } },
+        model = `a_c_coyote`, height = 1.2, weight = 54.0
+    },
+    [571] = {
+        id = 571, name = "Zoroark", type1 = "dark", customModel = "zoroark",
+        baseStats = { hp = 60, attack = 105, defense = 60, sp_attack = 120, sp_defense = 60, speed = 105 },
+        catchRate = 45, baseExp = 179, growthRate = "medium_slow",
+        abilities = { "Illusion" },
+        moves = { { level = 1, move = "FurySwipes" }, { level = 15, move = "NightSlash" }, { level = 30, move = "DarkPulse" } },
+        model = `a_c_coyote`, height = 1.6, weight = 81.1
+    },
+    [654] = {
+        id = 654, name = "Braixen", type1 = "fire", customModel = "braixen",
+        baseStats = { hp = 59, attack = 59, defense = 58, sp_attack = 90, sp_defense = 70, speed = 73 },
+        catchRate = 45, baseExp = 143, growthRate = "medium_slow",
+        abilities = { "Blaze", "Magician" },
+        moves = { { level = 1, move = "Scratch" }, { level = 14, move = "FlameCharge" }, { level = 28, move = "Psyshock" } },
+        model = `a_c_cat_01`, height = 1.0, weight = 14.5
+    },
+    [658] = {
+        id = 658, name = "Greninja", type1 = "water", type2 = "dark", customModel = "greninja",
+        baseStats = { hp = 72, attack = 95, defense = 67, sp_attack = 103, sp_defense = 71, speed = 122 },
+        catchRate = 45, baseExp = 239, growthRate = "medium_slow",
+        abilities = { "Torrent", "Protean" },
+        moves = { { level = 1, move = "WaterShuriken" }, { level = 14, move = "WaterPulse" }, { level = 36, move = "NightSlash" }, { level = 43, move = "HydroPump" } },
+        model = `a_c_pug`, height = 1.5, weight = 40.0
+    },
+    [815] = {
+        id = 815, name = "Cinderace", type1 = "fire", customModel = "cinderace",
+        baseStats = { hp = 80, attack = 116, defense = 75, sp_attack = 65, sp_defense = 75, speed = 119 },
+        catchRate = 45, baseExp = 265, growthRate = "medium_slow",
+        abilities = { "Blaze", "Libero" },
+        moves = { { level = 1, move = "Tackle" }, { level = 12, move = "FlameCharge" }, { level = 35, move = "PyroBall" } },
+        model = `a_c_coyote`, height = 1.4, weight = 33.0
     }
 }
 

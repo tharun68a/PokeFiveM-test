@@ -87,7 +87,7 @@ local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
             end
             if HasModelLoaded(monHash) then
                 local compCoords = vector3(pedCoords.x + 0.8, pedCoords.y - 0.2, pedCoords.z)
-                previewCompanion = CreatePed(28, monHash, compCoords.x, compCoords.y, compCoords.z, pedCoords.w, false, true)
+                previewCompanion = CreatePed(4, monHash, compCoords.x, compCoords.y, compCoords.z, pedCoords.w, false, true)
                 SetEntityHeading(previewCompanion, pedCoords.w)
                 SetEntityInvincible(previewCompanion, true)
                 SetBlockingOfNonTemporaryEvents(previewCompanion, true)

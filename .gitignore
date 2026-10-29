@@ -11,6 +11,9 @@ Desktop.ini
 *.log
 *.tmp
 *.bak
+*.rar
+*.zip
+extracted_models/
 stream/downloads/
 sketchfab_collection.json
 

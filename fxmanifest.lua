@@ -20,6 +20,7 @@ shared_scripts {
     'shared/pokedex_data.lua',
     'shared/gyms_data.lua',
     'shared/quests_data.lua',
+    'shared/uri_engine.lua',
     'shared/utils.lua',
     'config.lua'
 }
@@ -71,8 +72,12 @@ server_scripts {
 files {
     'ui/index.html',
     'ui/css/style.css',
-    'ui/js/app.js'
+    'ui/js/app.js',
+    'stream/peds.meta',
+    'scripts/nurse_joy.uri'
 }
+
+data_file 'PED_METADATA_FILE' 'stream/peds.meta'
 
 exports {
     'GetCoreObject',
