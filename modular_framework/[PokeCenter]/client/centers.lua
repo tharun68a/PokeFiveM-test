@@ -26,8 +26,24 @@ CreateThread(function()
 
     -- Initialize PokéCenter Blips & Nurse Joy NPCs
     for _, center in ipairs(facilities) do
-        local coords = center.coords and vector3(center.coords[1] or center.coords.x, center.coords[2] or center.coords.y, center.coords[3] or center.coords.z) or vector3(center.x, center.y, center.z)
-        local heading = (center.coords and center.coords[4]) or center.heading or 0.0
+        local coords = vector3(0.0, 0.0, 0.0)
+        local heading = center.heading or 0.0
+
+        if center.coords then
+            if type(center.coords) == "vector3" or type(center.coords) == "vector4" then
+                coords = vector3(center.coords.x, center.coords.y, center.coords.z)
+                if type(center.coords) == "vector4" then
+                    heading = center.coords.w
+                end
+            elseif type(center.coords) == "table" then
+                coords = vector3(center.coords[1] or center.coords.x or 0.0, center.coords[2] or center.coords.y or 0.0, center.coords[3] or center.coords.z or 0.0)
+                if center.coords[4] then
+                    heading = center.coords[4]
+                end
+            end
+        elseif center.x and center.y and center.z then
+            coords = vector3(center.x, center.y, center.z)
+        end
 
         -- Map Blip
         local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
