@@ -73,11 +73,8 @@ files {
     'ui/index.html',
     'ui/css/style.css',
     'ui/js/app.js',
-    'stream/peds.meta',
     'scripts/nurse_joy.uri'
 }
-
-data_file 'PED_METADATA_FILE' 'stream/peds.meta'
 
 exports {
     'GetCoreObject',
