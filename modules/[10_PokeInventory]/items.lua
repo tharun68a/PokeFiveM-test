@@ -915,6 +915,17 @@ PokeCore.Shared.Items = {
         image = 'link_cable.png',
         description = 'A mysterious technological cable that triggers trade-based evolutions on Kadabra, Machoke, Graveler, Haunter.',
         price = 3000
+    },
+    ['lockpick'] = {
+        name = 'lockpick',
+        label = 'Lockpick',
+        weight = 160,
+        type = 'item',
+        unique = false,
+        useable = true,
+        image = 'lockpick.png',
+        description = 'A precision tool used for picking mechanical locks.',
+        price = 250
     }
 }
 

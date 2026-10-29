@@ -137,59 +137,13 @@ createApp({
             });
         };
 
-        const isZoomedIn = ref(false);
         const toggleZoom = () => {
             fetch(`https://${GetParentResourceName()}/toggleCameraZoom`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({})
-            }).then(res => res.json()).then(data => {
-                if (data && typeof data.zoomed === 'boolean') {
-                    isZoomedIn.value = data.zoomed;
-                } else {
-                    isZoomedIn.value = !isZoomedIn.value;
-                }
-            }).catch(() => {
-                isZoomedIn.value = !isZoomedIn.value;
-            });
+            }).catch(() => {});
         };
-
-        // Mouse & Touch Drag Rotation for 3D Ped & Companion
-        let isDraggingPed = false;
-        let lastMouseX = 0;
-
-        const startPedDrag = (e) => {
-            isDraggingPed = true;
-            lastMouseX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-        };
-
-        window.addEventListener('mousemove', (e) => {
-            if (!isDraggingPed || !showMulticharacter.value) return;
-            const clientX = e.clientX || 0;
-            const deltaX = clientX - lastMouseX;
-            lastMouseX = clientX;
-            if (Math.abs(deltaX) > 0.4) {
-                rotatePed(deltaX * 0.85);
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            isDraggingPed = false;
-        });
-
-        window.addEventListener('touchmove', (e) => {
-            if (!isDraggingPed || !showMulticharacter.value) return;
-            const clientX = (e.touches && e.touches[0].clientX) || 0;
-            const deltaX = clientX - lastMouseX;
-            lastMouseX = clientX;
-            if (Math.abs(deltaX) > 0.4) {
-                rotatePed(deltaX * 0.85);
-            }
-        });
-
-        window.addEventListener('touchend', () => {
-            isDraggingPed = false;
-        });
 
         // Multicharacter Keyboard Controls (A / D rotate, Space reset, V zoom)
         window.addEventListener('keydown', (e) => {
@@ -206,40 +160,6 @@ createApp({
                 toggleZoom();
             }
         });
-
-        // Kanto Gym Badges Roster
-        const kantoBadgesList = [
-            { id: 'boulder', name: 'Boulder', leader: 'Brock', city: 'Pewter', icon: 'fa-solid fa-gem', color: '#94a3b8' },
-            { id: 'cascade', name: 'Cascade', leader: 'Misty', city: 'Cerulean', icon: 'fa-solid fa-droplet', color: '#38bdf8' },
-            { id: 'thunder', name: 'Thunder', leader: 'Lt. Surge', city: 'Vermilion', icon: 'fa-solid fa-bolt', color: '#facc15' },
-            { id: 'rainbow', name: 'Rainbow', leader: 'Erika', city: 'Celadon', icon: 'fa-solid fa-fan', color: '#4ade80' },
-            { id: 'soul', name: 'Soul', leader: 'Koga', city: 'Fuchsia', icon: 'fa-solid fa-heart', color: '#ec4899' },
-            { id: 'marsh', name: 'Marsh', leader: 'Sabrina', city: 'Saffron', icon: 'fa-solid fa-eye', color: '#a855f7' },
-            { id: 'volcano', name: 'Volcano', leader: 'Blaine', city: 'Cinnabar', icon: 'fa-solid fa-fire-flame-curved', color: '#f97316' },
-            { id: 'earth', name: 'Earth', leader: 'Giovanni', city: 'Viridian', icon: 'fa-solid fa-mountain', color: '#84cc16' }
-        ];
-
-        const hasBadge = (char, badgeId) => {
-            if (!char || !char.metadata || !char.metadata.badges) return false;
-            const badges = char.metadata.badges;
-            if (Array.isArray(badges)) {
-                return badges.some(b => {
-                    const bStr = String(b).toLowerCase();
-                    return bStr.includes(badgeId);
-                });
-            }
-            return false;
-        };
-
-        const getBadgesCount = (char) => {
-            if (!char || !char.metadata || !char.metadata.badges) return 0;
-            return Array.isArray(char.metadata.badges) ? char.metadata.badges.length : 0;
-        };
-
-        const getLeadType = (leadPokemon) => {
-            if (!leadPokemon) return 'normal';
-            return (leadPokemon.type1 || 'normal').toLowerCase();
-        };
 
         const slotList = computed(() => {
             const list = [];
@@ -695,8 +615,7 @@ createApp({
 
         return {
             showMulticharacter, characters, maxSlots, selectedChar, showCreateModal, showDeleteModal, deletingChar, newTrainer, starterChoices,
-            outfits, availableOutfits, selectSlot, onGenderChange, selectOutfitStyle, rotatePed, resetPedHeading, toggleZoom, isZoomedIn, startPedDrag,
-            kantoBadgesList, hasBadge, getBadgesCount, getLeadType,
+            outfits, availableOutfits, selectSlot, onGenderChange, selectOutfitStyle, rotatePed, resetPedHeading, toggleZoom,
             getTrainerAvatar, slotList, isTrainerFormValid, confirmPlayCharacter, openCreateModal, submitCreateTrainer, promptDeleteCharacter, confirmDeleteCharacter,
             hudLead, notifications, showStarter, starters, selectedStarter, confirmStarter,
             inBattle, battleData, battleSubmenu, battleLogText, sendBattleAction, openBagInBattle, openPartyInBattle,

@@ -9,14 +9,22 @@ PokeCore.PlayerData = PokeCore.PlayerData or {}
 PokeCore.Functions = PokeCore.Functions or {}
 PokeCore.ServerCallbacks = PokeCore.ServerCallbacks or {}
 
--- Export core getter
+-- Export core & shared object getters
 function GetCoreObject()
     return PokeCore
 end
 
-exports('GetCoreObject', function()
-    return PokeCore
-end)
+function GetSharedObject()
+    return ESX or PokeCore
+end
+
+function getSharedObject()
+    return ESX or PokeCore
+end
+
+exports('GetCoreObject', GetCoreObject)
+exports('GetSharedObject', GetSharedObject)
+exports('getSharedObject', getSharedObject)
 
 -- Fetch Client Player Data
 function PokeCore.Functions.GetPlayerData(cb)

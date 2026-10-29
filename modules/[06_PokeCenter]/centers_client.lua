@@ -11,7 +11,7 @@ local nurseJoyConfig = nil
 CreateThread(function()
     -- Load Nurse Joy via .URI script engine
     if URIEngine and URIEngine.LoadURIFile then
-        local ast = URIEngine.LoadURIFile('scripts/nurse_joy.uri')
+        local ast = URIEngine.LoadURIFile('modules/[06_PokeCenter]/nurse_joy.uri') or URIEngine.LoadURIFile('scripts/nurse_joy.uri')
         if ast and ast.npcs and ast.npcs[1] then
             nurseJoyConfig = ast.npcs[1]
         end

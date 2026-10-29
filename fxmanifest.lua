@@ -32,7 +32,7 @@ client_scripts {
     'modules/[01_Core]/callbacks_client.lua',
     'modules/[01_Core]/notifications.lua',
     'modules/[01_Core]/player_client.lua',
-    'bridge/es_extended/client.lua',
+    'modules/[01_Core]/bridge_client.lua',
     'modules/[01_Core]/multichar_client.lua',
 
     -- [03_PokeBattle]
@@ -76,7 +76,7 @@ server_scripts {
     'modules/[01_Core]/server.lua',
     'modules/[01_Core]/callbacks_server.lua',
     'modules/[01_Core]/player_server.lua',
-    'bridge/es_extended/server.lua',
+    'modules/[01_Core]/bridge_server.lua',
     'modules/[01_Core]/multichar_server.lua',
     'modules/[01_Core]/events.lua',
     'modules/[01_Core]/commands.lua',
@@ -117,7 +117,8 @@ files {
     'ui/index.html',
     'ui/css/style.css',
     'ui/js/app.js',
-    'modules/[06_PokeCenter]/nurse_joy.uri'
+    'modules/[06_PokeCenter]/nurse_joy.uri',
+    'scripts/nurse_joy.uri'
 }
 
 exports {

@@ -77,9 +77,17 @@ function URIEngine.Parse(rawContent)
     return ast
 end
 
--- Load and register .uri file from resource
+-- Load and register .uri file from resource with smart path resolution
 function URIEngine.LoadURIFile(filePath)
     local content = LoadResourceFile(GetCurrentResourceName(), filePath)
+    if not content then
+        local baseName = filePath:match("([^/\\]+)$")
+        if baseName then
+            content = LoadResourceFile(GetCurrentResourceName(), "modules/[06_PokeCenter]/" .. baseName)
+                   or LoadResourceFile(GetCurrentResourceName(), "scripts/" .. baseName)
+        end
+    end
+
     if not content then
         print(string.format('^1[URIEngine] Failed to load .uri file: %s^7', filePath))
         return nil
@@ -91,4 +99,3 @@ end
 
 exports('LoadURIFile', URIEngine.LoadURIFile)
 exports('GetURINPC', function(name) return URIEngine.Registry[name] end)
-

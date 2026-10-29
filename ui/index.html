@@ -71,22 +71,19 @@
                 </div>
             </div>
 
-            <!-- Central 3D Ped Mouse/Touch Drag Rotation Zone -->
-            <div class="multichar-ped-drag-zone" @mousedown="startPedDrag" @touchstart="startPedDrag" title="Click and drag to rotate Trainer & Companion in 3D"></div>
-
             <!-- Center Bottom: 3D Ped & Camera Controls -->
             <div class="multichar-ped-controls">
                 <button class="btn-ped-rot" @click="rotatePed(-25)" title="Rotate Left [A]">
                     <span class="key-pill">A</span> <i class="fa-solid fa-rotate-left"></i> Left
                 </button>
                 <button class="btn-ped-rot btn-ped-reset" @click="resetPedHeading()" title="Reset Front View [Space]">
-                    <span class="key-pill">SPACE</span> <i class="fa-solid fa-person"></i> Front
+                    <i class="fa-solid fa-person"></i> Front
                 </button>
                 <button class="btn-ped-rot" @click="rotatePed(25)" title="Rotate Right [D]">
                     Right <i class="fa-solid fa-rotate-right"></i> <span class="key-pill">D</span>
                 </button>
-                <button class="btn-ped-rot btn-ped-zoom" :class="{ 'is-active': isZoomedIn }" @click="toggleZoom()" title="Toggle Camera Zoom [V]">
-                    <span class="key-pill">V</span> <i :class="isZoomedIn ? 'fa-solid fa-magnifying-glass-minus' : 'fa-solid fa-magnifying-glass-plus'"></i> {{ isZoomedIn ? 'Full Body' : 'Face Zoom' }}
+                <button class="btn-ped-rot btn-ped-zoom" @click="toggleZoom()" title="Toggle Camera Zoom [V]">
+                    <i class="fa-solid fa-camera-rotate"></i> Zoom
                 </button>
             </div>
 
@@ -154,41 +151,16 @@
                         </div>
                     </div>
 
-                    <!-- Kanto Gym Badges Showcase Case -->
-                    <div class="passport-badges-case">
-                        <div class="badges-case-header">
-                            <span><i class="fa-solid fa-shield-halved text-gold"></i> KANTO GYM BADGES</span>
-                            <span class="badges-count-chip">{{ getBadgesCount(selectedChar) }}/8</span>
-                        </div>
-                        <div class="badges-case-grid">
-                            <div v-for="b in kantoBadgesList" :key="b.id"
-                                 class="badge-slot-pill"
-                                 :class="{ 'is-earned': hasBadge(selectedChar, b.id) }"
-                                 :title="b.name + ' Badge (' + b.leader + ' - ' + b.city + ')'">
-                                <i :class="b.icon" :style="{ color: hasBadge(selectedChar, b.id) ? b.color : 'rgba(255,255,255,0.2)' }"></i>
-                                <span class="badge-mini-name">{{ b.name }}</span>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Companion Lead Pokémon Preview -->
-                    <div class="passport-lead-box" :class="'lead-type-' + getLeadType(selectedChar.leadPokemon)" v-if="selectedChar.leadPokemon">
-                        <div class="lead-header-row">
-                            <span class="lead-header-label"><i class="fa-solid fa-paw"></i> ACTIVE PARTY COMPANION</span>
-                            <span class="lead-type-badge" :style="{ backgroundColor: getTypeColor(selectedChar.leadPokemon.type1 || 'Normal') }">
-                                {{ selectedChar.leadPokemon.type1 || 'Normal' }}
-                            </span>
-                        </div>
+                    <div class="passport-lead-box" v-if="selectedChar.leadPokemon">
+                        <span class="lead-header-label"><i class="fa-solid fa-paw"></i> ACTIVE PARTY LEADER</span>
                         <div class="lead-content-row">
-                            <div class="lead-artwork-wrap">
-                                <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + selectedChar.leadPokemon.pokedex_id + '.png'" class="lead-artwork-img">
-                            </div>
+                            <img :src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + selectedChar.leadPokemon.pokedex_id + '.png'" class="lead-artwork-img">
                             <div class="lead-desc-col">
                                 <h3>{{ selectedChar.leadPokemon.nickname || selectedChar.leadPokemon.name }}</h3>
                                 <span class="lead-sub">Species: {{ selectedChar.leadPokemon.name }} &bull; Level {{ selectedChar.leadPokemon.level }}</span>
                                 <div class="lead-tag-row">
                                     <span class="lead-tag-ready"><i class="fa-solid fa-heart text-success"></i> Ready to Battle</span>
-                                    <span class="lead-tag-ready comp-tag-ready"><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> 3D Companion</span>
                                 </div>
                             </div>
                         </div>

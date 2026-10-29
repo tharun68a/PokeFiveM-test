@@ -272,6 +272,18 @@ AddEventHandler('onResourceStart', function(resName)
 end)
 
 -- Exports
-exports('GetCoreObject', function()
+function GetCoreObject()
     return PokeCore
-end)
+end
+
+function GetSharedObject()
+    return ESX or PokeCore
+end
+
+function getSharedObject()
+    return ESX or PokeCore
+end
+
+exports('GetCoreObject', GetCoreObject)
+exports('GetSharedObject', GetSharedObject)
+exports('getSharedObject', getSharedObject)
