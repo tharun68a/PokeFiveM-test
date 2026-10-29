@@ -5,10 +5,11 @@
 -- ====================================================================
 
 PokeCore = PokeCore or {}
-PokeCore.Players = {}
-PokeCore.ServerCallbacks = {}
-PokeCore.UseableItems = {}
-PokeCore.Commands = {}
+PokeCore.Players = PokeCore.Players or {}
+PokeCore.ServerCallbacks = PokeCore.ServerCallbacks or {}
+PokeCore.UseableItems = PokeCore.UseableItems or {}
+PokeCore.Commands = PokeCore.Commands or {}
+PokeCore.Functions = PokeCore.Functions or {}
 
 -- Safe MySQL Wrapper (oxmysql native)
 local MySQL_Async = {

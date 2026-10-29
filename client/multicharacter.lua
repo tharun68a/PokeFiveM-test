@@ -56,7 +56,11 @@ local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
         SetEntityCanBeDamaged(previewPed, false)
 
         -- Apply complete Trainer Outfit (Drawables, Textures, Hats/Caps, Bags)
-        PokeCore.Functions.ApplyTrainerOutfit(previewPed, style, gender)
+        if PokeCore.Functions and PokeCore.Functions.ApplyTrainerOutfit then
+            PokeCore.Functions.ApplyTrainerOutfit(previewPed, style, gender)
+        elseif ApplyTrainerOutfit then
+            ApplyTrainerOutfit(previewPed, style, gender)
+        end
 
         -- Play confident trainer stance animation
         local animDict = "move_m@confident"
@@ -244,7 +248,11 @@ RegisterNetEvent('pokefivem:client:spawnSelectedCharacter', function(playerData)
 
     -- Apply Trainer Outfit to player ped
     local style = charinfo.style or (gender == 1 and 'leaf' or 'red')
-    PokeCore.Functions.ApplyTrainerOutfit(ped, style, gender)
+    if PokeCore.Functions and PokeCore.Functions.ApplyTrainerOutfit then
+        PokeCore.Functions.ApplyTrainerOutfit(ped, style, gender)
+    elseif ApplyTrainerOutfit then
+        ApplyTrainerOutfit(ped, style, gender)
+    end
 
     local pos = playerData.position or Config.Player.DefaultSpawn
     SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, false)

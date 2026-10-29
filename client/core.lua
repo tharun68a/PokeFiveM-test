@@ -5,9 +5,9 @@
 -- ====================================================================
 
 PokeCore = PokeCore or {}
-PokeCore.PlayerData = {}
-PokeCore.Functions = {}
-PokeCore.ServerCallbacks = {}
+PokeCore.PlayerData = PokeCore.PlayerData or {}
+PokeCore.Functions = PokeCore.Functions or {}
+PokeCore.ServerCallbacks = PokeCore.ServerCallbacks or {}
 
 -- Export core getter
 function GetCoreObject()

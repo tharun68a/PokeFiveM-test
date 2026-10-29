@@ -4,10 +4,10 @@
 -- Independent, Modular FiveM Framework (Zero ESX Dependency)
 -- ====================================================================
 
-PokeCore = {}
-PokeCore.Shared = {}
-PokeCore.Functions = {}
-PokeCore.Config = {}
+PokeCore = PokeCore or {}
+PokeCore.Shared = PokeCore.Shared or {}
+PokeCore.Functions = PokeCore.Functions or {}
+PokeCore.Config = PokeCore.Config or {}
 
 -- Utility: Deep Table Copy
 function PokeCore.Shared.CopyTable(orig)

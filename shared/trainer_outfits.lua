@@ -170,3 +170,7 @@ function PokeCore.Functions.ApplyTrainerOutfit(ped, outfitKey, gender)
     return true
 end
 
+-- Global helper alias and export
+ApplyTrainerOutfit = PokeCore.Functions.ApplyTrainerOutfit
+exports('ApplyTrainerOutfit', PokeCore.Functions.ApplyTrainerOutfit)
+
