@@ -114,6 +114,16 @@ CreateThread(function()
     pcall(function()
         if exports.spawnmanager then
             exports.spawnmanager:setAutoSpawn(false)
+            -- Pre-register safe spawn point to prevent any "tried to spawn at an invalid spawn index" error
+            local def = (Config.Player and Config.Player.DefaultSpawn) or vector4(298.54, -584.43, 43.26, 75.0)
+            exports.spawnmanager:addSpawnPoint({
+                x = def.x,
+                y = def.y,
+                z = def.z,
+                heading = def.w or 75.0,
+                model = `mp_m_freemode_01`,
+                skipFade = true
+            })
         end
     end)
 
@@ -280,10 +290,22 @@ RegisterNetEvent('pokefivem:client:spawnSelectedCharacter', function(playerData)
         ApplyTrainerOutfit(ped, style, gender)
     end
 
-    local pos = playerData.position or Config.Player.DefaultSpawn
-    RequestCollisionAtCoord(pos.x, pos.y, pos.z)
-    SetEntityCoordsNoOffset(ped, pos.x, pos.y, pos.z, false, false, false)
-    SetEntityHeading(ped, pos.heading or 75.0)
+    -- Determine safe spawn coordinates
+    local defSpawn = (Config.Player and Config.Player.DefaultSpawn) or vector4(298.54, -584.43, 43.26, 75.0)
+    local pos = playerData.position
+    local spawnX = (pos and tonumber(pos.x)) or defSpawn.x
+    local spawnY = (pos and tonumber(pos.y)) or defSpawn.y
+    local spawnZ = (pos and tonumber(pos.z)) or defSpawn.z
+    local spawnH = (pos and tonumber(pos.heading or pos.w)) or (defSpawn.w or 75.0)
+
+    -- If coords are invalid or empty table, fallback to default spawn
+    if (spawnX == 0 and spawnY == 0 and spawnZ == 0) or spawnX == nil or spawnY == nil or spawnZ == nil then
+        spawnX, spawnY, spawnZ, spawnH = defSpawn.x, defSpawn.y, defSpawn.z, (defSpawn.w or 75.0)
+    end
+
+    RequestCollisionAtCoord(spawnX, spawnY, spawnZ)
+    SetEntityCoordsNoOffset(ped, spawnX, spawnY, spawnZ, false, false, false)
+    SetEntityHeading(ped, spawnH)
     FreezeEntityPosition(ped, false)
     SetEntityVisible(ped, true, false)
     ResetEntityAlpha(ped)
