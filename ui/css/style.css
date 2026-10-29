@@ -1193,6 +1193,21 @@ body {
 }
 
 /* CENTER BOTTOM: PED ROTATION CONTROLS */
+.multichar-ped-drag-zone {
+    position: absolute;
+    top: 0;
+    bottom: 90px;
+    left: 410px;
+    right: 440px;
+    cursor: grab;
+    pointer-events: auto;
+    z-index: 20;
+}
+
+.multichar-ped-drag-zone:active {
+    cursor: grabbing;
+}
+
 .multichar-ped-controls {
     position: absolute;
     bottom: 35px;
@@ -1200,14 +1215,27 @@ body {
     transform: translateX(-50%);
     display: flex;
     gap: 8px;
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(15, 23, 42, 0.82);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 6px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 6px 12px;
     border-radius: 30px;
     pointer-events: auto;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.15);
     animation: fadeInMC 0.4s ease-out;
+    z-index: 30;
+}
+
+.key-pill {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: 9px;
+    font-weight: 800;
+    font-family: monospace;
+    color: #38bdf8;
+    letter-spacing: 0.5px;
 }
 
 .btn-ped-rot {
@@ -1229,11 +1257,25 @@ body {
     background: rgba(255, 255, 255, 0.15);
     color: #fff;
     border-color: #38bdf8;
+    transform: translateY(-1px);
 }
 
 .btn-ped-rot.btn-ped-reset:hover {
     border-color: #facc15;
     color: #facc15;
+}
+
+.btn-ped-rot.btn-ped-zoom {
+    border-color: rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+}
+
+.btn-ped-rot.btn-ped-zoom:hover,
+.btn-ped-rot.btn-ped-zoom.is-active {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: #38bdf8;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
 }
 
 /* RIGHT DOCK: TRAINER PASSPORT */
@@ -1427,11 +1469,92 @@ body {
     font-weight: 600;
 }
 
-.passport-lead-box {
-    background: rgba(255, 255, 255, 0.04);
+/* KANTO GYM BADGES SHOWCASE */
+.passport-badges-case {
+    background: rgba(0, 0, 0, 0.28);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.badges-case-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #cbd5e1;
+}
+
+.badges-count-chip {
+    font-size: 10px;
+    font-weight: 800;
+    background: rgba(250, 204, 21, 0.15);
+    border: 1px solid rgba(250, 204, 21, 0.35);
+    color: #facc15;
+    padding: 1px 7px;
+    border-radius: 10px;
+}
+
+.badges-case-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.badge-slot-pill {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 6px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.2s ease;
+    opacity: 0.4;
+}
+
+.badge-slot-pill i {
+    font-size: 14px;
+}
+
+.badge-mini-name {
+    font-size: 9px;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.badge-slot-pill.is-earned {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+.badge-slot-pill.is-earned .badge-mini-name {
+    color: #f8fafc;
+}
+
+/* COMPANION LEAD BOX & ELEMENTAL GLOWS */
+.passport-lead-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
     padding: 12px 14px;
+    transition: all 0.3s ease;
+}
+
+.lead-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
 .lead-header-label {
@@ -1440,14 +1563,36 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #facc15;
-    display: block;
-    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lead-type-badge {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .lead-content-row {
     display: flex;
     align-items: center;
     gap: 14px;
+}
+
+.lead-artwork-wrap {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
 }
 
 .lead-artwork-img {
@@ -1478,6 +1623,51 @@ body {
     background: rgba(16, 185, 129, 0.12);
     padding: 2px 8px;
     border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.comp-tag-ready {
+    background: rgba(250, 204, 21, 0.12);
+    color: #facc15;
+}
+
+/* Elemental Companion Card Glows */
+.passport-lead-box.lead-type-fire {
+    border-color: rgba(239, 68, 68, 0.45);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(15, 23, 42, 0.7) 100%);
+    box-shadow: 0 0 24px rgba(239, 68, 68, 0.22);
+}
+
+.passport-lead-box.lead-type-water {
+    border-color: rgba(56, 189, 248, 0.45);
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0.7) 100%);
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.22);
+}
+
+.passport-lead-box.lead-type-grass {
+    border-color: rgba(16, 185, 129, 0.45);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.7) 100%);
+    box-shadow: 0 0 24px rgba(16, 185, 129, 0.22);
+}
+
+.passport-lead-box.lead-type-electric {
+    border-color: rgba(250, 204, 21, 0.45);
+    background: linear-gradient(135deg, rgba(250, 204, 21, 0.15) 0%, rgba(15, 23, 42, 0.7) 100%);
+    box-shadow: 0 0 24px rgba(250, 204, 21, 0.22);
+}
+
+.passport-lead-box.lead-type-psychic {
+    border-color: rgba(236, 72, 153, 0.45);
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(15, 23, 42, 0.7) 100%);
+    box-shadow: 0 0 24px rgba(236, 72, 153, 0.22);
+}
+
+.passport-lead-box.lead-type-dragon {
+    border-color: rgba(124, 58, 237, 0.45);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(15, 23, 42, 0.7) 100%);
+    box-shadow: 0 0 24px rgba(124, 58, 237, 0.22);
 }
 
 .passport-actions-row {

@@ -34,6 +34,20 @@ local function CleanUpPreviewEntities()
     end
 end
 
+-- Helper to update companion relative to ped heading
+local function UpdateCompanionPosition(heading)
+    if previewCompanion and DoesEntityExist(previewCompanion) then
+        local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
+        local rad = math.rad(heading)
+        local fwdX, fwdY = -math.sin(rad), math.cos(rad)
+        local rgtX, rgtY = math.cos(rad), math.sin(rad)
+        local cx = pedCoords.x + (rgtX * 0.75) + (fwdX * 0.15)
+        local cy = pedCoords.y + (rgtY * 0.75) + (fwdY * 0.15)
+        SetEntityCoordsNoOffset(previewCompanion, cx, cy, pedCoords.z, false, false, false)
+        SetEntityHeading(previewCompanion, heading)
+    end
+end
+
 -- Spawn or Update 3D Character Preview Ped in Front of Camera
 local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
     CleanUpPreviewEntities()
@@ -69,14 +83,17 @@ local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
         end
 
         -- Play confident trainer stance animation
-        local animDict = "move_m@confident"
+        local animDict = "anim@heists@heist_corona@single_team"
+        local animName = "single_team_loop_boss"
         RequestAnimDict(animDict)
         local aTimeout = GetGameTimer() + 2000
         while not HasAnimDictLoaded(animDict) and GetGameTimer() < aTimeout do
             Wait(50)
         end
         if HasAnimDictLoaded(animDict) then
-            TaskPlayAnim(previewPed, animDict, "idle", 8.0, -8.0, -1, 1, 0, false, false, false)
+            TaskPlayAnim(previewPed, animDict, animName, 8.0, -8.0, -1, 1, 0, false, false, false)
+        else
+            TaskStandStill(previewPed, -1)
         end
         SetModelAsNoLongerNeeded(modelHash)
     end
@@ -92,8 +109,12 @@ local function SpawnOrUpdatePreviewPed(gender, style, leadPokedexId)
                 Wait(50)
             end
             if HasModelLoaded(monHash) then
-                local compCoords = vector3(pedCoords.x + 0.8, pedCoords.y - 0.2, pedCoords.z)
-                previewCompanion = CreatePed(4, monHash, compCoords.x, compCoords.y, compCoords.z, pedCoords.w, false, true)
+                local rad = math.rad(pedCoords.w)
+                local fwdX, fwdY = -math.sin(rad), math.cos(rad)
+                local rgtX, rgtY = math.cos(rad), math.sin(rad)
+                local cx = pedCoords.x + (rgtX * 0.75) + (fwdX * 0.15)
+                local cy = pedCoords.y + (rgtY * 0.75) + (fwdY * 0.15)
+                previewCompanion = CreatePed(4, monHash, cx, cy, pedCoords.z, pedCoords.w, false, true)
                 SetEntityHeading(previewCompanion, pedCoords.w)
                 SetEntityInvincible(previewCompanion, true)
                 SetBlockingOfNonTemporaryEvents(previewCompanion, true)
@@ -183,11 +204,31 @@ RegisterNetEvent('pokefivem:client:openMulticharacter', function()
         SetCamCoord(charCam, camCoords.x, camCoords.y, camCoords.z + 1.2)
         SetCamRot(charCam, -5.0, 0.0, camCoords.w, 2)
         PointCamAtCoord(charCam, pedCoords.x, pedCoords.y, pedCoords.z + 0.9)
+        SetCamFov(charCam, 48.0)
         SetCamActive(charCam, true)
         RenderScriptCams(true, false, 0, true, true)
     else
         PointCamAtCoord(charCam, pedCoords.x, pedCoords.y, pedCoords.z + 0.9)
+        SetCamFov(charCam, 48.0)
     end
+
+    -- Dynamic 3-Point Studio Lighting for Ped & Companion Presentation
+    CreateThread(function()
+        while inCharSelect do
+            local pCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
+            -- 1. Key Light: Crisp pure daylight illuminating the face & body
+            DrawLightWithRange(pCoords.x + 0.5, pCoords.y + 0.9, pCoords.z + 1.2, 250, 252, 255, 6.0, 2.5)
+            -- 2. Fill Light: Soft cool ambient light from the side
+            DrawLightWithRange(pCoords.x - 0.7, pCoords.y + 0.4, pCoords.z + 1.0, 190, 225, 255, 5.0, 1.8)
+            -- 3. Rim Light: Warm golden silhouette back light
+            DrawLightWithRange(pCoords.x - 0.5, pCoords.y - 0.8, pCoords.z + 1.4, 255, 215, 140, 4.5, 2.0)
+            -- 4. Companion Ped Light (if active)
+            if previewCompanion and DoesEntityExist(previewCompanion) then
+                DrawLightWithRange(pCoords.x + 0.8, pCoords.y + 0.2, pCoords.z + 0.5, 255, 245, 220, 3.5, 1.6)
+            end
+            Wait(0)
+        end
+    end)
 
     -- Request Characters from Server
     PokeCore.Functions.TriggerCallback('pokefivem:multichar:getCharacters', function(characters)
@@ -345,36 +386,45 @@ RegisterNUICallback('previewStyle', function(data, cb)
     cb('ok')
 end)
 
--- Rotate Preview Ped
+-- Rotate Preview Ped & Companion
 RegisterNUICallback('rotatePed', function(data, cb)
     if previewPed and DoesEntityExist(previewPed) then
         local currentHeading = GetEntityHeading(previewPed)
         local diff = (data and tonumber(data.diff)) or 20.0
-        SetEntityHeading(previewPed, (currentHeading + diff) % 360.0)
+        local newHeading = (currentHeading + diff) % 360.0
+        SetEntityHeading(previewPed, newHeading)
+        UpdateCompanionPosition(newHeading)
     end
     cb('ok')
+end)
+
+-- Toggle Camera Zoom (Full Body vs Close-Up Face)
+local isZoomedIn = false
+RegisterNUICallback('toggleCameraZoom', function(data, cb)
+    if not charCam or not inCharSelect then cb({ zoomed = false }) return end
+    isZoomedIn = not isZoomedIn
+
+    local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
+    local camCoords = Config.Multicharacter.CameraCoords or vector4(-1392.21, -590.45, 30.32, 210.0)
+
+    if isZoomedIn then
+        SetCamFov(charCam, 28.0)
+        PointCamAtCoord(charCam, pedCoords.x, pedCoords.y, pedCoords.z + 1.55)
+    else
+        SetCamFov(charCam, 48.0)
+        PointCamAtCoord(charCam, pedCoords.x, pedCoords.y, pedCoords.z + 0.85)
+    end
+    cb({ zoomed = isZoomedIn })
 end)
 
 -- Reset Ped Heading
 RegisterNUICallback('resetPedHeading', function(data, cb)
+    local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
     if previewPed and DoesEntityExist(previewPed) then
-        local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
         SetEntityHeading(previewPed, pedCoords.w)
     end
+    UpdateCompanionPosition(pedCoords.w)
     cb('ok')
-end)
-
--- Studio Lighting during Character Preview
-CreateThread(function()
-    while true do
-        if inCharSelect then
-            local pedCoords = (Config.Multicharacter and Config.Multicharacter.PedPreviewCoords) or vector4(-1393.12, -592.34, 30.32, 35.0)
-            DrawLightWithRange(pedCoords.x, pedCoords.y + 0.6, pedCoords.z + 1.2, 255, 255, 255, 6.0, 2.2)
-            Wait(0)
-        else
-            Wait(1000)
-        end
-    end
 end)
 
 -- In-Game Command: /trainer or /outfit (Change outfit on the fly)
