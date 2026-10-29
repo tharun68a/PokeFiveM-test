@@ -13,14 +13,14 @@ PokeCore.Shared.Jobs = {
         }
     },
     ['trainer'] = {
-        label = 'Pok√©mon Trainer',
+        label = 'Pok+¨mon Trainer',
         defaultDuty = true,
         offDutyPay = false,
         grades = {
             ['0'] = { name = 'Rookie Trainer', payment = 75 },
             ['1'] = { name = 'Ace Trainer', payment = 150 },
             ['2'] = { name = 'Veteran Trainer', payment = 250 },
-            ['3'] = { name = 'Pok√©mon Champion', payment = 500 }
+            ['3'] = { name = 'Pok+¨mon Champion', payment = 500 }
         }
     },
     ['gymleader'] = {
@@ -34,7 +34,7 @@ PokeCore.Shared.Jobs = {
         }
     },
     ['professor'] = {
-        label = 'Pok√©mon Laboratory',
+        label = 'Pok+¨mon Laboratory',
         defaultDuty = true,
         offDutyPay = false,
         grades = {
@@ -55,7 +55,7 @@ PokeCore.Shared.Jobs = {
         }
     },
     ['medic'] = {
-        label = 'Pok√©Center Medical Care',
+        label = 'Pok+¨Center Medical Care',
         defaultDuty = true,
         offDutyPay = false,
         grades = {
@@ -65,7 +65,7 @@ PokeCore.Shared.Jobs = {
         }
     },
     ['breeder'] = {
-        label = 'Pok√©mon Daycare & Breeding',
+        label = 'Pok+¨mon Daycare & Breeding',
         defaultDuty = true,
         offDutyPay = false,
         grades = {

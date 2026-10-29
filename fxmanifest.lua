@@ -4,87 +4,120 @@ lua54 'yes'
 
 author 'Pika Studio'
 description 'PokeFiveM - Autonomous Standalone Pokémon RPG Framework for FiveM'
-version '2.0.0'
+version '2.1.0'
 
 ui_page 'ui/index.html'
 
 shared_scripts {
-    'shared/core.lua',
-    'shared/jobs.lua',
-    'shared/items.lua',
-    'shared/locale.lua',
-    'shared/trainer_outfits.lua',
-    'shared/types_data.lua',
-    'shared/natures_data.lua',
-    'shared/moves_data.lua',
-    'shared/pokedex_data.lua',
-    'shared/gyms_data.lua',
-    'shared/quests_data.lua',
-    'shared/uri_engine.lua',
-    'shared/evolution_data.lua',
-    'shared/utils.lua',
-    'config.lua'
+    'config.lua',
+    'modules/[01_Core]/shared.lua',
+    'modules/[01_Core]/locale.lua',
+    'modules/[01_Core]/jobs.lua',
+    'modules/[01_Core]/uri_engine.lua',
+    'modules/[01_Core]/utils.lua',
+    'modules/[02_PokeDex]/pokedex_data.lua',
+    'modules/[03_PokeBattle]/types_data.lua',
+    'modules/[03_PokeBattle]/natures_data.lua',
+    'modules/[03_PokeBattle]/moves_data.lua',
+    'modules/[07_PokeGyms]/gyms_data.lua',
+    'modules/[08_PokeWorld]/quests_data.lua',
+    'modules/[09_PokeEvolution]/evolution_data.lua',
+    'modules/[10_PokeInventory]/items.lua',
+    'modules/[10_PokeInventory]/trainer_outfits.lua'
 }
 
 client_scripts {
-    'client/core.lua',
-    'client/callbacks.lua',
-    'client/notifications.lua',
-    'client/player.lua',
-    'client/bridge/esx.lua',
-    'client/multicharacter.lua',
-    'client/main.lua',
-    'client/spawner.lua',
-    'client/throwing.lua',
-    'client/battle.lua',
-    'client/companion.lua',
-    'client/mounts.lua',
-    'client/centers.lua',
-    'client/markers.lua',
-    'client/gyms.lua',
-    'client/pvp.lua',
-    'client/trade.lua',
-    'client/quests.lua',
-    'client/daycare.lua',
-    'client/evolution.lua',
-    'client/fishing.lua',
-    'client/pokestops.lua',
-    'client/raids.lua',
-    'client/foraging.lua',
-    'client/world.lua'
+    -- [01_Core]
+    'modules/[01_Core]/client.lua',
+    'modules/[01_Core]/callbacks_client.lua',
+    'modules/[01_Core]/notifications.lua',
+    'modules/[01_Core]/player_client.lua',
+    'bridge/es_extended/client.lua',
+    'modules/[01_Core]/multichar_client.lua',
+
+    -- [03_PokeBattle]
+    'modules/[03_PokeBattle]/client.lua',
+    'modules/[03_PokeBattle]/pvp_client.lua',
+
+    -- [04_PokeSpawner]
+    'modules/[04_PokeSpawner]/client.lua',
+    'modules/[04_PokeSpawner]/throwing.lua',
+
+    -- [05_PokeCompanion]
+    'modules/[05_PokeCompanion]/companion_client.lua',
+    'modules/[05_PokeCompanion]/mounts_client.lua',
+
+    -- [06_PokeCenter]
+    'modules/[06_PokeCenter]/centers_client.lua',
+    'modules/[06_PokeCenter]/daycare_client.lua',
+
+    -- [07_PokeGyms]
+    'modules/[07_PokeGyms]/client.lua',
+
+    -- [08_PokeWorld]
+    'modules/[08_PokeWorld]/world_client.lua',
+    'modules/[08_PokeWorld]/pokestops_client.lua',
+    'modules/[08_PokeWorld]/fishing_client.lua',
+    'modules/[08_PokeWorld]/raids_client.lua',
+    'modules/[08_PokeWorld]/foraging_client.lua',
+    'modules/[08_PokeWorld]/quests_client.lua',
+
+    -- [09_PokeEvolution]
+    'modules/[09_PokeEvolution]/client.lua',
+
+    -- [10_PokeInventory]
+    'modules/[10_PokeInventory]/trade_client.lua'
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'server/core.lua',
-    'server/callbacks.lua',
-    'server/player.lua',
-    'server/bridge/esx.lua',
-    'server/multicharacter.lua',
-    'server/events.lua',
-    'server/inventory.lua',
-    'server/commands.lua',
-    'server/pokemon.lua',
-    'server/storage.lua',
-    'server/spawner.lua',
-    'server/battle.lua',
-    'server/gyms.lua',
-    'server/pvp.lua',
-    'server/trade.lua',
-    'server/quests.lua',
-    'server/daycare.lua',
-    'server/evolution.lua',
-    'server/fishing.lua',
-    'server/pokestops.lua',
-    'server/raids.lua',
-    'server/foraging.lua'
+
+    -- [01_Core]
+    'modules/[01_Core]/server.lua',
+    'modules/[01_Core]/callbacks_server.lua',
+    'modules/[01_Core]/player_server.lua',
+    'bridge/es_extended/server.lua',
+    'modules/[01_Core]/multichar_server.lua',
+    'modules/[01_Core]/events.lua',
+    'modules/[01_Core]/commands.lua',
+
+    -- [03_PokeBattle]
+    'modules/[03_PokeBattle]/server.lua',
+    'modules/[03_PokeBattle]/pvp_server.lua',
+
+    -- [04_PokeSpawner]
+    'modules/[04_PokeSpawner]/server.lua',
+
+    -- [05_PokeCompanion]
+    'modules/[05_PokeCompanion]/pokemon_server.lua',
+
+    -- [06_PokeCenter]
+    'modules/[06_PokeCenter]/daycare_server.lua',
+    'modules/[06_PokeCenter]/storage_server.lua',
+
+    -- [07_PokeGyms]
+    'modules/[07_PokeGyms]/server.lua',
+
+    -- [08_PokeWorld]
+    'modules/[08_PokeWorld]/pokestops_server.lua',
+    'modules/[08_PokeWorld]/fishing_server.lua',
+    'modules/[08_PokeWorld]/raids_server.lua',
+    'modules/[08_PokeWorld]/foraging_server.lua',
+    'modules/[08_PokeWorld]/quests_server.lua',
+
+    -- [09_PokeEvolution]
+    'modules/[09_PokeEvolution]/server.lua',
+
+    -- [10_PokeInventory]
+    'modules/[10_PokeInventory]/server.lua',
+    'modules/[10_PokeInventory]/trade_server.lua'
 }
 
 files {
     'ui/index.html',
     'ui/css/style.css',
     'ui/js/app.js',
-    'scripts/nurse_joy.uri'
+    'modules/[06_PokeCenter]/nurse_joy.uri'
 }
 
 exports {
