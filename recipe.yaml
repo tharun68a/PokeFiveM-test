@@ -1,9 +1,9 @@
 $engine: 3
 $onesync: on
 name: PokeFiveM Autonomous RPG Framework
-version: 2.0.0
+version: 2.5.0
 author: Pika Studio
-description: Enterprise-grade standalone Pokémon RPG Framework for FiveM (Zero ESX Dependency) — Full Overextended Stack (oxmysql, ox_lib, ox_inventory, ox_target), pma-voice 3D spatial audio, bob74_ipl interior loader, scully_emotemenu, turn-based battle engine, 3D projectile capture physics, companion buddy AI, mounts, and 30 PC Storage Boxes.
+description: Enterprise-grade standalone Pokémon RPG Framework for FiveM (Zero ESX Dependency) — Full Overextended Stack (oxmysql, ox_lib, ox_inventory, ox_target), pma-voice 3D spatial audio, bob74_ipl, scully_emotemenu, Gen 8 turn-based battle engine, 3D projectile capture physics, companion buddy AI, mounts, and 30 PC Storage Boxes.
 
 tasks:
   # -------------------------------------------------------------------
@@ -55,7 +55,7 @@ tasks:
     src: ./tmp/ox_inventory.zip
     dest: ./resources/[ox]
 
-  ## Inject Native PokeFiveM Custom Bridge into ox_inventory
+  ## Inject Native PokeFiveM Custom Bridge into ox_inventory (Zero ESX Dependency)
   - action: write_file
     file: ./resources/[ox]/ox_inventory/modules/bridge/custom/server.lua
     data: |
@@ -180,40 +180,84 @@ tasks:
     file: ./resources/PokeFiveM/database/schema.sql
 
   # -------------------------------------------------------------------
-  # 9. Modular Configuration Files (Qbox / ESX Enterprise Style)
+  # 9. Master Server Configuration (ESX Legacy Architecture Format)
   # -------------------------------------------------------------------
-  ## permissions.cfg - Access Control & Command Permissions
   - action: write_file
-    file: ./permissions.cfg
+    file: ./server.cfg
     data: |
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      #    ___       _        ___ _           __  __                       #
+      #   | _ \___ _| |_____ | __(_)_ _____  |  \/  |                      #
+      #   |  _/ _ \ / / -_)  | _|| \ V / -_) | |\/| |                      #
+      #   |_| \___/_\_\___|  |_| |_|\_/\___| |_|  |_|                      #
+      #                                                                   #
+      #   PokeFiveM Autonomous Pokémon RPG Framework                       #
+      #   Developed by: Pika Studio | Zero ESX Dependency                 #
+      #   GitHub: https://github.com/tharun68a/PokeFiveM-test               #
+      #   Server CFG Docs: https://aka.cfx.re/server-commands             #
+      # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+      ## Server Endpoints & Network Socket
+      {{serverEndpoints}}
+
+      ## License Key, Slots & Web API
+      sv_licenseKey "{{svLicense}}"
+      sv_maxclients {{maxClients}}
+      set steam_webApiKey "none"
+
+      ## Database Connection (oxmysql & MariaDB)
+      set mysql_connection_string "{{dbConnectionString}}"
+      set mysql_slow_query_warning 150
+      set mysql_ui true
+
+      ## Environment, Game Build & OneSync
+      ## sv_enforceGameBuild is commented out by default so players connect instantly with 0 MB download.
+      ## Uncomment below if you wish to enforce GTA DLC build 3258:
+      # sv_enforceGameBuild 3258
+      set resources_useSystemChat true
+      set onesync on
+      set gamename "gta5"
+      setr sv_stateBagStrictMode false
+
+      ## Server Listing & Portal Metadata
+      ## Note: As of FXServer 2024+, project branding is managed via Cfx Portal (https://portal.cfx.re/)
+      sv_hostname "PokeFiveM - Autonomous Pokémon RPG [Pika Studio]"
+      sets sv_projectName "PokeFiveM Framework"
+      sets sv_projectDesc "Advanced Pokémon RPG: Turn-based battles, wild spawner, 30 PC storage boxes, buddy AI & Gym Leaders!"
+      sets tags "pokemon, rpg, standalone, pokefivem, pika, battles, companion, mounts, pokedex, ox_inventory, ox_target, ox_lib"
+      sets locale "en-US"
+
       ## ===================================================================
-      ## PokeFiveM Framework - Permissions & Security (Pika Studio)
+      ## Framework & Admin Permissions (ESX Style ACE / Principals)
       ## ===================================================================
       add_principal group.admin group.user
       add_ace group.admin command allow
       add_ace group.admin command.quit deny
 
-      ## Framework Administrative Grants
+      ## txAdmin Master Admin Injection
+      {{addPrincipalsMaster}}
+
+      ## PokeFiveM System ACE Grants
+      add_ace resource.PokeFiveM command.add_ace allow
+      add_ace resource.PokeFiveM command.add_principal allow
+      add_ace resource.PokeFiveM command.remove_principal allow
+      add_ace resource.PokeFiveM command.stop allow
+
+      ## Pokémon Trainer Admin Commands
       add_ace group.admin command.spawnwild allow
       add_ace group.admin command.givepokemon allow
-      add_ace group.admin command.giveball allow
       add_ace group.admin command.giveitem allow
       add_ace group.admin command.givemoney allow
       add_ace group.admin command.setjob allow
       add_ace group.admin command.healteam allow
-      add_ace group.admin command.pc allow
+      add_ace group.admin command.starter allow
       add_ace group.admin command.party allow
       add_ace group.admin command.pokedex allow
-
-      ## ox_inventory Permissions
+      add_ace group.admin command.pc allow
       add_ace group.admin inventory.admin allow
 
-  ## voice.cfg - Spatial 3D Audio Settings
-  - action: write_file
-    file: ./voice.cfg
-    data: |
       ## ===================================================================
-      ## PokeFiveM Audio - pma-voice Proximity Chat Settings
+      ## pma-voice 3D Spatial Audio Configuration
       ## ===================================================================
       setr voice_useNativeAudio true
       setr voice_useSendingRangeOnly false
@@ -223,13 +267,8 @@ tasks:
       setr voice_defaultVolume "0.3"
       setr voice_enableSubmix 1
 
-  ## ox.cfg - Overextended Suite Convars
-  - action: write_file
-    file: ./ox.cfg
-    data: |
       ## ===================================================================
-      ## PokeFiveM Ox Suite Configuration (ox_lib, ox_inventory, ox_target)
-      ## Standalone Custom Bridge — Zero ESX Dependency
+      ## Overextended Suite Configuration (ox_lib, ox_inventory, ox_target)
       ## ===================================================================
       setr inventory:framework "custom"
       setr inventory:slots 50
@@ -238,62 +277,25 @@ tasks:
       setr ox:primaryColor "yellow"
       setr ox:primaryShade 7
 
-  ## server.cfg - Executive Master Server Configuration
-  - action: write_file
-    file: ./server.cfg
-    data: |
       ## ===================================================================
-      ## PokeFiveM Master Server Configuration
-      ## Developed by: Pika Studio (Enterprise Standalone Framework)
-      ## Zero ESX Dependency | Compatible with Cfx.re & txAdmin
+      ## Security & Anti-Exploit Settings
       ## ===================================================================
-
-      ## Endpoints & Server Port
-      endpoint_add_tcp "0.0.0.0:{{serverPort}}"
-      endpoint_add_udp "0.0.0.0:{{serverPort}}"
-
-      ## License Key & Slots
-      sv_maxclients {{maxClients}}
-      set steam_webApiKey "none"
-      set sv_licenseKey "{{svLicense}}"
-
-      ## Database Connection (Managed by txAdmin)
-      set mysql_connection_string "{{dbConnectionString}}"
-      set mysql_slow_query_warning 150
-      set mysql_ui true
-
-      ## Environment, Game Build & OneSync
-      ## sv_enforceGameBuild disabled to prevent 1.5GB GTA DLC download on player connect
-      # sv_enforceGameBuild 3258
-      set resources_useSystemChat true
-      set onesync on
-      set gamename "gta5"
-      setr sv_stateBagStrictMode true
-
-      ## Branding & Metadata
-      sv_hostname "PokeFiveM - Autonomous Pokémon RPG [Pika Studio]"
-      sets sv_projectName "PokeFiveM Framework"
-      sets sv_projectDesc "Advanced Pokémon RPG with turn-based battles, mounts, buddy AI, PC storage, ox_inventory & ox_target!"
-      sets tags "pokemon, rpg, standalone, pokefivem, pika, battles, companion, mounts, pokedex, ox_inventory, ox_target, ox_lib"
-      sets locale "en-US"
-
-      ## Load Modular Configurations (Qbox / ESX Architecture)
-      exec permissions.cfg
-      exec voice.cfg
-      exec ox.cfg
-
-      ## Security Natives
       sv_scriptHookAllowed 0
+      sv_enableNetworkedSounds false
+      sv_enableNetworkedScriptEntityStates false
+      sv_enableNetworkedPhoneExplosions false
+      sv_filterRequestControl 2
 
       ## ===================================================================
       ## [1] Default CFX Resources
       ## ===================================================================
-      ensure mapmanager
       ensure chat
       ensure spawnmanager
+      ensure sessionmanager
+      ensure hardcap
 
       ## ===================================================================
-      ## [2] Overextended (Ox) Core Suite
+      ## [2] Overextended Suite & Database Driver
       ## ===================================================================
       ensure oxmysql
       ensure ox_lib
@@ -301,7 +303,7 @@ tasks:
       ensure ox_inventory
 
       ## ===================================================================
-      ## [3] Voice & World Enhancements
+      ## [3] Audio & World Enhancements
       ## ===================================================================
       ensure pma-voice
       ensure bob74_ipl

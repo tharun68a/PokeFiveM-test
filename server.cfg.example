@@ -1,41 +1,128 @@
-# ====================================================================
-# PokeFiveM Standalone Server Configuration
-# Developed by: Pika Studio
-# Independent FiveM Pokémon Framework (Zero ESX Dependency)
-# ====================================================================
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#    ___       _        ___ _           __  __                       #
+#   | _ \___ _| |_____ | __(_)_ _____  |  \/  |                      #
+#   |  _/ _ \ / / -_)  | _|| \ V / -_) | |\/| |                      #
+#   |_| \___/_\_\___|  |_| |_|\_/\___| |_|  |_|                      #
+#                                                                     #
+#   PokeFiveM Autonomous Pokémon RPG Framework                       #
+#   Developed by: Pika Studio | Zero ESX Dependency                 #
+#   GitHub: https://github.com/tharun68a/PokeFiveM-test               #
+#   Server CFG Docs: https://aka.cfx.re/server-commands             #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+## Server Endpoints & Network Socket
 endpoint_add_tcp "0.0.0.0:30120"
 endpoint_add_udp "0.0.0.0:30120"
 
-sv_maxclients 8
+## License Key & Slots (Replace with your Keymaster key)
+sv_licenseKey "cfxk_your_license_key_here"
+sv_maxclients 48
+set steam_webApiKey "none"
 
-# Database Connection (oxmysql)
+## Database Connection (oxmysql & MariaDB)
 set mysql_connection_string "mysql://root:password@127.0.0.1/pokefivem?charset=utf8mb4"
+set mysql_slow_query_warning 150
+set mysql_ui true
 
-# System Resources
-ensure mapmanager
+## Environment, Game Build & OneSync
+## sv_enforceGameBuild is commented out by default so players connect instantly with 0 MB download.
+## Uncomment below if you wish to enforce GTA DLC build 3258:
+# sv_enforceGameBuild 3258
+set resources_useSystemChat true
+set onesync on
+set gamename "gta5"
+setr sv_stateBagStrictMode false
+
+## Server Listing & Portal Metadata
+sv_hostname "PokeFiveM - Autonomous Pokémon RPG [Pika Studio]"
+sets sv_projectName "PokeFiveM Framework"
+sets sv_projectDesc "Advanced Pokémon RPG: Turn-based battles, wild spawner, 30 PC storage boxes, buddy AI & Gym Leaders!"
+sets tags "pokemon, rpg, standalone, pokefivem, pika, battles, companion, mounts, pokedex, ox_inventory, ox_target, ox_lib"
+sets locale "en-US"
+
+## ===================================================================
+## Framework & Admin Permissions (ESX Style ACE / Principals)
+## ===================================================================
+add_principal group.admin group.user
+add_ace group.admin command allow
+add_ace group.admin command.quit deny
+
+## Assign Server Owner as Admin (Replace with your FiveM license)
+add_principal identifier.license:YOUR_HEX_LICENSE_HERE group.admin
+
+## PokeFiveM System ACE Grants
+add_ace resource.PokeFiveM command.add_ace allow
+add_ace resource.PokeFiveM command.add_principal allow
+add_ace resource.PokeFiveM command.remove_principal allow
+add_ace resource.PokeFiveM command.stop allow
+
+## Pokémon Trainer Admin Commands
+add_ace group.admin command.spawnwild allow
+add_ace group.admin command.givepokemon allow
+add_ace group.admin command.giveitem allow
+add_ace group.admin command.givemoney allow
+add_ace group.admin command.setjob allow
+add_ace group.admin command.healteam allow
+add_ace group.admin command.starter allow
+add_ace group.admin command.party allow
+add_ace group.admin command.pokedex allow
+add_ace group.admin command.pc allow
+add_ace group.admin inventory.admin allow
+
+## ===================================================================
+## pma-voice 3D Spatial Audio Configuration
+## ===================================================================
+setr voice_useNativeAudio true
+setr voice_useSendingRangeOnly false
+setr voice_enableRadioAnim 1
+setr voice_enableUi 0
+setr voice_defaultCycle "GRAVE"
+setr voice_defaultVolume "0.3"
+setr voice_enableSubmix 1
+
+## ===================================================================
+## Overextended Suite Configuration (ox_lib, ox_inventory, ox_target)
+## ===================================================================
+setr inventory:framework "custom"
+setr inventory:slots 50
+setr inventory:weight 30000
+setr inventory:target true
+setr ox:primaryColor "yellow"
+setr ox:primaryShade 7
+
+## ===================================================================
+## Security & Anti-Exploit Settings
+## ===================================================================
+sv_scriptHookAllowed 0
+sv_enableNetworkedSounds false
+sv_enableNetworkedScriptEntityStates false
+sv_enableNetworkedPhoneExplosions false
+sv_filterRequestControl 2
+
+## ===================================================================
+## [1] Default CFX Resources
+## ===================================================================
 ensure chat
 ensure spawnmanager
 ensure sessionmanager
 ensure hardcap
-ensure rconlog
 
-# Standalone Supporting Libraries
+## ===================================================================
+## [2] Overextended Suite & Database Driver
+## ===================================================================
 ensure oxmysql
+ensure ox_lib
+ensure ox_target
+ensure ox_inventory
 
-# ====================================================================
-# PokeFiveM Framework Core (Autonomous Framework)
-# ====================================================================
+## ===================================================================
+## [3] Audio & World Enhancements
+## ===================================================================
+ensure pma-voice
+ensure bob74_ipl
+ensure scully_emotemenu
+
+## ===================================================================
+## [4] PokeFiveM Framework Core (Pika Studio)
+## ===================================================================
 ensure PokeFiveM
-
-# Admin ACE Permissions
-add_ace group.admin command allow
-add_ace group.admin command.spawnwild allow
-add_ace group.admin command.givepokemon allow
-add_ace group.admin command.giveball allow
-add_ace group.admin command.giveitem allow
-add_ace group.admin command.givemoney allow
-add_ace group.admin command.setjob allow
-
-# Assign Admin Principal (Replace with your FiveM license)
-add_principal identifier.license:YOUR_HEX_HERE group.admin
