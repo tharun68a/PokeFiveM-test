@@ -11,4 +11,6 @@ Desktop.ini
 *.log
 *.tmp
 *.bak
+stream/downloads/
+sketchfab_collection.json
 

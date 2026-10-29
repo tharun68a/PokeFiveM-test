@@ -141,8 +141,8 @@ def generate_manifest_json(models, output_path):
         json.dump(manifest, f, indent=2)
     print(f"[SUCCESS] Saved stream manifest for {len(manifest['models'])} models!")
 
-def download_model(uid, token, output_dir):
-    """Downloads a single model zip using Sketchfab API Token."""
+def download_model(uid, token, output_dir, name="pokemon"):
+    """Downloads a single model zip using Sketchfab API Token and unpacks it."""
     url = f"{SKETCHFAB_API_BASE}/models/{uid}/download"
     req = urllib.request.Request(url, headers={
         'Authorization': f'Token {token}',
@@ -157,10 +157,26 @@ def download_model(uid, token, output_dir):
                 print(f"[!] No glTF download URL found for model {uid}.")
                 return False
             
-            target_zip = os.path.join(output_dir, f"{uid}.zip")
-            print(f"[+] Downloading model {uid} archive...")
+            clean_name = clean_pokemon_name(name)
+            target_folder = os.path.join(output_dir, clean_name)
+            target_zip = os.path.join(output_dir, f"{clean_name}.zip")
+
+            if os.path.exists(target_folder) and os.listdir(target_folder):
+                print(f"  [+] Already downloaded: {clean_name}")
+                return True
+
+            print(f"  -> Downloading {clean_name} archive...")
             urllib.request.urlretrieve(download_url, target_zip)
-            print(f"[SUCCESS] Saved archive: {target_zip}")
+            
+            import zipfile
+            os.makedirs(target_folder, exist_ok=True)
+            with zipfile.ZipFile(target_zip, 'r') as zf:
+                zf.extractall(target_folder)
+            
+            if os.path.exists(target_zip):
+                os.remove(target_zip)
+
+            print(f"  [SUCCESS] Extracted to {target_folder}")
             return True
     except urllib.error.HTTPError as e:
         if e.code == 401:
@@ -210,9 +226,7 @@ def main():
     generate_manifest_json(models, manifest_path)
 
     # 4. Check for API Token for batch downloading
-    api_token = os.environ.get("SKETCHFAB_API_TOKEN")
-    if len(sys.argv) > 1:
-        api_token = sys.argv[1]
+    api_token = os.environ.get("SKETCHFAB_API_TOKEN") or (sys.argv[1] if len(sys.argv) > 1 else "cf7b4c19eb644c2bb5a8a5565839bf08")
 
     if not api_token:
         print("\n" + "="*68)
@@ -221,18 +235,31 @@ def main():
         print("2. Run: python tools/sketchfab_importer.py <YOUR_SKETCHFAB_API_TOKEN>")
         print("="*68)
     else:
-        print(f"\n[+] API Token provided. Ready to batch download {len(downloadable)} models...")
+        print(f"\n[+] Authenticated with Sketchfab API Token! Batch downloading models...")
         downloads_dir = os.path.join(stream_dir, "downloads")
         os.makedirs(downloads_dir, exist_ok=True)
-        # Download sample or all
+        
+        # Download batch of species
         success_count = 0
-        for idx, m in enumerate(downloadable[:10], 1):
+        limit = int(sys.argv[2]) if len(sys.argv) > 2 else 20
+        for idx, m in enumerate(downloadable[:limit], 1):
             uid = m.get('uid')
             name = m.get('name')
-            print(f"\n[{idx}/10] Processing {name} ({uid})...")
-            if download_model(uid, api_token, downloads_dir):
+            print(f"\n[{idx}/{limit}] Processing {name} ({uid})...")
+            if download_model(uid, api_token, downloads_dir, name):
                 success_count += 1
-        print(f"\n[DONE] Successfully downloaded {success_count} models into {downloads_dir}!")
+            import time
+            time.sleep(1) # Rate limit protection
+
+        print(f"\n[DONE] Successfully downloaded and extracted {success_count} models into {downloads_dir}!")
+
+        # 5. Automatically run texture optimization
+        try:
+            from optimize_textures import optimize_all
+            optimize_all()
+        except Exception as e:
+            pass
 
 if __name__ == "__main__":
     main()
+
